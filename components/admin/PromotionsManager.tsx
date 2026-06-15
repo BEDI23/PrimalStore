@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Produit, Promotion } from "@/lib/types";
 import { formatPrix, isPromotionActive } from "@/lib/utils";
+import { promotionSchema, type PromotionFormValues } from "@/lib/schemas";
 import LoadingButton from "@/components/ui/LoadingButton";
 
 export default function PromotionsManager({
@@ -16,52 +19,49 @@ export default function PromotionsManager({
 }) {
   const router = useRouter();
   const supabase = createClient();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<PromotionFormValues>({
+    resolver: valibotResolver(promotionSchema),
+    mode: "onTouched",
+    defaultValues: {
+      produit_id: "",
+      prix_promo: 0,
+      date_fin: "",
+      actif: true,
+    },
+  });
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const form = new FormData(e.currentTarget);
-    const produit_id = form.get("produit_id") as string;
-    const prix_promo = parseInt(form.get("prix_promo") as string);
-    const date_fin = form.get("date_fin") as string;
-    const actif = form.get("actif") === "on";
-
-    if (!produit_id || isNaN(prix_promo) || !date_fin) {
-      setError("Veuillez remplir tous les champs.");
-      setLoading(false);
-      return;
-    }
-
+  async function onSubmit(values: PromotionFormValues) {
     const { error: insertError } = await supabase.from("promotions").insert({
-      produit_id,
-      prix_promo,
-      date_fin: new Date(date_fin).toISOString(),
-      actif,
+      produit_id: values.produit_id,
+      prix_promo: values.prix_promo,
+      date_fin: new Date(values.date_fin).toISOString(),
+      actif: values.actif,
     });
 
     if (insertError) {
-      setError(insertError.message);
-      setLoading(false);
+      setError("root", { message: insertError.message });
       return;
     }
 
-    (e.target as HTMLFormElement).reset();
-    setLoading(false);
+    reset();
     router.refresh();
   }
 
   async function toggleActif(id: string, actif: boolean | null) {
-    setError("");
+    setActionError("");
     const { error: updateError } = await supabase
       .from("promotions")
       .update({ actif: !actif })
       .eq("id", id);
     if (updateError) {
-      setError("Échec de la mise à jour de la promotion. Réessayez.");
+      setActionError("Échec de la mise à jour de la promotion. Réessayez.");
       return;
     }
     router.refresh();
@@ -70,14 +70,15 @@ export default function PromotionsManager({
   return (
     <div className="space-y-8">
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         className="max-w-lg space-y-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+        noValidate
       >
         <h3 className="font-semibold text-gray-900">Nouvelle promotion</h3>
 
         <div>
           <label className="mb-1 block text-sm font-medium">Produit</label>
-          <select name="produit_id" required className="input-field">
+          <select {...register("produit_id")} className="input-field">
             <option value="">Sélectionner un produit</option>
             {produits.map((p) => (
               <option key={p.id} value={p.id}>
@@ -85,6 +86,9 @@ export default function PromotionsManager({
               </option>
             ))}
           </select>
+          {errors.produit_id && (
+            <p className="mt-1 text-xs text-red-600">{errors.produit_id.message}</p>
+          )}
         </div>
 
         <div>
@@ -92,30 +96,41 @@ export default function PromotionsManager({
             Prix promotionnel (FCFA)
           </label>
           <input
-            name="prix_promo"
             type="number"
             min={0}
-            required
+            {...register("prix_promo", { valueAsNumber: true })}
             className="input-field w-40"
           />
+          {errors.prix_promo && (
+            <p className="mt-1 text-xs text-red-600">{errors.prix_promo.message}</p>
+          )}
         </div>
 
         <div>
           <label className="mb-1 block text-sm font-medium">Date de fin</label>
-          <input name="date_fin" type="datetime-local" required className="input-field" />
+          <input
+            type="datetime-local"
+            {...register("date_fin")}
+            className="input-field"
+          />
+          {errors.date_fin && (
+            <p className="mt-1 text-xs text-red-600">{errors.date_fin.message}</p>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
-          <input name="actif" type="checkbox" defaultChecked id="actif" />
+          <input type="checkbox" id="actif" {...register("actif")} />
           <label htmlFor="actif" className="text-sm">Activer immédiatement</label>
         </div>
 
-        {error && (
-          <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>
+        {errors.root && (
+          <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+            {errors.root.message}
+          </p>
         )}
 
         <LoadingButton
-          loading={loading}
+          loading={isSubmitting}
           loadingText="Création..."
           className="btn-primary"
         >
@@ -123,8 +138,10 @@ export default function PromotionsManager({
         </LoadingButton>
       </form>
 
-      {error && (
-        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>
+      {actionError && (
+        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+          {actionError}
+        </p>
       )}
 
       <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">

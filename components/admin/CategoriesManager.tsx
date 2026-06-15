@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Categorie } from "@/lib/types";
+import { categorieSchema, type CategorieFormValues } from "@/lib/schemas";
 import LoadingButton from "@/components/ui/LoadingButton";
 
 export default function CategoriesManager({
@@ -13,35 +15,29 @@ export default function CategoriesManager({
 }) {
   const router = useRouter();
   const supabase = createClient();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<CategorieFormValues>({
+    resolver: valibotResolver(categorieSchema),
+    mode: "onTouched",
+    defaultValues: { nom: "" },
+  });
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const form = new FormData(e.currentTarget);
-    const nom = (form.get("nom") as string).trim();
-
-    if (!nom) {
-      setError("Le nom est obligatoire.");
-      setLoading(false);
-      return;
-    }
-
+  async function onSubmit(values: CategorieFormValues) {
     const { error: insertError } = await supabase
       .from("categories")
-      .insert({ nom });
+      .insert({ nom: values.nom });
 
     if (insertError) {
-      setError(insertError.message);
-      setLoading(false);
+      setError("root", { message: insertError.message });
       return;
     }
 
-    (e.target as HTMLFormElement).reset();
-    setLoading(false);
+    reset();
     router.refresh();
   }
 
@@ -62,24 +58,29 @@ export default function CategoriesManager({
   return (
     <div className="space-y-8">
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         className="max-w-md space-y-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+        noValidate
       >
         <h3 className="font-semibold text-gray-900">Nouvelle catégorie</h3>
         <div>
           <label className="mb-1 block text-sm font-medium">Nom *</label>
           <input
-            name="nom"
-            required
+            {...register("nom")}
             className="input-field"
             placeholder="Ex: Huiles essentielles"
           />
+          {errors.nom && (
+            <p className="mt-1 text-xs text-red-600">{errors.nom.message}</p>
+          )}
         </div>
-        {error && (
-          <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>
+        {errors.root && (
+          <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+            {errors.root.message}
+          </p>
         )}
         <LoadingButton
-          loading={loading}
+          loading={isSubmitting}
           loadingText="Création..."
           className="btn-primary"
         >

@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Categorie, Produit } from "@/lib/types";
 import { BADGE_OPTIONS } from "@/lib/constants";
+import { produitSchema, type ProduitFormValues } from "@/lib/schemas";
 import LoadingButton from "@/components/ui/LoadingButton";
 
 interface ProduitFormProps {
@@ -17,11 +20,33 @@ interface ProduitFormProps {
 export default function ProduitForm({ produit, categories }: ProduitFormProps) {
   const router = useRouter();
   const supabase = createClient();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const imageRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLInputElement>(null);
   const [imageUrl, setImageUrl] = useState(produit?.image_url ?? "");
   const [videoUrl, setVideoUrl] = useState(produit?.video_url ?? "");
-  const [actif, setActif] = useState(produit?.actif ?? true);
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<ProduitFormValues>({
+    resolver: valibotResolver(produitSchema),
+    mode: "onTouched",
+    defaultValues: {
+      categorie_id: produit?.categorie_id ?? "",
+      nom: produit?.nom ?? "",
+      description_courte: produit?.description_courte ?? "",
+      description_complete: produit?.description_complete ?? "",
+      prix: produit?.prix ?? 0,
+      badge: produit?.badge ?? "",
+      actif: produit?.actif ?? true,
+    },
+  });
+
+  const actif = watch("actif");
 
   async function uploadFile(
     file: File,
@@ -42,59 +67,39 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
     return data.publicUrl;
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const form = new FormData(e.currentTarget);
-    const nom = (form.get("nom") as string).trim();
-    const description_courte = (form.get("description_courte") as string).trim();
-    const description_complete = (form.get("description_complete") as string).trim();
-    const prix = parseInt(form.get("prix") as string);
-    const badge = form.get("badge") as string;
-    const categorie_id = form.get("categorie_id") as string;
-    const imageFile = form.get("image") as File;
-    const videoFile = form.get("video") as File;
-
-    if (!nom || !description_courte || isNaN(prix) || !categorie_id) {
-      setError("Veuillez remplir tous les champs obligatoires.");
-      setLoading(false);
-      return;
-    }
-
+  async function onSubmit(values: ProduitFormValues) {
     let finalImageUrl = imageUrl;
+    const imageFile = imageRef.current?.files?.[0];
     if (imageFile && imageFile.size > 0) {
       const uploaded = await uploadFile(imageFile, "produits");
       if (!uploaded) {
-        setError("Erreur lors de l'upload de l'image.");
-        setLoading(false);
+        setError("root", { message: "Erreur lors de l'upload de l'image." });
         return;
       }
       finalImageUrl = uploaded;
     }
 
     let finalVideoUrl = videoUrl;
+    const videoFile = videoRef.current?.files?.[0];
     if (videoFile && videoFile.size > 0) {
       const uploaded = await uploadFile(videoFile, "videos");
       if (!uploaded) {
-        setError("Erreur lors de l'upload de la vidéo.");
-        setLoading(false);
+        setError("root", { message: "Erreur lors de l'upload de la vidéo." });
         return;
       }
       finalVideoUrl = uploaded;
     }
 
     const payload = {
-      nom,
-      description_courte,
-      description_complete: description_complete || null,
-      prix,
-      badge: badge || "",
-      categorie_id,
+      nom: values.nom,
+      description_courte: values.description_courte,
+      description_complete: values.description_complete || null,
+      prix: values.prix,
+      badge: values.badge || "",
+      categorie_id: values.categorie_id,
       image_url: finalImageUrl || null,
       video_url: finalVideoUrl || null,
-      actif,
+      actif: values.actif,
     };
 
     if (produit) {
@@ -104,8 +109,7 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
         .eq("id", produit.id);
 
       if (updateError) {
-        setError(updateError.message);
-        setLoading(false);
+        setError("root", { message: updateError.message });
         return;
       }
     } else {
@@ -114,8 +118,7 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
         .insert(payload);
 
       if (insertError) {
-        setError(insertError.message);
-        setLoading(false);
+        setError("root", { message: insertError.message });
         return;
       }
     }
@@ -141,15 +144,14 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl space-y-5">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="max-w-2xl space-y-5"
+      noValidate
+    >
       <div>
         <label className="mb-1 block text-sm font-medium">Catégorie *</label>
-        <select
-          name="categorie_id"
-          defaultValue={produit?.categorie_id ?? ""}
-          required
-          className="input-field"
-        >
+        <select {...register("categorie_id")} className="input-field">
           <option value="">Sélectionner une catégorie</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>
@@ -157,28 +159,29 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
             </option>
           ))}
         </select>
+        {errors.categorie_id && (
+          <p className="mt-1 text-xs text-red-600">{errors.categorie_id.message}</p>
+        )}
       </div>
 
       <div>
         <label className="mb-1 block text-sm font-medium">Nom *</label>
-        <input
-          name="nom"
-          defaultValue={produit?.nom}
-          required
-          className="input-field"
-        />
+        <input {...register("nom")} className="input-field" />
+        {errors.nom && (
+          <p className="mt-1 text-xs text-red-600">{errors.nom.message}</p>
+        )}
       </div>
 
       <div>
         <label className="mb-1 block text-sm font-medium">
           Description courte *
         </label>
-        <input
-          name="description_courte"
-          defaultValue={produit?.description_courte ?? ""}
-          required
-          className="input-field"
-        />
+        <input {...register("description_courte")} className="input-field" />
+        {errors.description_courte && (
+          <p className="mt-1 text-xs text-red-600">
+            {errors.description_courte.message}
+          </p>
+        )}
       </div>
 
       <div>
@@ -186,8 +189,7 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
           Description complète
         </label>
         <textarea
-          name="description_complete"
-          defaultValue={produit?.description_complete ?? ""}
+          {...register("description_complete")}
           rows={4}
           className="input-field resize-none"
         />
@@ -196,18 +198,19 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
       <div>
         <label className="mb-1 block text-sm font-medium">Prix (FCFA) *</label>
         <input
-          name="prix"
           type="number"
           min={0}
-          defaultValue={produit?.prix}
-          required
+          {...register("prix", { valueAsNumber: true })}
           className="input-field w-40"
         />
+        {errors.prix && (
+          <p className="mt-1 text-xs text-red-600">{errors.prix.message}</p>
+        )}
       </div>
 
       <div>
         <label className="mb-1 block text-sm font-medium">Badge</label>
-        <select name="badge" defaultValue={produit?.badge ?? ""} className="input-field w-48">
+        <select {...register("badge")} className="input-field w-48">
           {BADGE_OPTIONS.map((b) => (
             <option key={b} value={b}>
               {b || "Aucun"}
@@ -223,7 +226,16 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
             <Image src={imageUrl} alt="Aperçu" fill className="object-cover" />
           </div>
         )}
-        <input name="image" type="file" accept="image/*" className="text-sm" />
+        <input
+          ref={imageRef}
+          type="file"
+          accept="image/*"
+          className="text-sm"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) setImageUrl(URL.createObjectURL(file));
+          }}
+        />
       </div>
 
       <div>
@@ -238,10 +250,14 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
           />
         )}
         <input
-          name="video"
+          ref={videoRef}
           type="file"
           accept="video/mp4,video/webm,video/quicktime"
           className="text-sm"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) setVideoUrl(URL.createObjectURL(file));
+          }}
         />
         <p className="mt-1 text-xs text-gray-400">MP4, WebM — max recommandé 50 Mo</p>
       </div>
@@ -250,7 +266,7 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
         <label className="text-sm font-medium">Actif</label>
         <button
           type="button"
-          onClick={() => setActif(!actif)}
+          onClick={() => setValue("actif", !actif, { shouldDirty: true })}
           className={`relative h-6 w-11 rounded-full transition ${
             actif ? "bg-primary" : "bg-gray-300"
           }`}
@@ -264,13 +280,15 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
         <span className="text-sm text-gray-500">{actif ? "Oui" : "Non"}</span>
       </div>
 
-      {error && (
-        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>
+      {errors.root && (
+        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+          {errors.root.message}
+        </p>
       )}
 
       <div className="flex gap-3">
         <LoadingButton
-          loading={loading}
+          loading={isSubmitting}
           loadingText="Enregistrement..."
           className="btn-primary"
         >

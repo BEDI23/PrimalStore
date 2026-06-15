@@ -1,40 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Leaf } from "lucide-react";
 import { BOUTIQUE_NOM } from "@/lib/constants";
+import { loginSchema, type LoginFormValues } from "@/lib/schemas";
 import LoadingButton from "@/components/ui/LoadingButton";
 
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(
-    searchParams.get("error") === "unauthorized"
-      ? "Accès refusé. Ce compte n'est pas autorisé."
-      : ""
-  );
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: valibotResolver(loginSchema),
+    mode: "onTouched",
+    defaultValues: { email: "", password: "" },
+  });
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  useEffect(() => {
+    if (searchParams.get("error") === "unauthorized") {
+      setError("root", {
+        message: "Accès refusé. Ce compte n'est pas autorisé.",
+      });
+    }
+  }, [searchParams, setError]);
 
-    const form = new FormData(e.currentTarget);
-    const email = form.get("email") as string;
-    const password = form.get("password") as string;
-
+  async function onSubmit(values: LoginFormValues) {
     const supabase = createClient();
     const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: values.email,
+      password: values.password,
     });
 
     if (authError || !data.user) {
-      setError("Email ou mot de passe incorrect.");
-      setLoading(false);
+      setError("root", { message: "Email ou mot de passe incorrect." });
       return;
     }
 
@@ -46,8 +52,7 @@ export default function LoginForm() {
 
     if (!admin) {
       await supabase.auth.signOut();
-      setError("Accès refusé. Ce compte n'est pas autorisé.");
-      setLoading(false);
+      setError("root", { message: "Accès refusé. Ce compte n'est pas autorisé." });
       return;
     }
 
@@ -65,19 +70,21 @@ export default function LoginForm() {
         <h1 className="mb-6 text-center text-xl font-semibold text-gray-900">
           Connexion admin
         </h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           <div>
             <label htmlFor="email" className="mb-1 block text-sm font-medium">
               Email
             </label>
             <input
               id="email"
-              name="email"
               type="email"
-              required
+              {...register("email")}
               className="input-field"
               placeholder="admin@example.com"
             />
+            {errors.email && (
+              <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
+            )}
           </div>
           <div>
             <label htmlFor="password" className="mb-1 block text-sm font-medium">
@@ -85,17 +92,21 @@ export default function LoginForm() {
             </label>
             <input
               id="password"
-              name="password"
               type="password"
-              required
+              {...register("password")}
               className="input-field"
             />
+            {errors.password && (
+              <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>
+            )}
           </div>
-          {error && (
-            <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>
+          {errors.root && (
+            <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+              {errors.root.message}
+            </p>
           )}
           <LoadingButton
-            loading={loading}
+            loading={isSubmitting}
             loadingText="Connexion..."
             className="btn-primary w-full"
           >

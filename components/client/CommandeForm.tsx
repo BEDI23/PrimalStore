@@ -1,42 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import { useRouter } from "next/navigation";
 import { ProduitAvecPromo } from "@/lib/types";
-import { formatPrix, validatePhoneTogo } from "@/lib/utils";
+import { formatPrix } from "@/lib/utils";
+import { commandeSchema, type CommandeFormValues } from "@/lib/schemas";
 import LoadingButton from "@/components/ui/LoadingButton";
 
 export default function CommandeForm({ produit }: { produit: ProduitAvecPromo }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [quantite, setQuantite] = useState(1);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<CommandeFormValues>({
+    resolver: valibotResolver(commandeSchema),
+    mode: "onTouched",
+    defaultValues: {
+      client_nom: "",
+      client_telephone: "",
+      quartier: "",
+      quantite: 1,
+      message: "",
+    },
+  });
 
-  const prixTotal = produit.prixFinal * quantite;
+  const quantite = watch("quantite");
+  const quantiteValide = Number.isFinite(quantite) && quantite > 0 ? quantite : 1;
+  const prixTotal = produit.prixFinal * quantiteValide;
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    const form = new FormData(e.currentTarget);
-    const client_nom = (form.get("client_nom") as string).trim();
-    const client_telephone = (form.get("client_telephone") as string).trim();
-    const quartier = (form.get("quartier") as string).trim();
-    const message = (form.get("message") as string).trim();
-
-    if (!client_nom || !quartier) {
-      setError("Veuillez remplir tous les champs obligatoires.");
-      setLoading(false);
-      return;
-    }
-
-    if (!validatePhoneTogo(client_telephone)) {
-      setError("Numéro invalide. Format attendu : +228XXXXXXXX");
-      setLoading(false);
-      return;
-    }
-
+  async function onSubmit(values: CommandeFormValues) {
     try {
       const res = await fetch("/api/commandes", {
         method: "POST",
@@ -45,12 +41,12 @@ export default function CommandeForm({ produit }: { produit: ProduitAvecPromo })
           produit_id: produit.id,
           produit_nom: produit.nom,
           produit_prix: produit.prixFinal,
-          client_nom,
-          client_telephone,
-          quartier,
-          quantite,
-          prix_total: prixTotal,
-          message: message || null,
+          client_nom: values.client_nom,
+          client_telephone: values.client_telephone,
+          quartier: values.quartier,
+          quantite: values.quantite,
+          prix_total: produit.prixFinal * values.quantite,
+          message: values.message || null,
         }),
       });
 
@@ -61,13 +57,14 @@ export default function CommandeForm({ produit }: { produit: ProduitAvecPromo })
 
       router.push("/confirmation");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
-      setLoading(false);
+      setError("root", {
+        message: err instanceof Error ? err.message : "Une erreur est survenue",
+      });
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
       <div className="card mb-6">
         <p className="text-sm text-gray-500">Produit sélectionné</p>
         <p className="text-lg font-semibold">{produit.nom}</p>
@@ -80,11 +77,13 @@ export default function CommandeForm({ produit }: { produit: ProduitAvecPromo })
         </label>
         <input
           id="client_nom"
-          name="client_nom"
-          required
+          {...register("client_nom")}
           className="input-field"
           placeholder="Votre nom complet"
         />
+        {errors.client_nom && (
+          <p className="mt-1 text-xs text-red-600">{errors.client_nom.message}</p>
+        )}
       </div>
 
       <div>
@@ -93,13 +92,18 @@ export default function CommandeForm({ produit }: { produit: ProduitAvecPromo })
         </label>
         <input
           id="client_telephone"
-          name="client_telephone"
-          required
           type="tel"
+          {...register("client_telephone")}
           className="input-field"
           placeholder="+22890123456"
         />
-        <p className="mt-1 text-xs text-gray-400">Format : +228XXXXXXXX</p>
+        {errors.client_telephone ? (
+          <p className="mt-1 text-xs text-red-600">
+            {errors.client_telephone.message}
+          </p>
+        ) : (
+          <p className="mt-1 text-xs text-gray-400">Format : +228XXXXXXXX</p>
+        )}
       </div>
 
       <div>
@@ -108,11 +112,13 @@ export default function CommandeForm({ produit }: { produit: ProduitAvecPromo })
         </label>
         <input
           id="quartier"
-          name="quartier"
-          required
+          {...register("quartier")}
           className="input-field"
           placeholder="Ex: Adidogomé, Tokoin..."
         />
+        {errors.quartier && (
+          <p className="mt-1 text-xs text-red-600">{errors.quartier.message}</p>
+        )}
       </div>
 
       <div>
@@ -121,13 +127,14 @@ export default function CommandeForm({ produit }: { produit: ProduitAvecPromo })
         </label>
         <input
           id="quantite"
-          name="quantite"
           type="number"
           min={1}
-          value={quantite}
-          onChange={(e) => setQuantite(Math.max(1, parseInt(e.target.value) || 1))}
+          {...register("quantite", { valueAsNumber: true })}
           className="input-field w-24"
         />
+        {errors.quantite && (
+          <p className="mt-1 text-xs text-red-600">{errors.quantite.message}</p>
+        )}
       </div>
 
       <div>
@@ -136,19 +143,21 @@ export default function CommandeForm({ produit }: { produit: ProduitAvecPromo })
         </label>
         <textarea
           id="message"
-          name="message"
           rows={3}
+          {...register("message")}
           className="input-field resize-none"
           placeholder="Instructions de livraison..."
         />
       </div>
 
-      {error && (
-        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>
+      {errors.root && (
+        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+          {errors.root.message}
+        </p>
       )}
 
       <LoadingButton
-        loading={loading}
+        loading={isSubmitting}
         loadingText="Envoi en cours..."
         className="btn-primary w-full"
       >
