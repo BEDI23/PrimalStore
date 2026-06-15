@@ -1,7 +1,7 @@
 import { Promotion, Produit, ProduitAvecPromo } from "./types";
 
 export function formatPrix(prix: number): string {
-  return `${prix.toLocaleString("fr-FR")} FCFA`;
+  return `${Math.round(prix).toLocaleString("fr-FR")} FCFA`;
 }
 
 export function isPromotionActive(promo: Promotion): boolean {
@@ -36,7 +36,38 @@ export function enrichProduits(
 }
 
 export function validatePhoneTogo(phone: string): boolean {
-  return /^\+228\d{8}$/.test(phone);
+  // On tolère les séparateurs courants (espaces, tirets, points, parenthèses)
+  // saisis par les clients avant de valider le format togolais (+228 + 8 chiffres).
+  const cleaned = phone.replace(/[\s.\-()]/g, "");
+  return /^\+228\d{8}$/.test(cleaned);
+}
+
+export interface CommandePricing {
+  produit_nom: string;
+  produit_prix: number;
+  quantite: number;
+  prix_total: number;
+}
+
+/**
+ * Calcule le prix d'une commande à partir de la SOURCE DE VÉRITÉ serveur
+ * (produit + promotions en base), jamais à partir d'un montant fourni par le
+ * client. Empêche la falsification de prix.
+ */
+export function computeCommandePricing(
+  produit: Pick<Produit, "id" | "nom" | "prix">,
+  promotions: Promotion[],
+  quantite: number
+): CommandePricing {
+  const qte = Math.max(1, Math.floor(Number(quantite)) || 1);
+  const promo = getActivePromotion(produit.id, promotions);
+  const prixUnitaire = Math.round(promo ? promo.prix_promo : produit.prix);
+  return {
+    produit_nom: produit.nom,
+    produit_prix: prixUnitaire,
+    quantite: qte,
+    prix_total: prixUnitaire * qte,
+  };
 }
 
 export function getStartOfDay(date: Date = new Date()): Date {

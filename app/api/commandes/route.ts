@@ -2,22 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendWhatsAppAlert } from "@/lib/notifications/callmebot";
 import { sendOrderEmail } from "@/lib/notifications/email";
-import { validatePhoneTogo } from "@/lib/utils";
+import { validatePhoneTogo, computeCommandePricing } from "@/lib/utils";
+
+const MAX_QUANTITE = 100;
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const {
-      produit_id,
-      produit_nom,
-      produit_prix,
-      client_nom,
-      client_telephone,
-      quartier,
-      quantite,
-      prix_total,
-      message,
-    } = body;
+    const { produit_id, quantite } = body;
+
+    const client_nom = typeof body.client_nom === "string" ? body.client_nom.trim() : "";
+    const client_telephone =
+      typeof body.client_telephone === "string" ? body.client_telephone.trim() : "";
+    const quartier = typeof body.quartier === "string" ? body.quartier.trim() : "";
+    const message =
+      typeof body.message === "string" && body.message.trim() ? body.message.trim() : null;
 
     if (!client_nom || !client_telephone || !quartier || !produit_id) {
       return NextResponse.json(
@@ -33,19 +32,51 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const qte = Math.floor(Number(quantite)) || 1;
+    if (qte < 1 || qte > MAX_QUANTITE) {
+      return NextResponse.json(
+        { error: "Quantité invalide" },
+        { status: 400 }
+      );
+    }
+
     const supabase = createAdminClient();
+
+    // Source de vérité : on récupère le produit en base. Le prix envoyé par le
+    // client est ignoré (anti-falsification).
+    const { data: produit, error: produitError } = await supabase
+      .from("produits")
+      .select("id, nom, prix, actif")
+      .eq("id", produit_id)
+      .single();
+
+    if (produitError || !produit || !produit.actif) {
+      return NextResponse.json(
+        { error: "Produit indisponible" },
+        { status: 400 }
+      );
+    }
+
+    // Promotions actives du produit, filtrées côté serveur.
+    const { data: promotions } = await supabase
+      .from("promotions")
+      .select("*")
+      .eq("produit_id", produit_id)
+      .eq("actif", true);
+
+    const pricing = computeCommandePricing(produit, promotions ?? [], qte);
 
     const { data: commande, error } = await supabase
       .from("commandes")
       .insert({
-        produit_id,
-        produit_nom,
-        produit_prix,
+        produit_id: produit.id,
+        produit_nom: pricing.produit_nom,
+        produit_prix: pricing.produit_prix,
         client_nom,
         client_telephone,
         quartier,
-        quantite: quantite || 1,
-        prix_total,
+        quantite: pricing.quantite,
+        prix_total: pricing.prix_total,
         message,
         statut: "nouvelle",
       })
@@ -61,9 +92,9 @@ export async function POST(request: NextRequest) {
     }
 
     const orderData = {
-      produit_nom,
-      quantite: quantite || 1,
-      prix_total: prix_total || 0,
+      produit_nom: pricing.produit_nom,
+      quantite: pricing.quantite,
+      prix_total: pricing.prix_total,
       client_nom,
       client_telephone,
       quartier,
