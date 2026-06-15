@@ -64,8 +64,11 @@ export default function CategoriesManager({
       >
         <h3 className="font-semibold text-gray-900">Nouvelle catégorie</h3>
         <div>
-          <label className="mb-1 block text-sm font-medium">Nom *</label>
+          <label htmlFor="cat-nom" className="mb-1 block text-sm font-medium">
+            Nom *
+          </label>
           <input
+            id="cat-nom"
             {...register("nom")}
             className="input-field"
             placeholder="Ex: Huiles essentielles"
