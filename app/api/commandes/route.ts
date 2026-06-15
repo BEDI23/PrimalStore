@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendWhatsAppAlert } from "@/lib/notifications/callmebot";
 import { sendOrderEmail } from "@/lib/notifications/email";
 import { validatePhoneTogo, computeCommandePricing } from "@/lib/utils";
+import type { Promotion } from "@/lib/types";
 
 const MAX_QUANTITE = 100;
 
@@ -64,7 +65,11 @@ export async function POST(request: NextRequest) {
       .eq("produit_id", produit_id)
       .eq("actif", true);
 
-    const pricing = computeCommandePricing(produit, promotions ?? [], qte);
+    const pricing = computeCommandePricing(
+      produit,
+      (promotions ?? []) as Promotion[],
+      qte
+    );
 
     const { data: commande, error } = await supabase
       .from("commandes")

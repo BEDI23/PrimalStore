@@ -54,7 +54,7 @@ export default function PromotionsManager({
     router.refresh();
   }
 
-  async function toggleActif(id: string, actif: boolean) {
+  async function toggleActif(id: string, actif: boolean | null) {
     setError("");
     const { error: updateError } = await supabase
       .from("promotions")

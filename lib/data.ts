@@ -1,8 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
-import { Categorie, Produit, Promotion } from "@/lib/types";
+import { Categorie, Commande, Produit, Promotion } from "@/lib/types";
 import { isPromotionActive } from "@/lib/utils";
 
 const PRODUIT_SELECT = "*, categories(nom)";
+
+// Les colonnes `created_at` (DEFAULT now()) et `statut` (CHECK) sont typées plus
+// largement en base (`string | null`) que ce dont l'app a besoin. La couche
+// données garantit la forme applicative via ces casts ; les consommateurs
+// reçoivent donc des types propres et non-nullables.
 
 export async function getCategories(): Promise<Categorie[]> {
   const supabase = await createClient();
@@ -12,7 +17,7 @@ export async function getCategories(): Promise<Categorie[]> {
     .order("nom", { ascending: true });
 
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []) as Categorie[];
 }
 
 export async function getProduitsActifs(): Promise<Produit[]> {
@@ -24,7 +29,7 @@ export async function getProduitsActifs(): Promise<Produit[]> {
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []) as Produit[];
 }
 
 export async function getProduitById(id: string): Promise<Produit | null> {
@@ -37,7 +42,7 @@ export async function getProduitById(id: string): Promise<Produit | null> {
     .single();
 
   if (error) return null;
-  return data;
+  return data as Produit;
 }
 
 export async function getPromotionsActives(): Promise<Promotion[]> {
@@ -48,7 +53,7 @@ export async function getPromotionsActives(): Promise<Promotion[]> {
     .eq("actif", true);
 
   if (error) throw error;
-  return (data ?? []).filter(isPromotionActive);
+  return ((data ?? []) as Promotion[]).filter(isPromotionActive);
 }
 
 export async function getAllProduits(): Promise<Produit[]> {
@@ -59,7 +64,7 @@ export async function getAllProduits(): Promise<Produit[]> {
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []) as Produit[];
 }
 
 export async function getAllPromotions(): Promise<Promotion[]> {
@@ -70,10 +75,10 @@ export async function getAllPromotions(): Promise<Promotion[]> {
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []) as Promotion[];
 }
 
-export async function getAllCommandes() {
+export async function getAllCommandes(): Promise<Commande[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("commandes")
@@ -81,5 +86,5 @@ export async function getAllCommandes() {
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []) as Commande[];
 }

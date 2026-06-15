@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import ProduitForm from "@/components/admin/ProduitForm";
 import { createClient } from "@/lib/supabase/server";
 import { getCategories } from "@/lib/data";
+import type { Produit } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export default async function ModifierProduitPage({
       <h2 className="mb-6 text-xl font-bold text-gray-900">
         Modifier : {produit.nom}
       </h2>
-      <ProduitForm produit={produit} categories={categories} />
+      <ProduitForm produit={produit as Produit} categories={categories} />
     </div>
   );
 }

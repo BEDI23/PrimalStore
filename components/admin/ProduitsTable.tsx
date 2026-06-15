@@ -13,7 +13,7 @@ export default function ProduitsTable({ produits }: { produits: Produit[] }) {
   const supabase = createClient();
   const [error, setError] = useState("");
 
-  async function toggleActif(id: string, actif: boolean) {
+  async function toggleActif(id: string, actif: boolean | null) {
     setError("");
     const { error: updateError } = await supabase
       .from("produits")

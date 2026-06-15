@@ -1,52 +1,36 @@
-export interface Categorie {
-  id: string;
-  nom: string;
-  created_at: string;
-}
+import type { Database } from "@/lib/database.types";
 
-export interface Produit {
-  id: string;
-  nom: string;
-  description_courte: string | null;
-  description_complete: string | null;
-  prix: number;
-  badge: string;
-  image_url: string | null;
-  video_url: string | null;
-  categorie_id: string | null;
-  actif: boolean;
+type Tables = Database["public"]["Tables"];
+
+export type StatutCommande =
+  | "nouvelle"
+  | "confirmee"
+  | "vendue"
+  | "livree"
+  | "annulee";
+
+// `created_at` a un DEFAULT now() en base : jamais null en pratique. On le
+// restreint à `string` au niveau applicatif ; la couche données (lib/data.ts)
+// garantit cette forme. De même `statut` est du texte libre en base mais
+// contraint par CHECK à l'union métier.
+type AppRow<T extends keyof Tables> = Omit<Tables[T]["Row"], "created_at"> & {
   created_at: string;
+};
+
+export type Categorie = AppRow<"categories">;
+
+export type Produit = AppRow<"produits"> & {
   categories?: { nom: string } | null;
-}
+};
 
-export interface Promotion {
-  id: string;
-  produit_id: string;
-  prix_promo: number;
-  date_fin: string;
-  actif: boolean;
-  created_at: string;
-}
+export type Promotion = AppRow<"promotions">;
 
-export interface Commande {
-  id: string;
-  produit_id: string | null;
-  produit_nom: string | null;
-  produit_prix: number | null;
-  client_nom: string;
-  client_telephone: string;
-  quartier: string;
-  quantite: number;
-  prix_total: number | null;
-  message: string | null;
-  statut: "nouvelle" | "confirmee" | "vendue" | "livree" | "annulee";
-  created_at: string;
-}
+export type Commande = Omit<AppRow<"commandes">, "statut"> & {
+  statut: StatutCommande;
+};
 
-export type StatutCommande = Commande["statut"];
-
-export interface ProduitAvecPromo extends Produit {
+export type ProduitAvecPromo = Produit & {
   promotion?: Promotion | null;
   prixFinal: number;
   enPromo: boolean;
-}
+};
