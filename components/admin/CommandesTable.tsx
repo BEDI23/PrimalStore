@@ -19,6 +19,7 @@ export default function CommandesTable({ commandes }: { commandes: Commande[] })
   const [filtreDate, setFiltreDate] = useState<string>("toutes");
   const [dateSpecifique, setDateSpecifique] = useState("");
   const [updating, setUpdating] = useState<string | null>(null);
+  const [actionError, setActionError] = useState("");
 
   let filtered = commandes;
 
@@ -36,29 +37,47 @@ export default function CommandesTable({ commandes }: { commandes: Commande[] })
   const revenuReel = livrees.reduce((s, c) => s + (c.prix_total ?? 0), 0);
 
   async function updateStatut(id: string, statut: StatutCommande) {
+    setActionError("");
     setUpdating(id);
-    await supabase.from("commandes").update({ statut }).eq("id", id);
+    const { error } = await supabase
+      .from("commandes")
+      .update({ statut })
+      .eq("id", id);
     setUpdating(null);
+    if (error) {
+      setActionError("Échec de la mise à jour du statut. Réessayez.");
+      return;
+    }
     router.refresh();
   }
 
   async function toggleLivre(commande: Commande, livre: boolean) {
+    setActionError("");
     setUpdating(commande.id);
     const nouveauStatut: StatutCommande = livre
       ? "livree"
       : commande.statut === "livree"
         ? "confirmee"
         : commande.statut;
-    await supabase
+    const { error } = await supabase
       .from("commandes")
       .update({ statut: nouveauStatut })
       .eq("id", commande.id);
     setUpdating(null);
+    if (error) {
+      setActionError("Échec de la mise à jour de la livraison. Réessayez.");
+      return;
+    }
     router.refresh();
   }
 
   return (
     <div>
+      {actionError && (
+        <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+          {actionError}
+        </p>
+      )}
       <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="rounded-xl border border-green-200 bg-green-50 p-4">
           <p className="text-sm text-green-800">Commandes réellement livrées</p>

@@ -55,7 +55,15 @@ export default function PromotionsManager({
   }
 
   async function toggleActif(id: string, actif: boolean) {
-    await supabase.from("promotions").update({ actif: !actif }).eq("id", id);
+    setError("");
+    const { error: updateError } = await supabase
+      .from("promotions")
+      .update({ actif: !actif })
+      .eq("id", id);
+    if (updateError) {
+      setError("Échec de la mise à jour de la promotion. Réessayez.");
+      return;
+    }
     router.refresh();
   }
 
@@ -114,6 +122,10 @@ export default function PromotionsManager({
           Créer la promotion
         </LoadingButton>
       </form>
+
+      {error && (
+        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>
+      )}
 
       <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
         <table className="w-full text-left text-sm">

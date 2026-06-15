@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,14 +11,29 @@ import { formatPrix } from "@/lib/utils";
 export default function ProduitsTable({ produits }: { produits: Produit[] }) {
   const router = useRouter();
   const supabase = createClient();
+  const [error, setError] = useState("");
 
   async function toggleActif(id: string, actif: boolean) {
-    await supabase.from("produits").update({ actif: !actif }).eq("id", id);
+    setError("");
+    const { error: updateError } = await supabase
+      .from("produits")
+      .update({ actif: !actif })
+      .eq("id", id);
+    if (updateError) {
+      setError("Échec de la mise à jour du produit. Réessayez.");
+      return;
+    }
     router.refresh();
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+    <div>
+      {error && (
+        <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+          {error}
+        </p>
+      )}
+      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
       <table className="w-full text-left text-sm">
         <thead className="border-b border-gray-200 bg-gray-50">
           <tr>
@@ -82,9 +98,10 @@ export default function ProduitsTable({ produits }: { produits: Produit[] }) {
           ))}
         </tbody>
       </table>
-      {produits.length === 0 && (
-        <p className="p-8 text-center text-gray-500">Aucun produit.</p>
-      )}
+        {produits.length === 0 && (
+          <p className="p-8 text-center text-gray-500">Aucun produit.</p>
+        )}
+      </div>
     </div>
   );
 }
