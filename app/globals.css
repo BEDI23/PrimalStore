@@ -6,22 +6,51 @@
   body {
     @apply bg-gray-50 text-gray-900 antialiased;
   }
+
+  ::selection {
+    @apply bg-primary/20 text-ink;
+  }
 }
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition hover:bg-primary-dark hover:shadow-md hover:shadow-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-graphite hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  }
+
+  .btn-dark {
+    @apply inline-flex items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-ink-soft focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
   }
 
   .input-field {
-    @apply w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary;
+    @apply w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary;
   }
 
   .card {
     @apply rounded-2xl bg-white p-4 shadow-md;
+  }
+
+  /* Filet de marque : dégradé orange du logo */
+  .brand-rule {
+    @apply h-1 w-16 rounded-full bg-gradient-to-r from-primary to-primary-light;
+  }
+}
+
+@layer utilities {
+  /* Surface sombre signature (fond du logo) */
+  .bg-brand-dark {
+    background-color: #0b0b0c;
+    background-image: radial-gradient(
+      120% 120% at 50% 0%,
+      rgba(237, 76, 32, 0.18) 0%,
+      rgba(11, 11, 12, 0) 55%
+    );
+  }
+
+  .text-gradient-brand {
+    @apply bg-gradient-to-r from-primary via-primary-light to-primary bg-clip-text text-transparent;
   }
 }

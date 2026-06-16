@@ -54,11 +54,12 @@ export default function ProduitsTable({ produits }: { produits: Produit[] }) {
             >
               <td className="px-4 py-3">
                 <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-gray-100">
-                  {p.image_url ? (
-                    <Image src={p.image_url} alt={p.nom} fill className="object-cover" />
-                  ) : (
-                    <span className="flex h-full items-center justify-center text-lg">🌿</span>
-                  )}
+                  <Image
+                    src={p.image_url || "/images/placeholder-produit.svg"}
+                    alt={p.nom}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
               </td>
               <td className="px-4 py-3 font-medium">{p.nom}</td>

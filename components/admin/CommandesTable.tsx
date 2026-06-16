@@ -79,13 +79,13 @@ export default function CommandesTable({ commandes }: { commandes: Commande[] })
         </p>
       )}
       <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="rounded-xl border border-green-200 bg-green-50 p-4">
-          <p className="text-sm text-green-800">Commandes réellement livrées</p>
-          <p className="text-2xl font-bold text-green-900">{livrees.length}</p>
+        <div className="rounded-xl border border-gray-200 bg-graphite-50 p-4">
+          <p className="text-sm text-graphite-dark">Commandes réellement livrées</p>
+          <p className="text-2xl font-bold text-primary">{livrees.length}</p>
         </div>
-        <div className="rounded-xl border border-green-200 bg-green-50 p-4">
-          <p className="text-sm text-green-800">Revenu réel (livrées)</p>
-          <p className="text-2xl font-bold text-green-900">
+        <div className="rounded-xl border border-gray-200 bg-graphite-50 p-4">
+          <p className="text-sm text-graphite-dark">Revenu réel (livrées)</p>
+          <p className="text-2xl font-bold text-primary">
             {revenuReel.toLocaleString("fr-FR")} FCFA
           </p>
         </div>

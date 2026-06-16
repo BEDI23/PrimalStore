@@ -35,7 +35,7 @@ export default function Footer() {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-green-50 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-green-100"
+              className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary-100"
             >
               <Phone className="h-4 w-4" />
               {WHATSAPP_DISPLAY}

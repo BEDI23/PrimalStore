@@ -36,7 +36,7 @@ export default function AProposPage() {
           ].map((item) => (
             <li
               key={item}
-              className="flex items-start gap-3 rounded-xl bg-green-50 px-4 py-3 text-sm text-gray-700"
+              className="flex items-start gap-3 rounded-xl bg-primary-50 px-4 py-3 text-sm text-gray-700"
             >
               <span className="text-primary">✓</span>
               {item}

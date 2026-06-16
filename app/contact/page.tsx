@@ -33,7 +33,7 @@ export default function ContactPage() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-4 rounded-2xl border border-green-200 bg-green-50 p-5 transition hover:bg-green-100"
+            className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-5 transition hover:bg-gray-100"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white">
               <MessageCircle className="h-6 w-6" />

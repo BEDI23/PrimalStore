@@ -12,8 +12,8 @@ function Badge({
 }) {
   const colors = {
     promo: "bg-red-500 text-white",
-    nouveau: "bg-blue-500 text-white",
-    bestseller: "bg-orange-500 text-white",
+    nouveau: "bg-graphite text-white",
+    bestseller: "bg-ink text-white",
   };
   return (
     <span
@@ -36,19 +36,13 @@ export default function ProductCard({ produit }: { produit: ProduitAvecPromo }) 
           {!produit.enPromo && produit.badge === "Bestseller" && (
             <Badge label="Bestseller" type="bestseller" />
           )}
-          {produit.image_url ? (
-            <Image
-              src={produit.image_url}
-              alt={produit.nom}
-              fill
-              className="object-cover transition duration-300 group-hover:scale-105"
-              sizes="(max-width: 640px) 50vw, 25vw"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-gray-300">
-              <span className="text-5xl">🌿</span>
-            </div>
-          )}
+          <Image
+            src={produit.image_url || "/images/placeholder-produit.svg"}
+            alt={produit.nom}
+            fill
+            className="object-cover transition duration-300 group-hover:scale-105"
+            sizes="(max-width: 640px) 50vw, 25vw"
+          />
         </div>
       </Link>
 

@@ -1,13 +1,20 @@
+import Image from "next/image";
 import Link from "next/link";
 import { BOUTIQUE_NOM } from "@/lib/constants";
-import { Store } from "lucide-react";
 
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:py-4">
         <Link href="/" className="flex shrink-0 items-center gap-2">
-          <Store className="h-7 w-7 text-secondary" />
+          <Image
+            src="/logo.jpeg"
+            alt={BOUTIQUE_NOM}
+            width={40}
+            height={40}
+            priority
+            className="h-10 w-10 rounded-lg object-cover"
+          />
           <span className="text-base font-bold text-gray-900 sm:text-lg">
             {BOUTIQUE_NOM}
           </span>

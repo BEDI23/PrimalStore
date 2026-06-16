@@ -27,7 +27,7 @@ export default function CommandesChart({ data }: { data: ChartData[] }) {
           <XAxis dataKey="date" tick={{ fontSize: 12 }} />
           <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
           <Tooltip />
-          <Bar dataKey="commandes" fill="#16a34a" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="commandes" fill="#ED4C20" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

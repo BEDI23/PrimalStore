@@ -26,20 +26,14 @@ export default async function ProduitDetailPage({
         <div className="grid gap-8 md:grid-cols-2">
           <div className="space-y-4">
             <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-100">
-              {p.image_url ? (
-                <Image
-                  src={p.image_url}
-                  alt={p.nom}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  priority
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-6xl">
-                  🌿
-                </div>
-              )}
+              <Image
+                src={p.image_url || "/images/placeholder-produit.svg"}
+                alt={p.nom}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+              />
             </div>
 
             {p.video_url && (
@@ -61,7 +55,7 @@ export default async function ProduitDetailPage({
 
           <div>
             {p.categories?.nom && (
-              <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-primary">
+              <span className="rounded-full bg-primary-100 px-3 py-1 text-xs font-medium text-primary">
                 {p.categories.nom}
               </span>
             )}
