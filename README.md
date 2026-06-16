@@ -19,22 +19,100 @@ Boutique en ligne PIPA-STOR pour vendre des produits thérapeutiques naturels à
 - Gestion commandes (changement de statut au clic)
 - Gestion promotions
 
-## Installation
+## Prérequis
+
+- Node.js 18+ et npm
+- Un compte [Supabase](https://supabase.com) (gratuit)
+- Le **Supabase CLI** : inclus en dépendance du projet, on l'utilise via `npx supabase …` ou les scripts `npm run db:*` ci-dessous (aucune installation globale nécessaire)
+
+## Installation (de zéro)
+
+### 1. Cloner et installer les dépendances
 
 ```bash
+git clone <url-du-repo>
+cd PrimalStore
 npm install
+```
+
+### 2. Créer le projet Supabase
+
+1. Aller sur [supabase.com](https://supabase.com) → **New project**
+2. Choisir une organisation, un nom (ex. `pipastor`), un mot de passe de base de données (à conserver) et une région proche (ex. *West EU*)
+3. Attendre la fin de la création (~2 min)
+
+### 3. Récupérer les clés et configurer l'environnement
+
+Dans le dashboard du projet :
+- **Project Settings → API** : récupérer l'**URL du projet**, la clé **anon/public** et la clé **service_role** (secrète)
+- **Project Settings → General** : récupérer le **Reference ID** (`project ref`, ex. `abcdefghijklmnop`)
+
+Puis créer le fichier d'environnement :
+
+```bash
 cp .env.local.example .env.local
-# Remplir les variables dans .env.local
+```
+
+Renseigner dans `.env.local` :
+
+| Variable | Source |
+|----------|--------|
+| `NEXT_PUBLIC_SUPABASE_URL` | API → Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | API → anon public |
+| `SUPABASE_SERVICE_ROLE_KEY` | API → service_role (⚠️ secret, jamais exposé côté client) |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER` | Numéro WhatsApp public affiché sur le site |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Email affiché sur la page Contact |
+| `CALLMEBOT_PHONE` / `CALLMEBOT_APIKEY` | Voir [CallMeBot](#configuration-callmebot-whatsapp) |
+| `RESEND_API_KEY` / `RESEND_FROM_EMAIL` / `RESEND_TO_EMAIL` | Voir [Resend](#configuration-resend-email) |
+
+### 4. Initialiser la base de données (migrations)
+
+Le schéma (tables, RLS, buckets de stockage) est versionné dans `supabase/migrations/`. On le pousse vers le projet distant avec le CLI :
+
+```bash
+# Se connecter au CLI (ouvre le navigateur la 1re fois)
+npx supabase login
+
+# Lier le repo local au projet distant (demande le project ref)
+npx supabase link --project-ref <votre-project-ref>
+
+# Appliquer toutes les migrations sur la base distante
+npm run db:push
+```
+
+`db:push` crée les tables (`admin_users`, `categories`, `produits`, `commandes`, `promotions`), active les politiques RLS sécurisées (fonction `is_admin()`) et provisionne les buckets de stockage `produits` et `videos`.
+
+### 5. (Optionnel) Générer les types TypeScript
+
+```bash
+npm run db:types   # écrit lib/database.types.ts depuis le schéma distant
+```
+
+### 6. Lancer le serveur de développement
+
+```bash
 npm run dev
 ```
 
 Ouvrir [http://localhost:3000](http://localhost:3000).
 
+## Scripts disponibles
+
+| Commande | Effet |
+|----------|-------|
+| `npm run dev` | Serveur de dev Next.js |
+| `npm run build` / `npm start` | Build de production / démarrage |
+| `npm run lint` | ESLint |
+| `npm test` / `npm run test:watch` | Tests Vitest (run unique / mode watch) |
+| `npm run db:new <nom>` | Crée un nouveau fichier de migration vide |
+| `npm run db:push` | Applique les migrations en attente sur la base distante |
+| `npm run db:reset` | ⚠️ Réinitialise la base **distante liée** et rejoue toutes les migrations (efface les données) |
+| `npm run db:types` | Régénère `lib/database.types.ts` |
+| `npm run db:dump` | Dump SQL de la base distante dans `backups/dump.sql` |
+
 ## Configuration Supabase
 
-1. Créer un projet sur [supabase.com](https://supabase.com)
-2. Exécuter le script SQL dans `supabase/schema.sql` (SQL Editor)
-3. Copier URL et clés API dans `.env.local`
+> Le schéma est géré **par migrations** (`supabase/migrations/`), pas par un script unique. Pour modifier la base, créer une nouvelle migration (`npm run db:new ma_modif`), l'éditer, puis `npm run db:push`. Ne jamais éditer une migration déjà poussée — en créer une nouvelle.
 
 ### Créer le compte admin (obligatoire)
 
@@ -112,7 +190,9 @@ components/
   data.ts                     # Requêtes serveur
   utils.ts                    # Helpers prix, promos...
 middleware.ts                 # Protection routes /admin
-supabase/schema.sql           # Schéma BDD + RLS
+supabase/
+  config.toml                 # Config du projet Supabase (CLI)
+  migrations/                 # Migrations SQL versionnées (schéma + RLS + buckets)
 ```
 
 ## Routes
