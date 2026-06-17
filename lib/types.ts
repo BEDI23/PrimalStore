@@ -2,12 +2,7 @@ import type { Database } from "@/lib/database.types";
 
 type Tables = Database["public"]["Tables"];
 
-export type StatutCommande =
-  | "nouvelle"
-  | "confirmee"
-  | "vendue"
-  | "livree"
-  | "annulee";
+export type StatutCommande = "nouvelle" | "livree" | "annulee";
 
 // `created_at` a un DEFAULT now() en base : jamais null en pratique. On le
 // restreint à `string` au niveau applicatif ; la couche données (lib/data.ts)

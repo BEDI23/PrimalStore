@@ -7,29 +7,29 @@ export const WHATSAPP_NUMERO = "+22893378344";
 export const WHATSAPP_DISPLAY = "+228 93 37 83 44";
 export const CONTACT_EMAIL = "contact@pipastor.tg";
 
-export const STATUTS_COMMANDE = [
-  "nouvelle",
-  "confirmee",
-  "vendue",
-  "livree",
-  "annulee",
-] as const;
+export const STATUTS_COMMANDE = ["nouvelle", "livree", "annulee"] as const;
 
 export const STATUT_LABELS: Record<string, string> = {
   nouvelle: "Nouvelle",
-  confirmee: "Confirmée",
-  vendue: "Vendue",
   livree: "Livrée",
   annulee: "Annulée",
 };
 
 export const STATUT_COLORS: Record<string, string> = {
   nouvelle: "bg-orange-100 text-orange-800",
-  confirmee: "bg-blue-100 text-blue-800",
-  vendue: "bg-purple-100 text-purple-800",
   livree: "bg-green-100 text-green-800",
   annulee: "bg-red-100 text-red-800",
 };
+
+// Transitions autorisées : une commande « nouvelle » peut devenir livrée ou
+// annulée. Une fois sortie de « nouvelle », elle ne peut plus y revenir ; seul
+// le basculement livrée ↔ annulée reste possible (correction d'erreur).
+export function statutsDisponibles(
+  statutCourant: string
+): readonly string[] {
+  if (statutCourant === "nouvelle") return STATUTS_COMMANDE;
+  return ["livree", "annulee"];
+}
 
 export const FILTRES_DATE = [
   { id: "toutes", label: "Toutes les dates" },

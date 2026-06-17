@@ -9,6 +9,7 @@ import {
   STATUT_LABELS,
   STATUTS_COMMANDE,
   FILTRES_DATE,
+  statutsDisponibles,
 } from "@/lib/constants";
 import { filterCommandesByDate } from "@/lib/utils";
 
@@ -51,17 +52,15 @@ export default function CommandesTable({ commandes }: { commandes: Commande[] })
     router.refresh();
   }
 
-  async function toggleLivre(commande: Commande, livre: boolean) {
+  // La case « Livré » ne sert qu'à confirmer la livraison d'une commande
+  // nouvelle. Une commande livrée ne peut pas redevenir « nouvelle » : pour
+  // corriger une erreur, on bascule en « annulée » via le menu Statut.
+  async function marquerLivree(commande: Commande) {
     setActionError("");
     setUpdating(commande.id);
-    const nouveauStatut: StatutCommande = livre
-      ? "livree"
-      : commande.statut === "livree"
-        ? "confirmee"
-        : commande.statut;
     const { error } = await supabase
       .from("commandes")
-      .update({ statut: nouveauStatut })
+      .update({ statut: "livree" satisfies StatutCommande })
       .eq("id", commande.id);
     setUpdating(null);
     if (error) {
@@ -176,10 +175,14 @@ export default function CommandesTable({ commandes }: { commandes: Commande[] })
                   <input
                     type="checkbox"
                     checked={c.statut === "livree"}
-                    disabled={updating === c.id || c.statut === "annulee"}
-                    onChange={(e) => toggleLivre(c, e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                    title="Marquer comme livré"
+                    disabled={updating === c.id || c.statut !== "nouvelle"}
+                    onChange={() => marquerLivree(c)}
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary disabled:cursor-not-allowed"
+                    title={
+                      c.statut === "nouvelle"
+                        ? "Marquer comme livré"
+                        : "Statut verrouillé — modifiable via le menu Statut"
+                    }
                   />
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 text-xs text-gray-500">
@@ -207,7 +210,7 @@ export default function CommandesTable({ commandes }: { commandes: Commande[] })
                     }
                     className={`rounded-lg border-0 px-2 py-1 text-xs font-medium ${STATUT_COLORS[c.statut]}`}
                   >
-                    {STATUTS_COMMANDE.map((s) => (
+                    {statutsDisponibles(c.statut).map((s) => (
                       <option key={s} value={s}>
                         {STATUT_LABELS[s]}
                       </option>

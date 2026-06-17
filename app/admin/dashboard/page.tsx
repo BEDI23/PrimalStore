@@ -67,7 +67,7 @@ export default async function DashboardPage() {
 
   const revenuReel = sumRevenu(commandes, "livree");
   const revenuReelSemaine = sumRevenu(livreesSemaine, "livree");
-  const revenuVendu = sumRevenu(commandes, "vendue");
+  const annulees = commandes.filter((c) => c.statut === "annulee");
 
   return (
     <div>
@@ -93,9 +93,9 @@ export default async function DashboardPage() {
             value={formatPrix(revenuReelSemaine)}
           />
           <StatCard
-            title="Revenu vendu (en cours)"
-            value={formatPrix(revenuVendu)}
-            subtitle="Vendues mais pas encore livrées"
+            title="Commandes annulées"
+            value={annulees.length}
+            subtitle="Marquées « Annulée » dans l'admin"
           />
         </div>
       </div>
