@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildOrderEmailHtml, type OrderEmailData } from "./email";
+import { BOUTIQUE_NOM } from "@/lib/constants";
 
 const baseData: OrderEmailData = {
   produit_nom: "Huile essentielle",
@@ -29,6 +30,36 @@ describe("buildOrderEmailHtml", () => {
   it("génère un lien WhatsApp à partir du téléphone (chiffres uniquement)", () => {
     const html = buildOrderEmailHtml(baseData);
     expect(html).toContain("https://wa.me/22890123456");
+  });
+
+  it("génère un bouton livreur via wa.me sans destinataire et avec les infos encodées", () => {
+    const html = buildOrderEmailHtml(baseData);
+
+    // wa.me sans numéro => WhatsApp ouvre le sélecteur de contacts.
+    expect(html).toContain("https://wa.me/?text=");
+
+    // Le texte du message livreur est encodé (encodeURIComponent) dans l'href :
+    // on retrouve les infos clés sous forme encodée.
+    const prix = baseData.prix_total.toLocaleString("fr-FR");
+    const expectedText = encodeURIComponent(
+      [
+        `🛒 *${BOUTIQUE_NOM}* — Nouvelle commande à livrer`,
+        "",
+        "📦 Produit : Huile essentielle × 2",
+        `💰 Montant : ${prix} FCFA`,
+        "",
+        "👤 Client : Awa Koffi",
+        "📞 Téléphone : +22890123456",
+        "📍 Zone : Adidogomé",
+        "📝 Message : Livraison après 18h",
+      ].join("\n"),
+    );
+    expect(html).toContain(`https://wa.me/?text=${expectedText}`);
+  });
+
+  it("omet la ligne Message du texte livreur quand il est vide", () => {
+    const html = buildOrderEmailHtml({ ...baseData, message: null });
+    expect(html).not.toContain(encodeURIComponent("📝 Message :"));
   });
 
   it("masque la ligne Message quand il est vide", () => {

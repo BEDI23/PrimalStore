@@ -38,6 +38,28 @@ export function buildOrderEmailHtml(data: OrderEmailData): string {
   const telDigits = data.client_telephone.replace(/[^\d]/g, "");
   const whatsappUrl = `https://wa.me/${telDigits}`;
 
+  // Message prêt à transmettre au livreur. On utilise wa.me SANS numéro :
+  // WhatsApp ouvre le sélecteur de contacts avec le texte pré-rempli, l'admin
+  // choisit le livreur puis envoie. On part des données BRUTES (non échappées
+  // HTML) ; encodeURIComponent rend l'URL sûre, y compris dans l'attribut href
+  // (il encode &, <, >, " ...).
+  const lignesLivreur = [
+    `🛒 *${BOUTIQUE_NOM}* — Nouvelle commande à livrer`,
+    ``,
+    `📦 Produit : ${data.produit_nom} × ${data.quantite}`,
+    `💰 Montant : ${prixFormate} FCFA`,
+    ``,
+    `👤 Client : ${data.client_nom}`,
+    `📞 Téléphone : ${data.client_telephone}`,
+    `📍 Zone : ${data.quartier}`,
+  ];
+  if (data.message?.trim()) {
+    lignesLivreur.push(`📝 Message : ${data.message.trim()}`);
+  }
+  const livreurUrl = `https://wa.me/?text=${encodeURIComponent(
+    lignesLivreur.join("\n"),
+  )}`;
+
   const ligne = (label: string, valeur: string, options?: { accent?: boolean }) => `
     <tr>
       <td style="padding:12px 0;border-bottom:1px solid #f0f0f0;font-size:13px;color:#6b7280;font-weight:600;width:120px;vertical-align:top;">${label}</td>
@@ -96,10 +118,11 @@ export function buildOrderEmailHtml(data: OrderEmailData): string {
               </td>
             </tr>
 
-            <!-- CTA WhatsApp -->
+            <!-- CTA WhatsApp : transmettre la commande au livreur -->
             <tr>
               <td style="padding:16px 32px 28px;" align="center">
-                <a href="${whatsappUrl}" style="display:inline-block;background-color:#16a34a;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;padding:13px 28px;border-radius:10px;">💬 Contacter le client sur WhatsApp</a>
+                <a href="${livreurUrl}" style="display:inline-block;background-color:#16a34a;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;padding:13px 28px;border-radius:10px;">🛵 Envoyer la commande au livreur</a>
+                <p style="margin:12px 0 0;font-size:12px;color:#9ca3af;line-height:1.5;">WhatsApp s'ouvre avec les infos prêtes — choisissez le livreur puis envoyez.</p>
               </td>
             </tr>
 
