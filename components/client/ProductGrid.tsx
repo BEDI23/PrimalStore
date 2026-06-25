@@ -1,24 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Categorie, ProduitAvecPromo } from "@/lib/types";
+import Link from "next/link";
+import type { Produit, Categorie } from "@/lib/api/types";
 import ProductCard from "./ProductCard";
 
 export default function ProductGrid({
   produits,
   categories,
+  activeCategorieSlug,
 }: {
-  produits: ProduitAvecPromo[];
+  produits: Produit[];
   categories: Categorie[];
+  activeCategorieSlug?: string;
 }) {
   const [filtre, setFiltre] = useState<"tous" | "promo">("tous");
-  const [categorieId, setCategorieId] = useState<string>("toutes");
 
-  let filtered = filtre === "promo" ? produits.filter((p) => p.enPromo) : produits;
-
-  if (categorieId !== "toutes") {
-    filtered = filtered.filter((p) => p.categorie_id === categorieId);
-  }
+  const filtered =
+    filtre === "promo" ? produits.filter((p) => p.promotion) : produits;
 
   return (
     <div>
@@ -47,28 +46,28 @@ export default function ProductGrid({
 
       {categories.length > 0 && (
         <div className="mb-6 flex flex-wrap gap-2">
-          <button
-            onClick={() => setCategorieId("toutes")}
+          <Link
+            href="/produits"
             className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-              categorieId === "toutes"
+              !activeCategorieSlug
                 ? "bg-gray-800 text-white"
                 : "bg-white text-gray-600 hover:bg-gray-100"
             }`}
           >
             Toutes catégories
-          </button>
+          </Link>
           {categories.map((cat) => (
-            <button
+            <Link
               key={cat.id}
-              onClick={() => setCategorieId(cat.id)}
+              href={`/produits?categorie=${cat.slug}`}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                categorieId === cat.id
+                activeCategorieSlug === cat.slug
                   ? "bg-gray-800 text-white"
                   : "bg-white text-gray-600 hover:bg-gray-100"
               }`}
             >
               {cat.nom}
-            </button>
+            </Link>
           ))}
         </div>
       )}

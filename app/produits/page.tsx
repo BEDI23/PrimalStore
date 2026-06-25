@@ -1,19 +1,19 @@
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 import ProductGrid from "@/components/client/ProductGrid";
-import { getProduitsActifs, getPromotionsActives, getCategories } from "@/lib/data";
-import { enrichProduits } from "@/lib/utils";
+import { getProduitsPublic, getCategoriesPublic } from "@/lib/api/public-data";
 
 export const dynamic = "force-dynamic";
 
-export default async function ProduitsPage() {
-  const [produits, promotions, categories] = await Promise.all([
-    getProduitsActifs(),
-    getPromotionsActives(),
-    getCategories(),
+export default async function ProduitsPage({
+  searchParams,
+}: {
+  searchParams: { categorie?: string };
+}) {
+  const [produits, categories] = await Promise.all([
+    getProduitsPublic({ categorieSlug: searchParams.categorie, limit: 100 }),
+    getCategoriesPublic(),
   ]);
-
-  const enriched = enrichProduits(produits, promotions);
 
   return (
     <>
@@ -23,7 +23,11 @@ export default async function ProduitsPage() {
         <p className="mb-8 text-gray-500">
           Naturel, ménager, high-tech et plus — livraison à Lomé
         </p>
-        <ProductGrid produits={enriched} categories={categories} />
+        <ProductGrid
+          produits={produits}
+          categories={categories}
+          activeCategorieSlug={searchParams.categorie}
+        />
       </main>
       <Footer />
     </>

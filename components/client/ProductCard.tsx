@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ProduitAvecPromo } from "@/lib/types";
+import type { Produit } from "@/lib/api/types";
 import { formatPrix } from "@/lib/utils";
 
 function Badge({
@@ -24,20 +24,24 @@ function Badge({
   );
 }
 
-export default function ProductCard({ produit }: { produit: ProduitAvecPromo }) {
+export default function ProductCard({ produit }: { produit: Produit }) {
+  const promo = produit.promotion;
+  const enPromo = !!promo;
+  const prixFinal = promo ? promo.prixPromo : produit.prix;
+
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-2xl bg-white p-3 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-4">
       <Link href={`/produits/${produit.id}`} className="group block">
         <div className="relative h-[220px] overflow-hidden rounded-xl bg-gray-100">
-          {produit.enPromo && <Badge label="Promo" type="promo" />}
-          {!produit.enPromo && produit.badge === "Nouveau" && (
+          {enPromo && <Badge label="Promo" type="promo" />}
+          {!enPromo && produit.badge === "Nouveau" && (
             <Badge label="Nouveau" type="nouveau" />
           )}
-          {!produit.enPromo && produit.badge === "Bestseller" && (
+          {!enPromo && produit.badge === "Bestseller" && (
             <Badge label="Bestseller" type="bestseller" />
           )}
           <Image
-            src={produit.image_url || "/images/placeholder-produit.svg"}
+            src={produit.imageUrl || "/images/placeholder-produit.svg"}
             alt={produit.nom}
             fill
             className="object-cover transition duration-300 group-hover:scale-105"
@@ -53,20 +57,20 @@ export default function ProductCard({ produit }: { produit: ProduitAvecPromo }) 
           </h3>
         </Link>
 
-        {produit.description_courte && (
+        {produit.descriptionCourte && (
           <p className="mt-1 line-clamp-2 text-sm text-gray-500">
-            {produit.description_courte}
+            {produit.descriptionCourte}
           </p>
         )}
 
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          {produit.enPromo ? (
+          {enPromo ? (
             <>
               <span className="text-sm text-gray-400 line-through">
                 {formatPrix(produit.prix)}
               </span>
               <span className="text-lg font-bold text-red-600">
-                {formatPrix(produit.prixFinal)}
+                {formatPrix(prixFinal)}
               </span>
             </>
           ) : (

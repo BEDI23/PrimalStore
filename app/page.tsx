@@ -4,20 +4,15 @@ import Footer from "@/components/client/Footer";
 import HeroSection from "@/components/client/HeroSection";
 import ProductCard from "@/components/client/ProductCard";
 import WhyChooseUs from "@/components/client/WhyChooseUs";
-import { getProduitsActifs, getPromotionsActives } from "@/lib/data";
-import { enrichProduits } from "@/lib/utils";
+import { getProduitsPublic } from "@/lib/api/public-data";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [produits, promotions] = await Promise.all([
-    getProduitsActifs(),
-    getPromotionsActives(),
-  ]);
+  const produits = await getProduitsPublic({ limit: 100 });
 
-  const enriched = enrichProduits(produits, promotions);
-  const vedettes = enriched.slice(0, 6);
-  const promos = enriched.filter((p) => p.enPromo);
+  const vedettes = produits.slice(0, 6);
+  const promos = produits.filter((p) => p.promotion);
 
   return (
     <>
