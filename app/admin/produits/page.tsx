@@ -1,13 +1,8 @@
 import Link from "next/link";
 import ProduitsTable from "@/components/admin/ProduitsTable";
-import { getAllProduits } from "@/lib/data";
 import { Plus, FolderOpen } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-
-export default async function AdminProduitsPage() {
-  const produits = await getAllProduits();
-
+export default function AdminProduitsPage() {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -29,7 +24,7 @@ export default async function AdminProduitsPage() {
           </Link>
         </div>
       </div>
-      <ProduitsTable produits={produits} />
+      <ProduitsTable />
     </div>
   );
 }

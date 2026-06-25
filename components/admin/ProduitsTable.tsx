@@ -3,27 +3,39 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { Produit } from "@/lib/types";
+import { useProduitsAdmin, useUpdateProduit } from "@/lib/api/hooks";
+import type { Produit } from "@/lib/api/types";
 import { formatPrix } from "@/lib/utils";
+import { TableSkeleton } from "@/components/ui/Skeleton";
 
-export default function ProduitsTable({ produits }: { produits: Produit[] }) {
-  const router = useRouter();
-  const supabase = createClient();
+export default function ProduitsTable() {
+  const { data, isLoading, isError } = useProduitsAdmin();
+  const produits: Produit[] = data?.data ?? [];
+  const { mutate: updateProduit, isPending } = useUpdateProduit();
   const [error, setError] = useState("");
 
-  async function toggleActif(id: string, actif: boolean | null) {
+  function toggleActif(id: number, actif: boolean) {
     setError("");
-    const { error: updateError } = await supabase
-      .from("produits")
-      .update({ actif: !actif })
-      .eq("id", id);
-    if (updateError) {
-      setError("Échec de la mise à jour du produit. Réessayez.");
-      return;
-    }
-    router.refresh();
+    updateProduit(
+      { id, input: { actif: !actif } },
+      {
+        onError: () => {
+          setError("Échec de la mise à jour du produit. Réessayez.");
+        },
+      }
+    );
+  }
+
+  if (isLoading) {
+    return <TableSkeleton rows={5} cols={7} />;
+  }
+
+  if (isError) {
+    return (
+      <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+        Erreur lors du chargement des produits. Veuillez réessayer.
+      </p>
+    );
   }
 
   return (
@@ -34,71 +46,70 @@ export default function ProduitsTable({ produits }: { produits: Produit[] }) {
         </p>
       )}
       <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-      <table className="w-full text-left text-sm">
-        <thead className="border-b border-gray-200 bg-gray-50">
-          <tr>
-            <th className="px-4 py-3 font-medium text-gray-600">Image</th>
-            <th className="px-4 py-3 font-medium text-gray-600">Nom</th>
-            <th className="px-4 py-3 font-medium text-gray-600">Catégorie</th>
-            <th className="px-4 py-3 font-medium text-gray-600">Prix</th>
-            <th className="px-4 py-3 font-medium text-gray-600">Badge</th>
-            <th className="px-4 py-3 font-medium text-gray-600">Statut</th>
-            <th className="px-4 py-3 font-medium text-gray-600">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {produits.map((p, i) => (
-            <tr
-              key={p.id}
-              className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
-            >
-              <td className="px-4 py-3">
-                <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-gray-100">
-                  <Image
-                    src={p.image_url || "/images/placeholder-produit.svg"}
-                    alt={p.nom}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </td>
-              <td className="px-4 py-3 font-medium">{p.nom}</td>
-              <td className="px-4 py-3 text-gray-500">
-                {p.categories?.nom ?? "—"}
-              </td>
-              <td className="px-4 py-3">{formatPrix(p.prix)}</td>
-              <td className="px-4 py-3">{p.badge || "—"}</td>
-              <td className="px-4 py-3">
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                    p.actif
-                      ? "bg-green-100 text-green-800"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {p.actif ? "Actif" : "Inactif"}
-                </span>
-              </td>
-              <td className="px-4 py-3">
-                <div className="flex gap-2">
-                  <Link
-                    href={`/admin/produits/${p.id}/modifier`}
-                    className="rounded-lg bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100"
-                  >
-                    Modifier
-                  </Link>
-                  <button
-                    onClick={() => toggleActif(p.id, p.actif)}
-                    className="rounded-lg bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
-                  >
-                    {p.actif ? "Désactiver" : "Activer"}
-                  </button>
-                </div>
-              </td>
+        <table className="w-full text-left text-sm">
+          <thead className="border-b border-gray-200 bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 font-medium text-gray-600">Image</th>
+              <th className="px-4 py-3 font-medium text-gray-600">Nom</th>
+              <th className="px-4 py-3 font-medium text-gray-600">Catégorie</th>
+              <th className="px-4 py-3 font-medium text-gray-600">Prix</th>
+              <th className="px-4 py-3 font-medium text-gray-600">Badge</th>
+              <th className="px-4 py-3 font-medium text-gray-600">Statut</th>
+              <th className="px-4 py-3 font-medium text-gray-600">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {produits.map((p, i) => (
+              <tr
+                key={p.id}
+                className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
+              >
+                <td className="px-4 py-3">
+                  <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-gray-100">
+                    <Image
+                      src={p.imageUrl || "/images/placeholder-produit.svg"}
+                      alt={p.nom}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                </td>
+                <td className="px-4 py-3 font-medium">{p.nom}</td>
+                <td className="px-4 py-3 text-gray-500">{"—"}</td>
+                <td className="px-4 py-3">{formatPrix(p.prix)}</td>
+                <td className="px-4 py-3">{p.badge ?? "—"}</td>
+                <td className="px-4 py-3">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                      p.actif
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {p.actif ? "Actif" : "Inactif"}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/admin/produits/${p.id}/modifier`}
+                      className="rounded-lg bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100"
+                    >
+                      Modifier
+                    </Link>
+                    <button
+                      onClick={() => toggleActif(p.id, p.actif)}
+                      disabled={isPending}
+                      className="rounded-lg bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {p.actif ? "Désactiver" : "Activer"}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
         {produits.length === 0 && (
           <p className="p-8 text-center text-gray-500">Aucun produit.</p>
         )}
