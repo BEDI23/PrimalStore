@@ -1,15 +1,11 @@
+"use client";
+
 import StatCard from "@/components/admin/StatCard";
 import CommandesChart from "@/components/admin/CommandesChart";
-import { getAllCommandes } from "@/lib/data";
-import {
-  formatPrix,
-  getStartOfDay,
-  getStartOfWeek,
-  sumRevenu,
-} from "@/lib/utils";
-import { Commande } from "@/lib/types";
-
-export const dynamic = "force-dynamic";
+import { DashboardSkeleton } from "@/components/ui/Skeleton";
+import { useCommandesAdmin } from "@/lib/api/hooks";
+import { formatPrix, getStartOfDay, getStartOfWeek } from "@/lib/utils";
+import type { Commande } from "@/lib/api/types";
 
 function getChartData(commandes: Commande[]) {
   const days: { date: string; commandes: number }[] = [];
@@ -21,7 +17,7 @@ function getChartData(commandes: Commande[]) {
     end.setDate(end.getDate() + 1);
 
     const count = commandes.filter((c) => {
-      const created = new Date(c.created_at);
+      const created = new Date(c.createdAt);
       return created >= start && created < end;
     }).length;
 
@@ -39,34 +35,51 @@ function getChartData(commandes: Commande[]) {
 function getTopProduit(commandes: Commande[]): string {
   const counts: Record<string, number> = {};
   commandes.forEach((c) => {
-    const nom = c.produit_nom ?? "Inconnu";
+    const nom = c.produitNom ?? "Inconnu";
     counts[nom] = (counts[nom] ?? 0) + (c.quantite ?? 1);
   });
   const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
   return sorted[0] ? `${sorted[0][0]} (${sorted[0][1]})` : "—";
 }
 
-export default async function DashboardPage() {
-  const commandes = await getAllCommandes();
+export default function DashboardPage() {
+  const { data, isLoading, isError } = useCommandesAdmin();
+  const commandes = data?.data ?? [];
+
+  if (isLoading) {
+    return <DashboardSkeleton />;
+  }
+
+  if (isError) {
+    return (
+      <p className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
+        Erreur lors du chargement des commandes. Veuillez rafraîchir la page.
+      </p>
+    );
+  }
+
   const now = new Date();
   const startToday = getStartOfDay(now);
   const startWeek = getStartOfWeek(now);
 
   const livrees = commandes.filter((c) => c.statut === "livree");
   const livreesSemaine = livrees.filter(
-    (c) => new Date(c.created_at) >= startWeek
+    (c) => new Date(c.createdAt) >= startWeek
   );
 
   const today = commandes.filter(
-    (c) => new Date(c.created_at) >= startToday
+    (c) => new Date(c.createdAt) >= startToday
   ).length;
 
   const weekCommandes = commandes.filter(
-    (c) => new Date(c.created_at) >= startWeek
+    (c) => new Date(c.createdAt) >= startWeek
   );
 
-  const revenuReel = sumRevenu(commandes, "livree");
-  const revenuReelSemaine = sumRevenu(livreesSemaine, "livree");
+  const revenuReel = livrees.reduce((s, c) => s + (c.prixTotal ?? 0), 0);
+  const revenuReelSemaine = livreesSemaine.reduce(
+    (s, c) => s + (c.prixTotal ?? 0),
+    0
+  );
   const annulees = commandes.filter((c) => c.statut === "annulee");
 
   return (
