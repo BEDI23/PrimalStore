@@ -1,0 +1,1727 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/admin/users": {
+      "get": {
+        "operationId": "UsersController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Liste de tous les utilisateurs"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/users"
+        ]
+      },
+      "post": {
+        "operationId": "UsersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Utilisateur créé"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/users"
+        ]
+      }
+    },
+    "/api/v1/admin/users/{id}": {
+      "delete": {
+        "operationId": "UsersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Utilisateur supprimé"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/users"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/v1/admin/categories": {
+      "get": {
+        "operationId": "CategoriesAdminController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Liste de toutes les catégories (admin)"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/categories"
+        ]
+      },
+      "post": {
+        "operationId": "CategoriesAdminController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategorieDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Catégorie créée"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/categories"
+        ]
+      }
+    },
+    "/api/v1/admin/categories/{id}": {
+      "get": {
+        "operationId": "CategoriesAdminController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détail d'une catégorie (admin)"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/categories"
+        ]
+      },
+      "patch": {
+        "operationId": "CategoriesAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategorieDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Catégorie mise à jour"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/categories"
+        ]
+      },
+      "delete": {
+        "operationId": "CategoriesAdminController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Catégorie supprimée"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/categories"
+        ]
+      }
+    },
+    "/api/v1/admin/categories/reorder": {
+      "post": {
+        "operationId": "CategoriesAdminController_reorder",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Positions réordonnées"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/categories"
+        ]
+      }
+    },
+    "/api/v1/categories": {
+      "get": {
+        "operationId": "CategoriesPublicController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Liste des catégories actives"
+          }
+        },
+        "tags": [
+          "categories"
+        ]
+      }
+    },
+    "/api/v1/categories/{slug}": {
+      "get": {
+        "operationId": "CategoriesPublicController_findBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détail d'une catégorie par son slug"
+          }
+        },
+        "tags": [
+          "categories"
+        ]
+      }
+    },
+    "/api/v1/categories/{slug}/sous-categories": {
+      "get": {
+        "operationId": "CategoriesPublicController_findSousCategories",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sous-catégories actives d'une catégorie (par slug)"
+          }
+        },
+        "tags": [
+          "categories"
+        ]
+      }
+    },
+    "/api/v1/admin/sous-categories": {
+      "get": {
+        "operationId": "SousCategoriesAdminController_findAll",
+        "parameters": [
+          {
+            "name": "categorieId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des sous-catégories (admin)"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/sous-categories"
+        ]
+      },
+      "post": {
+        "operationId": "SousCategoriesAdminController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSousCategorieDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sous-catégorie créée"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/sous-categories"
+        ]
+      }
+    },
+    "/api/v1/admin/sous-categories/{id}": {
+      "get": {
+        "operationId": "SousCategoriesAdminController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détail d'une sous-catégorie (admin)"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/sous-categories"
+        ]
+      },
+      "patch": {
+        "operationId": "SousCategoriesAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSousCategorieDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sous-catégorie mise à jour"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/sous-categories"
+        ]
+      },
+      "delete": {
+        "operationId": "SousCategoriesAdminController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sous-catégorie supprimée"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/sous-categories"
+        ]
+      }
+    },
+    "/api/v1/admin/sous-categories/reorder": {
+      "post": {
+        "operationId": "SousCategoriesAdminController_reorder",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Positions réordonnées"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/sous-categories"
+        ]
+      }
+    },
+    "/api/v1/sous-categories/{id}": {
+      "get": {
+        "operationId": "SousCategoriesPublicController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détail d'une sous-catégorie active par son id"
+          }
+        },
+        "tags": [
+          "sous-categories"
+        ]
+      }
+    },
+    "/api/v1/admin/produits": {
+      "get": {
+        "operationId": "ProduitsAdminController_findAll",
+        "parameters": [
+          {
+            "name": "categorie_slug",
+            "required": false,
+            "in": "query",
+            "description": "Filtre par slug de catégorie",
+            "schema": {
+              "example": "bien-etre",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sous_categorie_slug",
+            "required": false,
+            "in": "query",
+            "description": "Filtre par slug de sous-catégorie",
+            "schema": {
+              "example": "complements-alimentaires",
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Recherche plein texte sur nom et description courte",
+            "schema": {
+              "example": "huile",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste paginée de tous les produits (admin)"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/produits"
+        ]
+      },
+      "post": {
+        "operationId": "ProduitsAdminController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProduitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Produit créé"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/produits"
+        ]
+      }
+    },
+    "/api/v1/admin/produits/{id}": {
+      "get": {
+        "operationId": "ProduitsAdminController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détail d'un produit (admin)"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/produits"
+        ]
+      },
+      "patch": {
+        "operationId": "ProduitsAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProduitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Produit mis à jour"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/produits"
+        ]
+      },
+      "delete": {
+        "operationId": "ProduitsAdminController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Produit supprimé"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/produits"
+        ]
+      }
+    },
+    "/api/v1/produits": {
+      "get": {
+        "operationId": "ProduitsPublicController_findAll",
+        "parameters": [
+          {
+            "name": "categorie_slug",
+            "required": false,
+            "in": "query",
+            "description": "Filtre par slug de catégorie",
+            "schema": {
+              "example": "bien-etre",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sous_categorie_slug",
+            "required": false,
+            "in": "query",
+            "description": "Filtre par slug de sous-catégorie",
+            "schema": {
+              "example": "complements-alimentaires",
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Recherche plein texte sur nom et description courte",
+            "schema": {
+              "example": "huile",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste paginée des produits actifs"
+          }
+        },
+        "tags": [
+          "produits"
+        ]
+      }
+    },
+    "/api/v1/produits/{id}": {
+      "get": {
+        "operationId": "ProduitsPublicController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détail d'un produit actif"
+          }
+        },
+        "tags": [
+          "produits"
+        ]
+      }
+    },
+    "/api/v1/admin/promotions": {
+      "get": {
+        "operationId": "PromotionsAdminController_findAll",
+        "parameters": [
+          {
+            "name": "produitId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste de toutes les promotions (admin)"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/promotions"
+        ]
+      },
+      "post": {
+        "operationId": "PromotionsAdminController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePromotionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Promotion créée"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/promotions"
+        ]
+      }
+    },
+    "/api/v1/admin/promotions/{id}": {
+      "get": {
+        "operationId": "PromotionsAdminController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détail d'une promotion (admin)"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/promotions"
+        ]
+      },
+      "patch": {
+        "operationId": "PromotionsAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePromotionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Promotion mise à jour"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/promotions"
+        ]
+      },
+      "delete": {
+        "operationId": "PromotionsAdminController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Promotion supprimée"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/promotions"
+        ]
+      }
+    },
+    "/api/v1/commandes": {
+      "post": {
+        "operationId": "CommandesPublicController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCommandeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Commande créée"
+          }
+        },
+        "tags": [
+          "commandes"
+        ]
+      }
+    },
+    "/api/v1/admin/commandes": {
+      "get": {
+        "operationId": "CommandesAdminController_findAll",
+        "parameters": [
+          {
+            "name": "statut",
+            "required": false,
+            "in": "query",
+            "description": "Filtre par statut",
+            "schema": {
+              "example": "nouvelle",
+              "type": "string",
+              "enum": [
+                "nouvelle",
+                "livree",
+                "annulee"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste paginée de toutes les commandes (admin)"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/commandes"
+        ]
+      }
+    },
+    "/api/v1/admin/commandes/{id}": {
+      "get": {
+        "operationId": "CommandesAdminController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détail d'une commande (admin)"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/commandes"
+        ]
+      }
+    },
+    "/api/v1/admin/commandes/{id}/statut": {
+      "patch": {
+        "operationId": "CommandesAdminController_updateStatut",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStatutCommandeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Statut de la commande mis à jour"
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/commandes"
+        ]
+      }
+    },
+    "/api/v1/admin/uploads/{bucket}": {
+      "post": {
+        "operationId": "UploadsController_upload",
+        "parameters": [
+          {
+            "name": "bucket",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "at": []
+          }
+        ],
+        "tags": [
+          "admin/uploads"
+        ]
+      }
+    },
+    "/api/v1/sitemap": {
+      "get": {
+        "operationId": "SitemapController_getSitemap",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Sitemap public (catégories, sous-catégories, produits actifs non adultes)"
+          }
+        },
+        "tags": [
+          "sitemap"
+        ]
+      }
+    },
+    "/api/v1/age/confirm": {
+      "post": {
+        "operationId": "AgeController_confirm",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Pose le cookie de confirmation d'âge (18+) et retourne { confirmed: true }"
+          }
+        },
+        "tags": [
+          "age"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "PrimalStore API",
+    "description": "API backend PrimalStore (NestJS).",
+    "version": "1.0",
+    "contact": {
+
+    }
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "at"
+      }
+    },
+    "schemas": {
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "admin@primal.store",
+            "description": "Adresse email unique"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128,
+            "description": "Mot de passe en clair (hashé côté serveur)"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin"
+            ],
+            "default": "admin",
+            "description": "Rôle attribué à l'utilisateur"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "admin@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "S3cr3t!"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "ThemeDto": {
+        "type": "object",
+        "properties": {
+          "primary": {
+            "type": "string",
+            "example": "#FF5733",
+            "description": "Couleur primaire (#RRGGBB)"
+          },
+          "primaryHover": {
+            "type": "string",
+            "example": "#E04E2B",
+            "description": "Couleur primaire (hover) (#RRGGBB)"
+          },
+          "onPrimary": {
+            "type": "string",
+            "example": "#FFFFFF",
+            "description": "Couleur sur fond primaire (#RRGGBB)"
+          },
+          "secondary": {
+            "type": "string",
+            "example": "#FFA500",
+            "description": "Couleur secondaire (#RRGGBB)"
+          },
+          "accent": {
+            "type": "string",
+            "example": "#00BFFF",
+            "description": "Couleur d'accent (#RRGGBB)"
+          }
+        },
+        "required": [
+          "primary",
+          "primaryHover",
+          "onPrimary",
+          "secondary",
+          "accent"
+        ]
+      },
+      "CreateCategorieDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 64,
+            "example": "Bien-être"
+          },
+          "slug": {
+            "type": "string",
+            "example": "bien-etre",
+            "description": "Slug URL-friendly"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 280,
+            "example": "Produits pour le bien-être"
+          },
+          "theme": {
+            "$ref": "#/components/schemas/ThemeDto"
+          },
+          "iconName": {
+            "type": "string",
+            "enum": [
+              "heart",
+              "shield",
+              "sparkles",
+              "pill",
+              "flame",
+              "gift",
+              "leaf",
+              "zap",
+              "star",
+              "shopping-bag",
+              "flask-conical",
+              "droplet"
+            ],
+            "example": "heart"
+          },
+          "coverImageUrl": {
+            "type": "string",
+            "example": "https://cdn.primal.store/categories/bien-etre.jpg"
+          },
+          "isAdult": {
+            "type": "boolean",
+            "example": false
+          },
+          "position": {
+            "type": "number",
+            "minimum": 0,
+            "example": 0
+          },
+          "actif": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "nom",
+          "slug",
+          "theme",
+          "iconName",
+          "coverImageUrl",
+          "isAdult",
+          "position",
+          "actif"
+        ]
+      },
+      "UpdateCategorieDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 64,
+            "example": "Bien-être"
+          },
+          "slug": {
+            "type": "string",
+            "example": "bien-etre",
+            "description": "Slug URL-friendly"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 280,
+            "example": "Produits pour le bien-être"
+          },
+          "theme": {
+            "$ref": "#/components/schemas/ThemeDto"
+          },
+          "iconName": {
+            "type": "string",
+            "enum": [
+              "heart",
+              "shield",
+              "sparkles",
+              "pill",
+              "flame",
+              "gift",
+              "leaf",
+              "zap",
+              "star",
+              "shopping-bag",
+              "flask-conical",
+              "droplet"
+            ],
+            "example": "heart"
+          },
+          "coverImageUrl": {
+            "type": "string",
+            "example": "https://cdn.primal.store/categories/bien-etre.jpg"
+          },
+          "isAdult": {
+            "type": "boolean",
+            "example": false
+          },
+          "position": {
+            "type": "number",
+            "minimum": 0,
+            "example": 0
+          },
+          "actif": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "ReorderItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "position": {
+            "type": "number",
+            "minimum": 0,
+            "example": 0
+          }
+        },
+        "required": [
+          "id",
+          "position"
+        ]
+      },
+      "ReorderDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReorderItemDto"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "CreateSousCategorieDto": {
+        "type": "object",
+        "properties": {
+          "categorieId": {
+            "type": "number",
+            "minimum": 1,
+            "example": 1,
+            "description": "ID de la catégorie parente"
+          },
+          "nom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 64,
+            "example": "Compléments alimentaires"
+          },
+          "slug": {
+            "type": "string",
+            "example": "complements-alimentaires",
+            "description": "Slug URL-friendly"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 280,
+            "example": "Vitamines, minéraux et extraits"
+          },
+          "position": {
+            "type": "number",
+            "minimum": 0,
+            "example": 0
+          },
+          "actif": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "categorieId",
+          "nom",
+          "slug",
+          "position",
+          "actif"
+        ]
+      },
+      "UpdateSousCategorieDto": {
+        "type": "object",
+        "properties": {
+          "categorieId": {
+            "type": "number",
+            "minimum": 1,
+            "example": 1,
+            "description": "ID de la catégorie parente"
+          },
+          "nom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 64,
+            "example": "Compléments alimentaires"
+          },
+          "slug": {
+            "type": "string",
+            "example": "complements-alimentaires",
+            "description": "Slug URL-friendly"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 280,
+            "example": "Vitamines, minéraux et extraits"
+          },
+          "position": {
+            "type": "number",
+            "minimum": 0,
+            "example": 0
+          },
+          "actif": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "CreateProduitDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120,
+            "example": "Huile de palme bio"
+          },
+          "slug": {
+            "type": "string",
+            "example": "huile-de-palme-bio",
+            "description": "Slug URL-friendly (optionnel)"
+          },
+          "prix": {
+            "type": "number",
+            "minimum": 1,
+            "example": 5000,
+            "description": "Prix en FCFA (entier)"
+          },
+          "descriptionCourte": {
+            "type": "string",
+            "maxLength": 280,
+            "example": "Huile de palme extra vierge, issue de l'agriculture biologique."
+          },
+          "descriptionLongue": {
+            "type": "string",
+            "example": "Description longue du produit..."
+          },
+          "badge": {
+            "type": "string",
+            "maxLength": 40,
+            "example": "Nouveau"
+          },
+          "imageUrl": {
+            "type": "string",
+            "example": "https://cdn.primal.store/produits/huile-palme.jpg"
+          },
+          "videoUrl": {
+            "type": "string",
+            "example": "https://www.youtube.com/watch?v=example"
+          },
+          "sousCategorieId": {
+            "type": "number",
+            "minimum": 1,
+            "example": 1
+          },
+          "actif": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "nom",
+          "prix",
+          "descriptionCourte",
+          "descriptionLongue",
+          "imageUrl",
+          "sousCategorieId",
+          "actif"
+        ]
+      },
+      "UpdateProduitDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120,
+            "example": "Huile de palme bio"
+          },
+          "slug": {
+            "type": "string",
+            "example": "huile-de-palme-bio",
+            "description": "Slug URL-friendly (optionnel)"
+          },
+          "prix": {
+            "type": "number",
+            "minimum": 1,
+            "example": 5000,
+            "description": "Prix en FCFA (entier)"
+          },
+          "descriptionCourte": {
+            "type": "string",
+            "maxLength": 280,
+            "example": "Huile de palme extra vierge, issue de l'agriculture biologique."
+          },
+          "descriptionLongue": {
+            "type": "string",
+            "example": "Description longue du produit..."
+          },
+          "badge": {
+            "type": "string",
+            "maxLength": 40,
+            "example": "Nouveau"
+          },
+          "imageUrl": {
+            "type": "string",
+            "example": "https://cdn.primal.store/produits/huile-palme.jpg"
+          },
+          "videoUrl": {
+            "type": "string",
+            "example": "https://www.youtube.com/watch?v=example"
+          },
+          "sousCategorieId": {
+            "type": "number",
+            "minimum": 1,
+            "example": 1
+          },
+          "actif": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "CreatePromotionDto": {
+        "type": "object",
+        "properties": {
+          "produitId": {
+            "type": "number",
+            "minimum": 1,
+            "example": 1,
+            "description": "ID du produit associé"
+          },
+          "prixPromo": {
+            "type": "number",
+            "minimum": 1,
+            "example": 3500,
+            "description": "Prix promotionnel en FCFA (entier)"
+          },
+          "dateFin": {
+            "type": "string",
+            "example": "2025-12-31T23:59:59.000Z",
+            "description": "Date de fin de promotion (ISO 8601)"
+          },
+          "actif": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "produitId",
+          "prixPromo",
+          "dateFin",
+          "actif"
+        ]
+      },
+      "UpdatePromotionDto": {
+        "type": "object",
+        "properties": {
+          "produitId": {
+            "type": "number",
+            "minimum": 1,
+            "example": 1,
+            "description": "ID du produit associé"
+          },
+          "prixPromo": {
+            "type": "number",
+            "minimum": 1,
+            "example": 3500,
+            "description": "Prix promotionnel en FCFA (entier)"
+          },
+          "dateFin": {
+            "type": "string",
+            "example": "2025-12-31T23:59:59.000Z",
+            "description": "Date de fin de promotion (ISO 8601)"
+          },
+          "actif": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "CreateCommandeDto": {
+        "type": "object",
+        "properties": {
+          "produitId": {
+            "type": "number",
+            "example": 1,
+            "description": "Identifiant du produit commandé"
+          },
+          "clientNom": {
+            "type": "string",
+            "example": "Koffi Mensah",
+            "description": "Nom complet du client"
+          },
+          "clientTelephone": {
+            "type": "string",
+            "example": "+22890123456",
+            "description": "Numéro de téléphone Togo (+228XXXXXXXX)"
+          },
+          "quartier": {
+            "type": "string",
+            "example": "Adakpamé",
+            "description": "Quartier de livraison"
+          },
+          "quantite": {
+            "type": "number",
+            "example": 2,
+            "description": "Quantité commandée (1–1000)"
+          },
+          "message": {
+            "type": "string",
+            "example": "Merci de livrer avant 18h",
+            "description": "Message libre"
+          },
+          "prixAttendu": {
+            "type": "number",
+            "example": 5000,
+            "description": "Prix unitaire affiché côté client — déclenche une 422 si divergence serveur"
+          }
+        },
+        "required": [
+          "produitId",
+          "clientNom",
+          "clientTelephone",
+          "quartier",
+          "quantite"
+        ]
+      },
+      "UpdateStatutCommandeDto": {
+        "type": "object",
+        "properties": {
+          "statut": {
+            "type": "string",
+            "enum": [
+              "nouvelle",
+              "livree",
+              "annulee"
+            ],
+            "example": "livree",
+            "description": "Nouveau statut de la commande"
+          }
+        },
+        "required": [
+          "statut"
+        ]
+      }
+    }
+  }
+}
