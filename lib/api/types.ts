@@ -108,6 +108,15 @@ export interface SousCategorie {
   produits?: Produit[];
 }
 
+/**
+ * Promo active embarquée dans le DTO produit public (GET /produits, GET /produits/:id).
+ * Renseignée uniquement pour la promo active (actif=true ET dateFin>now) ; null sinon.
+ */
+export interface PromotionPublique {
+  prixPromo: number;
+  dateFin: string;
+}
+
 export interface Produit {
   id: number;
   nom: string;
@@ -122,6 +131,8 @@ export interface Produit {
   actif: boolean;
   createdAt: string;
   updatedAt: string;
+  /** Promo active embarquée par l'API publique. Optionnel : absent côté admin / si l'API ne l'envoie pas encore. */
+  promotion?: PromotionPublique | null;
 }
 
 export interface Promotion {
