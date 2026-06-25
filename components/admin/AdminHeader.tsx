@@ -1,17 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useLogout } from "@/lib/api/hooks";
 import { LogOut } from "lucide-react";
 
 export default function AdminHeader({ email }: { email: string }) {
   const router = useRouter();
+  const { mutate: logout, isPending } = useLogout();
 
-  async function handleLogout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/admin/login");
-    router.refresh();
+  function handleLogout() {
+    logout(undefined, {
+      onSuccess: () => router.replace("/admin/login"),
+    });
   }
 
   return (
@@ -21,7 +21,8 @@ export default function AdminHeader({ email }: { email: string }) {
         <span className="text-sm text-gray-500">{email}</span>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-gray-600 transition hover:bg-gray-100"
+          disabled={isPending}
+          className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-gray-600 transition hover:bg-gray-100 disabled:opacity-50"
         >
           <LogOut className="h-4 w-4" />
           Déconnexion
