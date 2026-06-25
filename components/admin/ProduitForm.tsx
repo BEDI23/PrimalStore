@@ -1,29 +1,55 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
-import { Categorie, Produit } from "@/lib/types";
+import { produitSchema, type ProduitFormValues } from "@/lib/api/schemas";
 import { BADGE_OPTIONS } from "@/lib/constants";
-import { produitSchema, type ProduitFormValues } from "@/lib/schemas";
+import { useCategoriesAdmin } from "@/lib/api/hooks/use-categories";
+import { useSousCategoriesAdmin } from "@/lib/api/hooks/use-sous-categories";
+import {
+  useProduitAdmin,
+  useCreateProduit,
+  useUpdateProduit,
+} from "@/lib/api/hooks/use-produits";
+import { useUpload } from "@/lib/api/hooks/use-uploads";
+import { getApiErrorMessage } from "@/lib/api/http";
 import LoadingButton from "@/components/ui/LoadingButton";
 
 interface ProduitFormProps {
-  produit?: Produit;
-  categories: Categorie[];
+  produitId?: number;
 }
 
-export default function ProduitForm({ produit, categories }: ProduitFormProps) {
+export default function ProduitForm({ produitId }: ProduitFormProps) {
   const router = useRouter();
-  const supabase = createClient();
+  const isEdit = !!produitId;
+
   const imageRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
-  const [imageUrl, setImageUrl] = useState(produit?.image_url ?? "");
-  const [videoUrl, setVideoUrl] = useState(produit?.video_url ?? "");
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [selectedCategorieId, setSelectedCategorieId] = useState<number | "">("");
+
+  // ── Data ───────────────────────────────────────────────────────────────────
+
+  const { data: categories = [], isLoading: categoriesLoading } = useCategoriesAdmin();
+  // When no category selected → fetches all sous-categories (reused for edit pre-fill).
+  // When a category is selected → fetches filtered sous-categories for the dropdown.
+  const { data: sousCategories = [] } = useSousCategoriesAdmin(
+    selectedCategorieId !== "" ? { categorieId: selectedCategorieId } : undefined
+  );
+  const { data: produit } = useProduitAdmin(produitId ?? 0, isEdit);
+
+  // ── Mutations ──────────────────────────────────────────────────────────────
+
+  const create = useCreateProduit();
+  const update = useUpdateProduit();
+  const upload = useUpload();
+
+  // ── Form ───────────────────────────────────────────────────────────────────
 
   const {
     register,
@@ -31,108 +57,121 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
     watch,
     setValue,
     setError,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ProduitFormValues>({
     resolver: valibotResolver(produitSchema),
     mode: "onTouched",
     defaultValues: {
-      categorie_id: produit?.categorie_id ?? "",
-      nom: produit?.nom ?? "",
-      description_courte: produit?.description_courte ?? "",
-      description_complete: produit?.description_complete ?? "",
-      prix: produit?.prix ?? 0,
-      badge: produit?.badge ?? "",
-      actif: produit?.actif ?? true,
+      nom: "",
+      slug: "",
+      prix: 0,
+      descriptionCourte: "",
+      descriptionLongue: "",
+      badge: "",
+      imageUrl: "",
+      videoUrl: "",
+      sousCategorieId: 0,
+      actif: true,
     },
   });
 
   const actif = watch("actif");
+  const watchedImageUrl = watch("imageUrl");
+  const watchedVideoUrl = watch("videoUrl");
 
-  async function uploadFile(
-    file: File,
-    bucket: "produits" | "videos"
-  ): Promise<string | null> {
-    const ext = file.name.split(".").pop();
-    const fileName = `${Date.now()}.${ext}`;
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(fileName, file);
+  // ── Pre-fill (edit mode) ───────────────────────────────────────────────────
 
-    if (uploadError) {
-      console.error(uploadError);
-      return null;
+  // Effect 1 : reset form values when produit loads
+  useEffect(() => {
+    if (!produit) return;
+    reset({
+      nom: produit.nom,
+      slug: produit.slug ?? "",
+      prix: produit.prix,
+      descriptionCourte: produit.descriptionCourte,
+      descriptionLongue: produit.descriptionLongue,
+      badge: produit.badge ?? "",
+      imageUrl: produit.imageUrl,
+      videoUrl: produit.videoUrl ?? "",
+      sousCategorieId: produit.sousCategorieId,
+      actif: produit.actif,
+    });
+  }, [produit, reset]);
+
+  // Effect 2 : once all sous-categories and produit are both available,
+  // derive and set the parent category (runs once, guarded by selectedCategorieId check)
+  useEffect(() => {
+    if (!produit || !sousCategories.length || selectedCategorieId !== "") return;
+    const sousCat = sousCategories.find((sc) => sc.id === produit.sousCategorieId);
+    if (sousCat) {
+      setSelectedCategorieId(sousCat.categorieId);
     }
+  }, [produit, sousCategories, selectedCategorieId]);
 
-    const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
-    return data.publicUrl;
+  // ── Handlers ───────────────────────────────────────────────────────────────
+
+  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const res = await upload.mutateAsync({ bucket: "produits", file });
+      setValue("imageUrl", res.publicUrl, { shouldValidate: true });
+    } catch (err) {
+      setError("root", { message: getApiErrorMessage(err) });
+    } finally {
+      setUploadingImage(false);
+    }
+  }
+
+  async function handleVideoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingVideo(true);
+    try {
+      const res = await upload.mutateAsync({ bucket: "videos", file });
+      setValue("videoUrl", res.publicUrl);
+    } catch (err) {
+      setError("root", { message: getApiErrorMessage(err) });
+    } finally {
+      setUploadingVideo(false);
+    }
   }
 
   async function onSubmit(values: ProduitFormValues) {
-    let finalImageUrl = imageUrl;
-    const imageFile = imageRef.current?.files?.[0];
-    if (imageFile && imageFile.size > 0) {
-      const uploaded = await uploadFile(imageFile, "produits");
-      if (!uploaded) {
-        setError("root", { message: "Erreur lors de l'upload de l'image." });
-        return;
+    try {
+      const payload = {
+        nom: values.nom,
+        slug: values.slug || undefined,
+        prix: values.prix,
+        descriptionCourte: values.descriptionCourte,
+        descriptionLongue: values.descriptionLongue,
+        badge: values.badge || undefined,
+        imageUrl: values.imageUrl,
+        videoUrl: values.videoUrl || undefined,
+        sousCategorieId: values.sousCategorieId,
+        actif: values.actif,
+      };
+
+      if (isEdit) {
+        await update.mutateAsync({ id: produitId!, input: payload });
+      } else {
+        await create.mutateAsync(payload);
       }
-      finalImageUrl = uploaded;
+      router.push("/admin/produits");
+      router.refresh();
+    } catch (err) {
+      setError("root", { message: getApiErrorMessage(err) });
     }
-
-    let finalVideoUrl = videoUrl;
-    const videoFile = videoRef.current?.files?.[0];
-    if (videoFile && videoFile.size > 0) {
-      const uploaded = await uploadFile(videoFile, "videos");
-      if (!uploaded) {
-        setError("root", { message: "Erreur lors de l'upload de la vidéo." });
-        return;
-      }
-      finalVideoUrl = uploaded;
-    }
-
-    const payload = {
-      nom: values.nom,
-      description_courte: values.description_courte,
-      description_complete: values.description_complete || null,
-      prix: values.prix,
-      badge: values.badge || "",
-      categorie_id: values.categorie_id,
-      image_url: finalImageUrl || null,
-      video_url: finalVideoUrl || null,
-      actif: values.actif,
-    };
-
-    if (produit) {
-      const { error: updateError } = await supabase
-        .from("produits")
-        .update(payload)
-        .eq("id", produit.id);
-
-      if (updateError) {
-        setError("root", { message: updateError.message });
-        return;
-      }
-    } else {
-      const { error: insertError } = await supabase
-        .from("produits")
-        .insert(payload);
-
-      if (insertError) {
-        setError("root", { message: insertError.message });
-        return;
-      }
-    }
-
-    router.push("/admin/produits");
-    router.refresh();
   }
 
-  if (categories.length === 0) {
+  // ── Guard : aucune catégorie ───────────────────────────────────────────────
+
+  if (!categoriesLoading && categories.length === 0) {
     return (
       <div className="rounded-xl border border-amber-200 bg-amber-50 p-6">
-        <p className="font-medium text-amber-900">
-          Aucune catégorie disponible.
-        </p>
+        <p className="font-medium text-amber-900">Aucune catégorie disponible.</p>
         <p className="mt-2 text-sm text-amber-700">
           Créez d&apos;abord une catégorie avant d&apos;ajouter un produit.
         </p>
@@ -143,15 +182,26 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
     );
   }
 
+  // ── Render ─────────────────────────────────────────────────────────────────
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="max-w-2xl space-y-5"
       noValidate
     >
+      {/* Catégorie (hors payload — pilote la cascade) */}
       <div>
         <label className="mb-1 block text-sm font-medium">Catégorie *</label>
-        <select {...register("categorie_id")} className="input-field">
+        <select
+          value={selectedCategorieId}
+          onChange={(e) => {
+            const val = e.target.value !== "" ? Number(e.target.value) : "";
+            setSelectedCategorieId(val);
+            setValue("sousCategorieId", 0, { shouldValidate: false });
+          }}
+          className="input-field"
+        >
           <option value="">Sélectionner une catégorie</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>
@@ -159,11 +209,35 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
             </option>
           ))}
         </select>
-        {errors.categorie_id && (
-          <p className="mt-1 text-xs text-red-600">{errors.categorie_id.message}</p>
+      </div>
+
+      {/* Sous-catégorie */}
+      <div>
+        <label className="mb-1 block text-sm font-medium">Sous-catégorie *</label>
+        <select
+          {...register("sousCategorieId", { valueAsNumber: true })}
+          className="input-field"
+          disabled={!selectedCategorieId}
+        >
+          <option value={0}>
+            {selectedCategorieId
+              ? "Sélectionner une sous-catégorie"
+              : "Choisir d'abord une catégorie"}
+          </option>
+          {sousCategories.map((sc) => (
+            <option key={sc.id} value={sc.id}>
+              {sc.nom}
+            </option>
+          ))}
+        </select>
+        {errors.sousCategorieId && (
+          <p className="mt-1 text-xs text-red-600">
+            {errors.sousCategorieId.message}
+          </p>
         )}
       </div>
 
+      {/* Nom */}
       <div>
         <label className="mb-1 block text-sm font-medium">Nom *</label>
         <input {...register("nom")} className="input-field" />
@@ -172,34 +246,28 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
         )}
       </div>
 
+      {/* Slug */}
       <div>
         <label className="mb-1 block text-sm font-medium">
-          Description courte *
+          Slug{" "}
+          <span className="font-normal text-gray-400">(optionnel)</span>
         </label>
-        <input {...register("description_courte")} className="input-field" />
-        {errors.description_courte && (
-          <p className="mt-1 text-xs text-red-600">
-            {errors.description_courte.message}
-          </p>
+        <input
+          {...register("slug")}
+          className="input-field"
+          placeholder="généré-automatiquement"
+        />
+        {errors.slug && (
+          <p className="mt-1 text-xs text-red-600">{errors.slug.message}</p>
         )}
       </div>
 
-      <div>
-        <label className="mb-1 block text-sm font-medium">
-          Description complète
-        </label>
-        <textarea
-          {...register("description_complete")}
-          rows={4}
-          className="input-field resize-none"
-        />
-      </div>
-
+      {/* Prix */}
       <div>
         <label className="mb-1 block text-sm font-medium">Prix (FCFA) *</label>
         <input
           type="number"
-          min={0}
+          min={1}
           {...register("prix", { valueAsNumber: true })}
           className="input-field w-40"
         />
@@ -208,6 +276,41 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
         )}
       </div>
 
+      {/* Description courte */}
+      <div>
+        <label className="mb-1 block text-sm font-medium">
+          Description courte *
+        </label>
+        <input
+          {...register("descriptionCourte")}
+          className="input-field"
+          maxLength={280}
+        />
+        {errors.descriptionCourte && (
+          <p className="mt-1 text-xs text-red-600">
+            {errors.descriptionCourte.message}
+          </p>
+        )}
+      </div>
+
+      {/* Description longue */}
+      <div>
+        <label className="mb-1 block text-sm font-medium">
+          Description longue *
+        </label>
+        <textarea
+          {...register("descriptionLongue")}
+          rows={4}
+          className="input-field resize-none"
+        />
+        {errors.descriptionLongue && (
+          <p className="mt-1 text-xs text-red-600">
+            {errors.descriptionLongue.message}
+          </p>
+        )}
+      </div>
+
+      {/* Badge */}
       <div>
         <label className="mb-1 block text-sm font-medium">Badge</label>
         <select {...register("badge")} className="input-field w-48">
@@ -219,49 +322,68 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
         </select>
       </div>
 
+      {/* Image */}
       <div>
-        <label className="mb-1 block text-sm font-medium">Image</label>
-        {imageUrl && (
+        <label className="mb-1 block text-sm font-medium">Image *</label>
+        {watchedImageUrl && (
           <div className="relative mb-2 h-32 w-32 overflow-hidden rounded-lg">
-            <Image src={imageUrl} alt="Aperçu" fill className="object-cover" />
+            <Image
+              src={watchedImageUrl}
+              alt="Aperçu"
+              fill
+              className="object-cover"
+            />
           </div>
+        )}
+        {uploadingImage && (
+          <p className="mb-1 text-xs text-gray-500">Upload…</p>
         )}
         <input
           ref={imageRef}
           type="file"
           accept="image/*"
           className="text-sm"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) setImageUrl(URL.createObjectURL(file));
-          }}
+          onChange={handleImageChange}
+          disabled={uploadingImage}
         />
+        {/* Champ caché pour transporter la valeur dans react-hook-form */}
+        <input type="hidden" {...register("imageUrl")} />
+        {errors.imageUrl && (
+          <p className="mt-1 text-xs text-red-600">{errors.imageUrl.message}</p>
+        )}
       </div>
 
+      {/* Vidéo */}
       <div>
         <label className="mb-1 block text-sm font-medium">
           Vidéo publicitaire
         </label>
-        {videoUrl && (
+        {watchedVideoUrl && (
           <video
-            src={videoUrl}
+            src={watchedVideoUrl}
             controls
             className="mb-2 max-h-48 w-full max-w-sm rounded-lg"
           />
+        )}
+        {uploadingVideo && (
+          <p className="mb-1 text-xs text-gray-500">Upload…</p>
         )}
         <input
           ref={videoRef}
           type="file"
           accept="video/mp4,video/webm,video/quicktime"
           className="text-sm"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) setVideoUrl(URL.createObjectURL(file));
-          }}
+          onChange={handleVideoChange}
+          disabled={uploadingVideo}
         />
-        <p className="mt-1 text-xs text-gray-400">MP4, WebM — max recommandé 50 Mo</p>
+        {/* Champ caché pour transporter la valeur dans react-hook-form */}
+        <input type="hidden" {...register("videoUrl")} />
+        <p className="mt-1 text-xs text-gray-400">
+          MP4, WebM — max recommandé 50 Mo
+        </p>
       </div>
 
+      {/* Toggle actif */}
       <div className="flex items-center gap-3">
         <label className="text-sm font-medium">Actif</label>
         <button
@@ -292,7 +414,7 @@ export default function ProduitForm({ produit, categories }: ProduitFormProps) {
           loadingText="Enregistrement..."
           className="btn-primary"
         >
-          {produit ? "Mettre à jour" : "Créer le produit"}
+          {isEdit ? "Mettre à jour" : "Créer le produit"}
         </LoadingButton>
         <button
           type="button"

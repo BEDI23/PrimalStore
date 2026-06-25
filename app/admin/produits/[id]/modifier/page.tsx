@@ -1,30 +1,18 @@
-import { notFound } from "next/navigation";
 import ProduitForm from "@/components/admin/ProduitForm";
-import { createClient } from "@/lib/supabase/server";
-import { getCategories } from "@/lib/data";
-import type { Produit } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function ModifierProduitPage({
+export default function ModifierProduitPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const supabase = await createClient();
-  const [categories, { data: produit, error }] = await Promise.all([
-    getCategories(),
-    supabase.from("produits").select("*").eq("id", params.id).single(),
-  ]);
-
-  if (error || !produit) notFound();
-
   return (
     <div>
       <h2 className="mb-6 text-xl font-bold text-gray-900">
-        Modifier : {produit.nom}
+        Modifier le produit
       </h2>
-      <ProduitForm produit={produit as Produit} categories={categories} />
+      <ProduitForm produitId={Number(params.id)} />
     </div>
   );
 }
