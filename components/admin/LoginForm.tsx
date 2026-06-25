@@ -4,15 +4,17 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Leaf } from "lucide-react";
 import { BOUTIQUE_NOM } from "@/lib/constants";
-import { loginSchema, type LoginFormValues } from "@/lib/schemas";
+import { loginSchema, type LoginFormValues } from "@/lib/api/schemas";
+import { useLogin } from "@/lib/api/hooks/use-auth";
+import { getApiErrorMessage } from "@/lib/api/http";
 import LoadingButton from "@/components/ui/LoadingButton";
 
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const login = useLogin();
   const {
     register,
     handleSubmit,
@@ -33,31 +35,13 @@ export default function LoginForm() {
   }, [searchParams, setError]);
 
   async function onSubmit(values: LoginFormValues) {
-    const supabase = createClient();
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email: values.email,
-      password: values.password,
-    });
-
-    if (authError || !data.user) {
-      setError("root", { message: "Email ou mot de passe incorrect." });
-      return;
+    try {
+      await login.mutateAsync({ email: values.email, password: values.password });
+      router.push("/admin/dashboard");
+      router.refresh();
+    } catch (error) {
+      setError("root", { message: getApiErrorMessage(error) });
     }
-
-    const { data: admin } = await supabase
-      .from("admin_users")
-      .select("id")
-      .eq("id", data.user.id)
-      .maybeSingle();
-
-    if (!admin) {
-      await supabase.auth.signOut();
-      setError("root", { message: "Accès refusé. Ce compte n'est pas autorisé." });
-      return;
-    }
-
-    router.push("/admin/dashboard");
-    router.refresh();
   }
 
   return (
