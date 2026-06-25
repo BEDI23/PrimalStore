@@ -9,7 +9,10 @@ import Link from "next/link";
 import { produitSchema, type ProduitFormValues } from "@/lib/api/schemas";
 import { BADGE_OPTIONS } from "@/lib/constants";
 import { useCategoriesAdmin } from "@/lib/api/hooks/use-categories";
-import { useSousCategoriesAdmin } from "@/lib/api/hooks/use-sous-categories";
+import {
+  useSousCategoriesAdmin,
+  useSousCategorieAdmin,
+} from "@/lib/api/hooks/use-sous-categories";
 import {
   useProduitAdmin,
   useCreateProduit,
@@ -36,12 +39,16 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
   // ── Data ───────────────────────────────────────────────────────────────────
 
   const { data: categories = [], isLoading: categoriesLoading } = useCategoriesAdmin();
-  // When no category selected → fetches all sous-categories (reused for edit pre-fill).
-  // When a category is selected → fetches filtered sous-categories for the dropdown.
+  // Dropdown : sous-catégories filtrées par la catégorie sélectionnée (liste vide tant qu'aucune catégorie choisie).
   const { data: sousCategories = [] } = useSousCategoriesAdmin(
     selectedCategorieId !== "" ? { categorieId: selectedCategorieId } : undefined
   );
   const { data: produit } = useProduitAdmin(produitId ?? 0, isEdit);
+  // Fetch unitaire de la sous-catégorie du produit édité pour dériver la catégorie parente.
+  const { data: editSousCat } = useSousCategorieAdmin(
+    produit?.sousCategorieId ?? 0,
+    isEdit && !!produit?.sousCategorieId
+  );
 
   // ── Mutations ──────────────────────────────────────────────────────────────
 
@@ -99,15 +106,12 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
     });
   }, [produit, reset]);
 
-  // Effect 2 : once all sous-categories and produit are both available,
-  // derive and set the parent category (runs once, guarded by selectedCategorieId check)
+  // Effect 2 : dérive la catégorie parente via le fetch unitaire de la sous-catégorie (mode édition).
   useEffect(() => {
-    if (!produit || !sousCategories.length || selectedCategorieId !== "") return;
-    const sousCat = sousCategories.find((sc) => sc.id === produit.sousCategorieId);
-    if (sousCat) {
-      setSelectedCategorieId(sousCat.categorieId);
+    if (editSousCat && selectedCategorieId === "") {
+      setSelectedCategorieId(editSousCat.categorieId);
     }
-  }, [produit, sousCategories, selectedCategorieId]);
+  }, [editSousCat, selectedCategorieId]);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
 

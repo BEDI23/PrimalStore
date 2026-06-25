@@ -1,18 +1,22 @@
-import ProduitForm from "@/components/admin/ProduitForm";
+"use client";
 
-export const dynamic = "force-dynamic";
+import { useProduitAdmin } from "@/lib/api/hooks/use-produits";
+import ProduitForm from "@/components/admin/ProduitForm";
 
 export default function ModifierProduitPage({
   params,
 }: {
   params: { id: string };
 }) {
+  const id = Number(params.id);
+  const { data: produit } = useProduitAdmin(id, Number.isFinite(id));
+
   return (
     <div>
       <h2 className="mb-6 text-xl font-bold text-gray-900">
-        Modifier le produit
+        {produit?.nom ? `Modifier : ${produit.nom}` : "Modifier le produit"}
       </h2>
-      <ProduitForm produitId={Number(params.id)} />
+      <ProduitForm produitId={id} />
     </div>
   );
 }
