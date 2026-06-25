@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { Commande, StatutCommande } from "@/lib/types";
+import {
+  useCommandesAdmin,
+  useUpdateStatutCommande,
+} from "@/lib/api/hooks/use-commandes";
+import { getApiErrorMessage } from "@/lib/api/http";
+import type { Commande, StatutCommande } from "@/lib/api/types";
 import {
   STATUT_COLORS,
   STATUT_LABELS,
@@ -13,61 +16,58 @@ import {
 } from "@/lib/constants";
 import { filterCommandesByDate } from "@/lib/utils";
 
-export default function CommandesTable({ commandes }: { commandes: Commande[] }) {
-  const router = useRouter();
-  const supabase = createClient();
+export default function CommandesTable() {
+  const { data, isLoading } = useCommandesAdmin();
+  const commandes = data?.data ?? [];
+  const updateStatut = useUpdateStatutCommande();
+
   const [filtreStatut, setFiltreStatut] = useState<string>("toutes");
   const [filtreDate, setFiltreDate] = useState<string>("toutes");
   const [dateSpecifique, setDateSpecifique] = useState("");
-  const [updating, setUpdating] = useState<string | null>(null);
   const [actionError, setActionError] = useState("");
 
-  let filtered = commandes;
+  // Mapping local pour compatibilité avec filterCommandesByDate (attend created_at snake_case).
+  // On ne modifie pas lib/utils.ts.
+  const commandesMapped = commandes.map((c) => ({ ...c, created_at: c.createdAt }));
+
+  let filtered = commandesMapped;
 
   if (filtreStatut !== "toutes") {
     filtered = filtered.filter((c) => c.statut === filtreStatut);
   }
 
-  filtered = filterCommandesByDate(
-    filtered,
-    filtreDate,
-    dateSpecifique || undefined
-  );
+  filtered = filterCommandesByDate(filtered, filtreDate, dateSpecifique || undefined);
 
   const livrees = commandes.filter((c) => c.statut === "livree");
-  const revenuReel = livrees.reduce((s, c) => s + (c.prix_total ?? 0), 0);
-
-  async function updateStatut(id: string, statut: StatutCommande) {
-    setActionError("");
-    setUpdating(id);
-    const { error } = await supabase
-      .from("commandes")
-      .update({ statut })
-      .eq("id", id);
-    setUpdating(null);
-    if (error) {
-      setActionError("Échec de la mise à jour du statut. Réessayez.");
-      return;
-    }
-    router.refresh();
-  }
+  const revenuReel = livrees.reduce((s, c) => s + (c.prixTotal ?? 0), 0);
 
   // La case « Livré » ne sert qu'à confirmer la livraison d'une commande
   // nouvelle. Une commande livrée ne peut pas redevenir « nouvelle » : pour
   // corriger une erreur, on bascule en « annulée » via le menu Statut.
   async function marquerLivree(commande: Commande) {
     setActionError("");
-    setUpdating(commande.id);
-    const { error } = await supabase
-      .from("commandes")
-      .update({ statut: "livree" satisfies StatutCommande })
-      .eq("id", commande.id);
-    setUpdating(null);
-    if (error) {
-      setActionError("Échec de la mise à jour de la livraison. Réessayez.");
-      return;
+    try {
+      await updateStatut.mutateAsync({ id: commande.id, input: { statut: "livree" } });
+    } catch (error) {
+      setActionError(getApiErrorMessage(error));
     }
-    router.refresh();
+  }
+
+  async function handleStatutChange(id: number, statut: StatutCommande) {
+    setActionError("");
+    try {
+      await updateStatut.mutateAsync({ id, input: { statut } });
+    } catch (error) {
+      setActionError(getApiErrorMessage(error));
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-12 text-gray-500">
+        Chargement des commandes…
+      </div>
+    );
   }
 
   return (
@@ -166,62 +166,66 @@ export default function CommandesTable({ commandes }: { commandes: Commande[] })
             </tr>
           </thead>
           <tbody>
-            {filtered.map((c, i) => (
-              <tr
-                key={c.id}
-                className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
-              >
-                <td className="px-4 py-3">
-                  <input
-                    type="checkbox"
-                    checked={c.statut === "livree"}
-                    disabled={updating === c.id || c.statut !== "nouvelle"}
-                    onChange={() => marquerLivree(c)}
-                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary disabled:cursor-not-allowed"
-                    title={
-                      c.statut === "nouvelle"
-                        ? "Marquer comme livré"
-                        : "Statut verrouillé — modifiable via le menu Statut"
-                    }
-                  />
-                </td>
-                <td className="whitespace-nowrap px-4 py-3 text-xs text-gray-500">
-                  {new Date(c.created_at).toLocaleDateString("fr-FR", {
-                    day: "2-digit",
-                    month: "short",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </td>
-                <td className="px-4 py-3 font-medium">{c.client_nom}</td>
-                <td className="px-4 py-3">{c.client_telephone}</td>
-                <td className="px-4 py-3">{c.produit_nom}</td>
-                <td className="px-4 py-3">{c.quantite}</td>
-                <td className="px-4 py-3 font-medium">
-                  {(c.prix_total ?? 0).toLocaleString("fr-FR")} F
-                </td>
-                <td className="px-4 py-3">{c.quartier}</td>
-                <td className="px-4 py-3">
-                  <select
-                    value={c.statut}
-                    disabled={updating === c.id}
-                    onChange={(e) =>
-                      updateStatut(c.id, e.target.value as StatutCommande)
-                    }
-                    className={`rounded-lg border-0 px-2 py-1 text-xs font-medium ${STATUT_COLORS[c.statut]}`}
-                  >
-                    {statutsDisponibles(c.statut).map((s) => (
-                      <option key={s} value={s}>
-                        {STATUT_LABELS[s]}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="max-w-[150px] truncate px-4 py-3 text-gray-500">
-                  {c.message || "—"}
-                </td>
-              </tr>
-            ))}
+            {filtered.map((c, i) => {
+              const isUpdating =
+                updateStatut.isPending && updateStatut.variables?.id === c.id;
+              return (
+                <tr
+                  key={c.id}
+                  className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
+                >
+                  <td className="px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={c.statut === "livree"}
+                      disabled={isUpdating || c.statut !== "nouvelle"}
+                      onChange={() => marquerLivree(c)}
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary disabled:cursor-not-allowed"
+                      title={
+                        c.statut === "nouvelle"
+                          ? "Marquer comme livré"
+                          : "Statut verrouillé — modifiable via le menu Statut"
+                      }
+                    />
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-xs text-gray-500">
+                    {new Date(c.createdAt).toLocaleDateString("fr-FR", {
+                      day: "2-digit",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </td>
+                  <td className="px-4 py-3 font-medium">{c.clientNom}</td>
+                  <td className="px-4 py-3">{c.clientTelephone}</td>
+                  <td className="px-4 py-3">{c.produitNom}</td>
+                  <td className="px-4 py-3">{c.quantite}</td>
+                  <td className="px-4 py-3 font-medium">
+                    {(c.prixTotal ?? 0).toLocaleString("fr-FR")} F
+                  </td>
+                  <td className="px-4 py-3">{c.quartier}</td>
+                  <td className="px-4 py-3">
+                    <select
+                      value={c.statut}
+                      disabled={isUpdating}
+                      onChange={(e) =>
+                        handleStatutChange(c.id, e.target.value as StatutCommande)
+                      }
+                      className={`rounded-lg border-0 px-2 py-1 text-xs font-medium ${STATUT_COLORS[c.statut]}`}
+                    >
+                      {statutsDisponibles(c.statut).map((s) => (
+                        <option key={s} value={s}>
+                          {STATUT_LABELS[s]}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="max-w-[150px] truncate px-4 py-3 text-gray-500">
+                    {c.message || "—"}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
         {filtered.length === 0 && (
