@@ -4,7 +4,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import CommandeForm from "./CommandeForm";
 import { formatPrix } from "@/lib/utils";
-import type { ProduitAvecPromo } from "@/lib/types";
+import type { Produit } from "@/lib/api/types";
 
 // formatPrix utilise une espace fine insécable (U+202F) comme séparateur de
 // milliers ; RTL normalise tout espace en espace normale dans le DOM. On aligne
@@ -16,20 +16,35 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push, refresh: vi.fn(), back: vi.fn() }),
 }));
 
-const produit = {
-  id: "prod-1",
+// Mock du hook useCreateCommande
+const mutateMock = vi.fn();
+vi.mock("@/lib/api/hooks", () => ({
+  useCreateCommande: () => ({
+    mutate: mutateMock,
+    isPending: false,
+  }),
+}));
+
+const produit: Produit = {
+  id: 1,
   nom: "Huile essentielle",
+  slug: "huile-essentielle",
   prix: 1000,
-  prixFinal: 1000,
-  enPromo: false,
-} as unknown as ProduitAvecPromo;
+  descriptionCourte: "Description courte",
+  descriptionLongue: "Description longue",
+  badge: null,
+  imageUrl: "https://example.com/image.jpg",
+  videoUrl: null,
+  sousCategorieId: 1,
+  actif: true,
+  createdAt: "2024-01-01T00:00:00Z",
+  updatedAt: "2024-01-01T00:00:00Z",
+  promotion: null,
+};
 
 beforeEach(() => {
   push.mockReset();
-  global.fetch = vi.fn().mockResolvedValue({
-    ok: true,
-    json: async () => ({}),
-  }) as unknown as typeof fetch;
+  mutateMock.mockReset();
 });
 
 describe("CommandeForm", () => {
@@ -48,6 +63,15 @@ describe("CommandeForm", () => {
     await waitFor(() =>
       expect(screen.getByText(prixTexte(3000))).toBeInTheDocument()
     );
+  });
+
+  it("affiche le prixPromo si une promotion est active", () => {
+    const produitEnPromo: Produit = {
+      ...produit,
+      promotion: { prixPromo: 750, dateFin: "2099-12-31T00:00:00Z" },
+    };
+    render(<CommandeForm produit={produitEnPromo} />);
+    expect(screen.getByText(prixTexte(750))).toBeInTheDocument();
   });
 
   it("affiche une erreur de téléphone réactive après blur (onTouched)", async () => {
@@ -72,10 +96,10 @@ describe("CommandeForm", () => {
     expect(
       await screen.findByText("Le nom complet est obligatoire.")
     ).toBeInTheDocument();
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(mutateMock).not.toHaveBeenCalled();
   });
 
-  it("envoie la commande et redirige quand tout est valide", async () => {
+  it("appelle createCommande avec les valeurs camelCase + prixAttendu quand tout est valide", async () => {
     const user = userEvent.setup();
     render(<CommandeForm produit={produit} />);
 
@@ -88,19 +112,30 @@ describe("CommandeForm", () => {
 
     await user.click(screen.getByRole("button", { name: /Envoyer ma commande/i }));
 
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mutateMock).toHaveBeenCalledTimes(1));
 
-    const body = JSON.parse(
-      (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body
-    );
-    expect(body).toMatchObject({
-      produit_id: "prod-1",
-      client_nom: "Awa Koffi",
-      client_telephone: "+22890123456",
+    const [input] = mutateMock.mock.calls[0];
+    expect(input).toMatchObject({
+      produitId: 1,
+      clientNom: "Awa Koffi",
+      clientTelephone: "+22890123456",
       quartier: "Adidogomé",
       quantite: 2,
-      prix_total: 2000,
+      prixAttendu: 1000,
     });
+  });
+
+  it("redirige vers /confirmation après succès", async () => {
+    mutateMock.mockImplementation((_input, { onSuccess }) => onSuccess());
+    const user = userEvent.setup();
+    render(<CommandeForm produit={produit} />);
+
+    await user.type(screen.getByLabelText(/Nom complet/i), "Awa Koffi");
+    await user.type(screen.getByLabelText(/Téléphone/i), "+22890123456");
+    await user.type(screen.getByLabelText(/Quartier/i), "Adidogomé");
+
+    await user.click(screen.getByRole("button", { name: /Envoyer ma commande/i }));
+
     await waitFor(() => expect(push).toHaveBeenCalledWith("/confirmation"));
   });
 });
