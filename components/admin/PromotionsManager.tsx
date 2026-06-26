@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
+import { Loader2 } from "lucide-react";
 import { useProduitsAdmin } from "@/lib/api/hooks/use-produits";
 import {
   usePromotions,
@@ -13,7 +14,26 @@ import {
 import { promotionSchema, type PromotionFormValues } from "@/lib/api/schemas";
 import { formatPrix } from "@/lib/utils";
 import { getApiErrorMessage } from "@/lib/api/http";
-import LoadingButton from "@/components/ui/LoadingButton";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function PromotionsManager() {
   const [produitId, setProduitId] = useState<number | "">("");
@@ -35,25 +55,22 @@ export default function PromotionsManager() {
   const remove = useDeletePromotion();
 
   // Formulaire de création
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setError,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm<PromotionFormValues>({
+  const form = useForm<PromotionFormValues>({
     resolver: valibotResolver(promotionSchema),
     mode: "onTouched",
     defaultValues: { produitId: 0, prixPromo: 0, dateFin: "", actif: true },
   });
 
+  const {
+    formState: { errors, isSubmitting },
+  } = form;
+
   // Pré-remplit le champ produit du formulaire quand la sélection en haut change
   useEffect(() => {
     if (produitId !== "") {
-      setValue("produitId", produitId, { shouldValidate: false });
+      form.setValue("produitId", produitId, { shouldValidate: false });
     }
-  }, [produitId, setValue]);
+  }, [produitId, form]);
 
   async function onSubmit(values: PromotionFormValues) {
     try {
@@ -64,14 +81,14 @@ export default function PromotionsManager() {
         dateFin: isoDate,
         actif: values.actif,
       });
-      reset({
+      form.reset({
         produitId: typeof produitId === "number" ? produitId : 0,
         prixPromo: 0,
         dateFin: "",
         actif: true,
       });
     } catch (error) {
-      setError("root", { message: getApiErrorMessage(error) });
+      form.setError("root", { message: getApiErrorMessage(error) });
     }
   }
 
@@ -97,30 +114,32 @@ export default function PromotionsManager() {
   return (
     <div className="space-y-8">
       {/* Sélecteur de produit */}
-      <div className="max-w-lg">
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Produit à consulter
-        </label>
-        <select
-          value={produitId}
-          onChange={(e) =>
-            setProduitId(e.target.value === "" ? "" : Number(e.target.value))
+      <div className="max-w-lg space-y-1">
+        <Label htmlFor="produit-filter">Produit à consulter</Label>
+        <Select
+          value={produitId === "" ? "all" : String(produitId)}
+          onValueChange={(v) =>
+            setProduitId(v === "all" ? "" : Number(v))
           }
-          className="input-field"
         >
-          <option value="">— Choisir un produit —</option>
-          {produits.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.nom} — {formatPrix(p.prix)}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger id="produit-filter">
+            <SelectValue placeholder="— Choisir un produit —" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">— Choisir un produit —</SelectItem>
+            {produits.map((p) => (
+              <SelectItem key={p.id} value={String(p.id)}>
+                {p.nom} — {formatPrix(p.prix)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {actionError && (
-        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-          {actionError}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{actionError}</AlertDescription>
+        </Alert>
       )}
 
       {/* Tableau des promotions */}
@@ -204,79 +223,123 @@ export default function PromotionsManager() {
       )}
 
       {/* Formulaire de création */}
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="max-w-lg space-y-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
-        noValidate
-      >
-        <h3 className="font-semibold text-gray-900">Nouvelle promotion</h3>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">Produit</label>
-          <select
-            {...register("produitId", { valueAsNumber: true })}
-            className="input-field"
-          >
-            <option value={0}>Sélectionner un produit</option>
-            {produits.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.nom} — {formatPrix(p.prix)}
-              </option>
-            ))}
-          </select>
-          {errors.produitId && (
-            <p className="mt-1 text-xs text-red-600">{errors.produitId.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">
-            Prix promotionnel (FCFA)
-          </label>
-          <input
-            type="number"
-            min={1}
-            {...register("prixPromo", { valueAsNumber: true })}
-            className="input-field w-40"
-          />
-          {errors.prixPromo && (
-            <p className="mt-1 text-xs text-red-600">{errors.prixPromo.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">Date de fin</label>
-          <input
-            type="datetime-local"
-            {...register("dateFin")}
-            className="input-field"
-          />
-          {errors.dateFin && (
-            <p className="mt-1 text-xs text-red-600">{errors.dateFin.message}</p>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input type="checkbox" id="actif" {...register("actif")} />
-          <label htmlFor="actif" className="text-sm">
-            Activer immédiatement
-          </label>
-        </div>
-
-        {errors.root && (
-          <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-            {errors.root.message}
-          </p>
-        )}
-
-        <LoadingButton
-          loading={isSubmitting}
-          loadingText="Création..."
-          className="btn-primary"
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="max-w-lg space-y-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+          noValidate
         >
-          Créer la promotion
-        </LoadingButton>
-      </form>
+          <h3 className="font-semibold text-gray-900">Nouvelle promotion</h3>
+
+          {/* Produit */}
+          <FormField
+            control={form.control}
+            name="produitId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Produit</FormLabel>
+                <Select
+                  value={String(field.value || 0)}
+                  onValueChange={(v) => field.onChange(Number(v))}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner un produit" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="0">Sélectionner un produit</SelectItem>
+                    {produits.map((p) => (
+                      <SelectItem key={p.id} value={String(p.id)}>
+                        {p.nom} — {formatPrix(p.prix)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Prix promotionnel */}
+          <FormField
+            control={form.control}
+            name="prixPromo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Prix promotionnel (FCFA)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min={1}
+                    className="w-40"
+                    {...field}
+                    onChange={(e) =>
+                      field.onChange(e.target.valueAsNumber || 0)
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Date de fin */}
+          <FormField
+            control={form.control}
+            name="dateFin"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Date de fin</FormLabel>
+                <FormControl>
+                  <Input type="datetime-local" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Actif */}
+          <FormField
+            control={form.control}
+            name="actif"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center gap-2">
+                  <FormControl>
+                    <Checkbox
+                      id="actif"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <Label htmlFor="actif" className="text-sm font-normal">
+                    Activer immédiatement
+                  </Label>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {errors.root?.message ? (
+            <Alert variant="destructive">
+              <AlertDescription>{errors.root.message}</AlertDescription>
+            </Alert>
+          ) : null}
+
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                Création...
+              </>
+            ) : (
+              "Créer la promotion"
+            )}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 }

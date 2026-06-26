@@ -1,8 +1,19 @@
 "use client";
 
+// Polyfill ResizeObserver for jsdom (vitest/testing-library environment).
+// Browsers already provide this API; this no-ops when it already exists.
+if (typeof globalThis.ResizeObserver === "undefined") {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
+import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { categorieSchema, type CategorieFormValues } from "@/lib/api/schemas";
 import { ICON_NAMES } from "@/lib/api/types";
@@ -13,8 +24,28 @@ import {
 } from "@/lib/api/hooks/use-categories";
 import { useUpload } from "@/lib/api/hooks/use-uploads";
 import { getApiErrorMessage } from "@/lib/api/http";
-import LoadingButton from "@/components/ui/LoadingButton";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Valeurs par défaut
@@ -74,25 +105,16 @@ export default function CategoriesManager() {
   const coverRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    setValue,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<CategorieFormValues>({
+  const form = useForm<CategorieFormValues>({
     resolver: valibotResolver(categorieSchema),
     mode: "onTouched",
     defaultValues: DEFAULT_VALUES,
   });
 
-  const actif = watch("actif");
-  const isAdult = watch("isAdult");
-  const coverImageUrl = watch("coverImageUrl");
-  const nom = watch("nom");
-  const theme = watch("theme");
+  const { isSubmitting, errors } = form.formState;
+  const nom = form.watch("nom");
+  const coverImageUrl = form.watch("coverImageUrl");
+  const theme = form.watch("theme");
 
   // ── Handlers ───────────────────────────────────────────────────────────────
 
@@ -102,9 +124,9 @@ export default function CategoriesManager() {
     setUploading(true);
     try {
       const res = await upload.mutateAsync({ bucket: "categories", file });
-      setValue("coverImageUrl", res.publicUrl, { shouldValidate: true });
+      form.setValue("coverImageUrl", res.publicUrl, { shouldValidate: true });
     } catch (err) {
-      setError("root", { message: getApiErrorMessage(err) });
+      form.setError("root", { message: getApiErrorMessage(err) });
     } finally {
       setUploading(false);
     }
@@ -116,10 +138,10 @@ export default function CategoriesManager() {
         ...values,
         description: values.description || undefined,
       });
-      reset(DEFAULT_VALUES);
+      form.reset(DEFAULT_VALUES);
       if (coverRef.current) coverRef.current.value = "";
     } catch (err) {
-      setError("root", { message: getApiErrorMessage(err) });
+      form.setError("root", { message: getApiErrorMessage(err) });
     }
   }
 
@@ -138,228 +160,259 @@ export default function CategoriesManager() {
   return (
     <div className="space-y-8">
       {/* ── Formulaire ──────────────────────────────────────────────────── */}
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="max-w-2xl space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
-        noValidate
-      >
-        <h3 className="font-semibold text-gray-900">Nouvelle catégorie</h3>
-
-        {/* Nom */}
-        <div>
-          <label className="mb-1 block text-sm font-medium">Nom *</label>
-          <input
-            {...register("nom")}
-            className="input-field"
-            placeholder="Ex: Bien-être"
-          />
-          {errors.nom && (
-            <p className="mt-1 text-xs text-red-600">{errors.nom.message}</p>
-          )}
-        </div>
-
-        {/* Slug */}
-        <div>
-          <label className="mb-1 block text-sm font-medium">Slug *</label>
-          <div className="flex gap-2">
-            <input
-              {...register("slug")}
-              className="input-field flex-1"
-              placeholder="bien-etre"
-            />
-            <button
-              type="button"
-              onClick={() =>
-                setValue("slug", slugify(nom), { shouldValidate: true })
-              }
-              className="btn-secondary whitespace-nowrap px-3 text-xs"
-            >
-              Générer
-            </button>
-          </div>
-          {errors.slug && (
-            <p className="mt-1 text-xs text-red-600">{errors.slug.message}</p>
-          )}
-        </div>
-
-        {/* Description */}
-        <div>
-          <label className="mb-1 block text-sm font-medium">Description</label>
-          <textarea
-            {...register("description")}
-            rows={3}
-            className="input-field resize-none"
-            placeholder="Description courte (optionnel, max 280 car.)"
-          />
-          {errors.description && (
-            <p className="mt-1 text-xs text-red-600">
-              {errors.description.message}
-            </p>
-          )}
-        </div>
-
-        {/* Thème */}
-        <fieldset>
-          <legend className="mb-2 text-sm font-medium">
-            Thème de couleurs *
-          </legend>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {THEME_FIELDS.map(({ key, label }) => (
-              <div key={key} className="flex items-center gap-2">
-                <input
-                  type="color"
-                  {...register(`theme.${key}`)}
-                  className="h-8 w-10 cursor-pointer rounded border border-gray-300"
-                />
-                <code className="w-20 text-xs text-gray-600">
-                  {theme?.[key] ?? ""}
-                </code>
-                <span className="text-xs text-gray-500">{label}</span>
-                {errors.theme?.[key] && (
-                  <p className="text-xs text-red-600">
-                    {errors.theme[key]?.message}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        </fieldset>
-
-        {/* Icône */}
-        <div>
-          <label className="mb-1 block text-sm font-medium">Icône *</label>
-          <select {...register("iconName")} className="input-field w-48">
-            {ICON_NAMES.map((icon) => (
-              <option key={icon} value={icon}>
-                {icon}
-              </option>
-            ))}
-          </select>
-          {errors.iconName && (
-            <p className="mt-1 text-xs text-red-600">
-              {errors.iconName.message}
-            </p>
-          )}
-        </div>
-
-        {/* Image de couverture */}
-        <div>
-          <label className="mb-1 block text-sm font-medium">
-            Image de couverture *
-          </label>
-          {coverImageUrl && (
-            <div className="relative mb-2 h-32 w-32 overflow-hidden rounded-lg border border-gray-200">
-              <Image
-                src={coverImageUrl}
-                alt="Aperçu couverture"
-                fill
-                className="object-cover"
-              />
-            </div>
-          )}
-          {uploading && (
-            <div className="mb-2 flex items-center gap-2 text-sm text-gray-500">
-              <LoadingSpinner size="sm" />
-              Upload en cours…
-            </div>
-          )}
-          <input
-            ref={coverRef}
-            type="file"
-            accept="image/*"
-            className="text-sm"
-            onChange={handleCoverChange}
-            disabled={uploading}
-          />
-          {/* Champ caché pour transporter la valeur dans react-hook-form */}
-          <input type="hidden" {...register("coverImageUrl")} />
-          {errors.coverImageUrl && (
-            <p className="mt-1 text-xs text-red-600">
-              {errors.coverImageUrl.message}
-            </p>
-          )}
-        </div>
-
-        {/* Toggles : isAdult + actif */}
-        <div className="flex flex-wrap gap-6">
-          {/* isAdult */}
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium">Contenu adulte</label>
-            <button
-              type="button"
-              onClick={() =>
-                setValue("isAdult", !isAdult, { shouldDirty: true })
-              }
-              className={`relative h-6 w-11 rounded-full transition ${
-                isAdult ? "bg-primary" : "bg-gray-300"
-              }`}
-            >
-              <span
-                className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition ${
-                  isAdult ? "translate-x-5" : ""
-                }`}
-              />
-            </button>
-            <span className="text-sm text-gray-500">
-              {isAdult ? "Oui" : "Non"}
-            </span>
-          </div>
-
-          {/* actif */}
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium">Actif</label>
-            <button
-              type="button"
-              onClick={() =>
-                setValue("actif", !actif, { shouldDirty: true })
-              }
-              className={`relative h-6 w-11 rounded-full transition ${
-                actif ? "bg-primary" : "bg-gray-300"
-              }`}
-            >
-              <span
-                className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition ${
-                  actif ? "translate-x-5" : ""
-                }`}
-              />
-            </button>
-            <span className="text-sm text-gray-500">
-              {actif ? "Oui" : "Non"}
-            </span>
-          </div>
-        </div>
-
-        {/* Position */}
-        <div>
-          <label className="mb-1 block text-sm font-medium">Position</label>
-          <input
-            type="number"
-            min={0}
-            {...register("position", { valueAsNumber: true })}
-            className="input-field w-28"
-          />
-          {errors.position && (
-            <p className="mt-1 text-xs text-red-600">
-              {errors.position.message}
-            </p>
-          )}
-        </div>
-
-        {/* Erreur globale */}
-        {errors.root && (
-          <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-            {errors.root.message}
-          </p>
-        )}
-
-        <LoadingButton
-          loading={isSubmitting}
-          loadingText="Création..."
-          className="btn-primary"
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="max-w-2xl space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+          noValidate
         >
-          Créer la catégorie
-        </LoadingButton>
-      </form>
+          <h3 className="font-semibold text-gray-900">Nouvelle catégorie</h3>
+
+          {/* Nom */}
+          <FormField
+            control={form.control}
+            name="nom"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nom *</FormLabel>
+                <FormControl>
+                  <Input placeholder="Ex: Bien-être" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Slug */}
+          <FormField
+            control={form.control}
+            name="slug"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Slug *</FormLabel>
+                <div className="flex gap-2">
+                  <FormControl>
+                    <Input placeholder="bien-etre" className="flex-1" {...field} />
+                  </FormControl>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() =>
+                      form.setValue("slug", slugify(nom), {
+                        shouldValidate: true,
+                      })
+                    }
+                  >
+                    Générer
+                  </Button>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Description */}
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    rows={3}
+                    placeholder="Description courte (optionnel, max 280 car.)"
+                    className="resize-none"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Thème */}
+          <fieldset>
+            <legend className="mb-2 text-sm font-medium">
+              Thème de couleurs *
+            </legend>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {THEME_FIELDS.map(({ key, label }) => (
+                <FormField
+                  key={key}
+                  control={form.control}
+                  name={`theme.${key}`}
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2 space-y-0">
+                      <FormControl>
+                        <Input
+                          type="color"
+                          className="h-9 w-12 cursor-pointer p-1"
+                          {...field}
+                        />
+                      </FormControl>
+                      <code className="w-20 text-xs text-gray-600">
+                        {theme?.[key] ?? ""}
+                      </code>
+                      <span className="text-xs text-gray-500">{label}</span>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ))}
+            </div>
+          </fieldset>
+
+          {/* Icône */}
+          <FormField
+            control={form.control}
+            name="iconName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Icône *</FormLabel>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <FormControl>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Choisir une icône" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {ICON_NAMES.map((icon) => (
+                      <SelectItem key={icon} value={icon}>
+                        {icon}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Image de couverture */}
+          <FormField
+            control={form.control}
+            name="coverImageUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Image de couverture *</FormLabel>
+                {coverImageUrl && (
+                  <div className="relative mb-2 h-32 w-32 overflow-hidden rounded-lg border border-gray-200">
+                    <Image
+                      src={coverImageUrl}
+                      alt="Aperçu couverture"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                {uploading && (
+                  <div className="mb-2 flex items-center gap-2 text-sm text-gray-500">
+                    <LoadingSpinner size="sm" />
+                    Upload en cours…
+                  </div>
+                )}
+                <Input
+                  ref={coverRef}
+                  type="file"
+                  accept="image/*"
+                  className="text-sm"
+                  onChange={handleCoverChange}
+                  disabled={uploading}
+                />
+                {/* Champ caché pour transporter la valeur dans react-hook-form */}
+                <input type="hidden" {...field} />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Toggles : isAdult + actif */}
+          <div className="flex flex-wrap gap-6">
+            {/* isAdult */}
+            <FormField
+              control={form.control}
+              name="isAdult"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-3 space-y-0">
+                  <FormLabel>Contenu adulte</FormLabel>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <span className="text-sm text-gray-500">
+                    {field.value ? "Oui" : "Non"}
+                  </span>
+                </FormItem>
+              )}
+            />
+
+            {/* actif */}
+            <FormField
+              control={form.control}
+              name="actif"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-3 space-y-0">
+                  <FormLabel>Actif</FormLabel>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <span className="text-sm text-gray-500">
+                    {field.value ? "Oui" : "Non"}
+                  </span>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Position */}
+          <FormField
+            control={form.control}
+            name="position"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Position</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min={0}
+                    className="w-28"
+                    {...field}
+                    onChange={(e) =>
+                      field.onChange(e.target.valueAsNumber || 0)
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Erreur globale */}
+          {errors.root?.message ? (
+            <Alert variant="destructive">
+              <AlertDescription>{errors.root.message}</AlertDescription>
+            </Alert>
+          ) : null}
+
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                Création...
+              </>
+            ) : (
+              "Créer la catégorie"
+            )}
+          </Button>
+        </form>
+      </Form>
 
       {/* ── Table ───────────────────────────────────────────────────────── */}
       <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">

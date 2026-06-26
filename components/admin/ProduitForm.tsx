@@ -6,6 +6,7 @@ import { valibotResolver } from "@hookform/resolvers/valibot";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import { produitSchema, type ProduitFormValues } from "@/lib/api/schemas";
 import { BADGE_OPTIONS } from "@/lib/constants";
 import { useCategoriesAdmin } from "@/lib/api/hooks/use-categories";
@@ -20,7 +21,27 @@ import {
 } from "@/lib/api/hooks/use-produits";
 import { useUpload } from "@/lib/api/hooks/use-uploads";
 import { getApiErrorMessage } from "@/lib/api/http";
-import LoadingButton from "@/components/ui/LoadingButton";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ProduitFormProps {
   produitId?: number;
@@ -58,15 +79,7 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
 
   // ── Form ───────────────────────────────────────────────────────────────────
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    setError,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<ProduitFormValues>({
+  const form = useForm<ProduitFormValues>({
     resolver: valibotResolver(produitSchema),
     mode: "onTouched",
     defaultValues: {
@@ -83,7 +96,16 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
     },
   });
 
-  const actif = watch("actif");
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    setError,
+    reset,
+    formState: { errors, isSubmitting },
+  } = form;
+
   const watchedImageUrl = watch("imageUrl");
   const watchedVideoUrl = watch("videoUrl");
 
@@ -179,9 +201,9 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
         <p className="mt-2 text-sm text-amber-700">
           Créez d&apos;abord une catégorie avant d&apos;ajouter un produit.
         </p>
-        <Link href="/admin/categories" className="btn-primary mt-4 inline-flex">
-          Gérer les catégories
-        </Link>
+        <Button asChild className="mt-4">
+          <Link href="/admin/categories">Gérer les catégories</Link>
+        </Button>
       </div>
     );
   }
@@ -189,245 +211,296 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="max-w-2xl space-y-5"
-      noValidate
-    >
-      {/* Catégorie (hors payload — pilote la cascade) */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">Catégorie *</label>
-        <select
-          value={selectedCategorieId}
-          onChange={(e) => {
-            const val = e.target.value !== "" ? Number(e.target.value) : "";
-            setSelectedCategorieId(val);
-            setValue("sousCategorieId", 0, { shouldValidate: false });
-          }}
-          className="input-field"
-        >
-          <option value="">Sélectionner une catégorie</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.nom}
-            </option>
-          ))}
-        </select>
-      </div>
+    <Form {...form}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="max-w-2xl space-y-5"
+        noValidate
+      >
+        {/* Catégorie (hors payload — pilote la cascade, hors useForm) */}
+        <div className="space-y-1">
+          <Label htmlFor="categorie-select">Catégorie *</Label>
+          <Select
+            value={selectedCategorieId !== "" ? selectedCategorieId.toString() : ""}
+            onValueChange={(v) => {
+              setSelectedCategorieId(v !== "" ? Number(v) : "");
+              setValue("sousCategorieId", 0, { shouldValidate: false });
+            }}
+          >
+            <SelectTrigger id="categorie-select">
+              <SelectValue placeholder="Sélectionner une catégorie" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id.toString()}>
+                  {cat.nom}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      {/* Sous-catégorie */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">Sous-catégorie *</label>
-        <select
-          {...register("sousCategorieId", { valueAsNumber: true })}
-          className="input-field"
-          disabled={!selectedCategorieId}
-        >
-          <option value={0}>
-            {selectedCategorieId
-              ? "Sélectionner une sous-catégorie"
-              : "Choisir d'abord une catégorie"}
-          </option>
-          {sousCategories.map((sc) => (
-            <option key={sc.id} value={sc.id}>
-              {sc.nom}
-            </option>
-          ))}
-        </select>
-        {errors.sousCategorieId && (
-          <p className="mt-1 text-xs text-red-600">
-            {errors.sousCategorieId.message}
-          </p>
-        )}
-      </div>
-
-      {/* Nom */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">Nom *</label>
-        <input {...register("nom")} className="input-field" />
-        {errors.nom && (
-          <p className="mt-1 text-xs text-red-600">{errors.nom.message}</p>
-        )}
-      </div>
-
-      {/* Slug */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">
-          Slug{" "}
-          <span className="font-normal text-gray-400">(optionnel)</span>
-        </label>
-        <input
-          {...register("slug")}
-          className="input-field"
-          placeholder="généré-automatiquement"
+        {/* Sous-catégorie */}
+        <FormField
+          control={form.control}
+          name="sousCategorieId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sous-catégorie *</FormLabel>
+              <Select
+                value={field.value !== 0 ? field.value.toString() : ""}
+                onValueChange={(v) => field.onChange(Number(v))}
+                disabled={!selectedCategorieId}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={
+                        selectedCategorieId
+                          ? "Sélectionner une sous-catégorie"
+                          : "Choisir d'abord une catégorie"
+                      }
+                    />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {sousCategories.map((sc) => (
+                    <SelectItem key={sc.id} value={sc.id.toString()}>
+                      {sc.nom}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        {errors.slug && (
-          <p className="mt-1 text-xs text-red-600">{errors.slug.message}</p>
-        )}
-      </div>
 
-      {/* Prix */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">Prix (FCFA) *</label>
-        <input
-          type="number"
-          min={1}
-          {...register("prix", { valueAsNumber: true })}
-          className="input-field w-40"
+        {/* Nom */}
+        <FormField
+          control={form.control}
+          name="nom"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nom *</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        {errors.prix && (
-          <p className="mt-1 text-xs text-red-600">{errors.prix.message}</p>
-        )}
-      </div>
 
-      {/* Description courte */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">
-          Description courte *
-        </label>
-        <input
-          {...register("descriptionCourte")}
-          className="input-field"
-          maxLength={280}
+        {/* Slug */}
+        <FormField
+          control={form.control}
+          name="slug"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Slug{" "}
+                <span className="font-normal text-gray-400">(optionnel)</span>
+              </FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="généré-automatiquement" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        {errors.descriptionCourte && (
-          <p className="mt-1 text-xs text-red-600">
-            {errors.descriptionCourte.message}
-          </p>
-        )}
-      </div>
 
-      {/* Description longue */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">
-          Description longue *
-        </label>
-        <textarea
-          {...register("descriptionLongue")}
-          rows={4}
-          className="input-field resize-none"
+        {/* Prix */}
+        <FormField
+          control={form.control}
+          name="prix"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Prix (FCFA) *</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min={1}
+                  className="w-40"
+                  {...field}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === "" ? 0 : e.target.valueAsNumber
+                    )
+                  }
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        {errors.descriptionLongue && (
-          <p className="mt-1 text-xs text-red-600">
-            {errors.descriptionLongue.message}
-          </p>
-        )}
-      </div>
 
-      {/* Badge */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">Badge</label>
-        <select {...register("badge")} className="input-field w-48">
-          {BADGE_OPTIONS.map((b) => (
-            <option key={b} value={b}>
-              {b || "Aucun"}
-            </option>
-          ))}
-        </select>
-      </div>
+        {/* Description courte */}
+        <FormField
+          control={form.control}
+          name="descriptionCourte"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description courte *</FormLabel>
+              <FormControl>
+                <Input {...field} maxLength={280} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      {/* Image */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">Image *</label>
-        {watchedImageUrl && (
-          <div className="relative mb-2 h-32 w-32 overflow-hidden rounded-lg">
-            <Image
-              src={watchedImageUrl}
-              alt="Aperçu"
-              fill
-              className="object-cover"
+        {/* Description longue */}
+        <FormField
+          control={form.control}
+          name="descriptionLongue"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description longue *</FormLabel>
+              <FormControl>
+                <Textarea {...field} rows={4} className="resize-none" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Badge */}
+        <FormField
+          control={form.control}
+          name="badge"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Badge</FormLabel>
+              <Select
+                value={field.value ? field.value : "__none__"}
+                onValueChange={(v) => field.onChange(v === "__none__" ? "" : v)}
+              >
+                <FormControl>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Aucun" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {BADGE_OPTIONS.map((b) => (
+                    <SelectItem key={b === "" ? "__none__" : b} value={b === "" ? "__none__" : b}>
+                      {b || "Aucun"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Image */}
+        <div className="space-y-1">
+          <Label htmlFor="image-upload">Image *</Label>
+          {watchedImageUrl && (
+            <div className="relative mb-2 h-32 w-32 overflow-hidden rounded-lg">
+              <Image
+                src={watchedImageUrl}
+                alt="Aperçu"
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
+          {uploadingImage && (
+            <p className="mb-1 text-xs text-gray-500">Upload…</p>
+          )}
+          <Input
+            id="image-upload"
+            ref={imageRef}
+            type="file"
+            accept="image/*"
+            className="text-sm"
+            onChange={handleImageChange}
+            disabled={uploadingImage}
+          />
+          {/* Champ caché pour transporter la valeur dans react-hook-form */}
+          <input type="hidden" {...register("imageUrl")} />
+          {errors.imageUrl && (
+            <p className="mt-1 text-xs text-red-600">{errors.imageUrl.message}</p>
+          )}
+        </div>
+
+        {/* Vidéo */}
+        <div className="space-y-1">
+          <Label htmlFor="video-upload">Vidéo publicitaire</Label>
+          {watchedVideoUrl && (
+            <video
+              src={watchedVideoUrl}
+              controls
+              className="mb-2 max-h-48 w-full max-w-sm rounded-lg"
             />
-          </div>
-        )}
-        {uploadingImage && (
-          <p className="mb-1 text-xs text-gray-500">Upload…</p>
-        )}
-        <input
-          ref={imageRef}
-          type="file"
-          accept="image/*"
-          className="text-sm"
-          onChange={handleImageChange}
-          disabled={uploadingImage}
-        />
-        {/* Champ caché pour transporter la valeur dans react-hook-form */}
-        <input type="hidden" {...register("imageUrl")} />
-        {errors.imageUrl && (
-          <p className="mt-1 text-xs text-red-600">{errors.imageUrl.message}</p>
-        )}
-      </div>
-
-      {/* Vidéo */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">
-          Vidéo publicitaire
-        </label>
-        {watchedVideoUrl && (
-          <video
-            src={watchedVideoUrl}
-            controls
-            className="mb-2 max-h-48 w-full max-w-sm rounded-lg"
+          )}
+          {uploadingVideo && (
+            <p className="mb-1 text-xs text-gray-500">Upload…</p>
+          )}
+          <Input
+            id="video-upload"
+            ref={videoRef}
+            type="file"
+            accept="video/mp4,video/webm,video/quicktime"
+            className="text-sm"
+            onChange={handleVideoChange}
+            disabled={uploadingVideo}
           />
-        )}
-        {uploadingVideo && (
-          <p className="mb-1 text-xs text-gray-500">Upload…</p>
-        )}
-        <input
-          ref={videoRef}
-          type="file"
-          accept="video/mp4,video/webm,video/quicktime"
-          className="text-sm"
-          onChange={handleVideoChange}
-          disabled={uploadingVideo}
+          {/* Champ caché pour transporter la valeur dans react-hook-form */}
+          <input type="hidden" {...register("videoUrl")} />
+          <p className="mt-1 text-xs text-gray-400">
+            MP4, WebM — max recommandé 50 Mo
+          </p>
+        </div>
+
+        {/* Switch actif */}
+        <FormField
+          control={form.control}
+          name="actif"
+          render={({ field }) => (
+            <FormItem>
+              <div className="flex items-center gap-3">
+                <FormLabel className="text-sm font-medium">Actif</FormLabel>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <span className="text-sm text-gray-500">
+                  {field.value ? "Oui" : "Non"}
+                </span>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        {/* Champ caché pour transporter la valeur dans react-hook-form */}
-        <input type="hidden" {...register("videoUrl")} />
-        <p className="mt-1 text-xs text-gray-400">
-          MP4, WebM — max recommandé 50 Mo
-        </p>
-      </div>
 
-      {/* Toggle actif */}
-      <div className="flex items-center gap-3">
-        <label className="text-sm font-medium">Actif</label>
-        <button
-          type="button"
-          onClick={() => setValue("actif", !actif, { shouldDirty: true })}
-          className={`relative h-6 w-11 rounded-full transition ${
-            actif ? "bg-primary" : "bg-gray-300"
-          }`}
-        >
-          <span
-            className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition ${
-              actif ? "translate-x-5" : ""
-            }`}
-          />
-        </button>
-        <span className="text-sm text-gray-500">{actif ? "Oui" : "Non"}</span>
-      </div>
+        {errors.root?.message ? (
+          <Alert variant="destructive">
+            <AlertDescription>{errors.root.message}</AlertDescription>
+          </Alert>
+        ) : null}
 
-      {errors.root && (
-        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-          {errors.root.message}
-        </p>
-      )}
-
-      <div className="flex gap-3">
-        <LoadingButton
-          loading={isSubmitting}
-          loadingText="Enregistrement..."
-          className="btn-primary"
-        >
-          {isEdit ? "Mettre à jour" : "Créer le produit"}
-        </LoadingButton>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="btn-secondary"
-        >
-          Annuler
-        </button>
-      </div>
-    </form>
+        <div className="flex gap-3">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                Enregistrement...
+              </>
+            ) : isEdit ? (
+              "Mettre à jour"
+            ) : (
+              "Créer le produit"
+            )}
+          </Button>
+          <Button type="button" variant="outline" onClick={() => router.back()}>
+            Annuler
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

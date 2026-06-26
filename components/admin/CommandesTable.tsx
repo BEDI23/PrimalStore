@@ -15,6 +15,15 @@ import {
   statutsDisponibles,
 } from "@/lib/constants";
 import { filterCommandesByDate } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function CommandesTable() {
   const { data, isLoading } = useCommandesAdmin();
@@ -124,14 +133,14 @@ export default function CommandesTable() {
               {f.label}
             </button>
           ))}
-          <input
+          <Input
             type="date"
             value={dateSpecifique}
             onChange={(e) => {
               setDateSpecifique(e.target.value);
               if (e.target.value) setFiltreDate("toutes");
             }}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs"
+            className="w-auto py-1.5 text-xs"
           />
           {dateSpecifique && (
             <button
@@ -175,12 +184,10 @@ export default function CommandesTable() {
                   className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
                 >
                   <td className="px-4 py-3">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={c.statut === "livree"}
                       disabled={isUpdating || c.statut !== "nouvelle"}
-                      onChange={() => marquerLivree(c)}
-                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary disabled:cursor-not-allowed"
+                      onCheckedChange={() => marquerLivree(c)}
                       title={
                         c.statut === "nouvelle"
                           ? "Marquer comme livré"
@@ -205,20 +212,26 @@ export default function CommandesTable() {
                   </td>
                   <td className="px-4 py-3">{c.quartier}</td>
                   <td className="px-4 py-3">
-                    <select
+                    <Select
                       value={c.statut}
                       disabled={isUpdating}
-                      onChange={(e) =>
-                        handleStatutChange(c.id, e.target.value as StatutCommande)
+                      onValueChange={(v) =>
+                        handleStatutChange(c.id, v as StatutCommande)
                       }
-                      className={`rounded-lg border-0 px-2 py-1 text-xs font-medium ${STATUT_COLORS[c.statut]}`}
                     >
-                      {statutsDisponibles(c.statut).map((s) => (
-                        <option key={s} value={s}>
-                          {STATUT_LABELS[s]}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger
+                        className={`h-auto w-auto border-0 px-2 py-1 text-xs font-medium shadow-none focus:ring-0 ${STATUT_COLORS[c.statut]}`}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {statutsDisponibles(c.statut).map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {STATUT_LABELS[s]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </td>
                   <td className="max-w-[150px] truncate px-4 py-3 text-gray-500">
                     {c.message || "—"}
