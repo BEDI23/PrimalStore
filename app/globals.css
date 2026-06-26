@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-surface-muted text-gray-900 antialiased;
   }
 
   ::selection {
@@ -36,6 +36,21 @@
   /* Filet de marque : dégradé orange du logo */
   .brand-rule {
     @apply h-1 w-16 rounded-full bg-gradient-to-r from-primary to-primary-light;
+  }
+
+  /* Bouton thème catégorie */
+  .btn-cat {
+    @apply inline-flex items-center justify-center rounded-full bg-cat-primary px-6 py-3 text-sm font-semibold text-cat-on shadow-sm transition hover:bg-cat-hover focus:outline-none focus:ring-2 focus:ring-cat-accent focus:ring-offset-2;
+  }
+
+  /* Chip filtre (sous-catégories) */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium bg-surface-subtle text-graphite transition hover:bg-surface-subtle/70 cursor-pointer;
+  }
+
+  /* Chip active */
+  .chip-active {
+    @apply bg-cat-primary text-cat-on;
   }
 }
 

@@ -29,9 +29,23 @@ const config: Config = {
           DEFAULT: "#0B0B0C",
           soft: "#18181A",
         },
+        // Surfaces claires chaudes
+        surface: {
+          DEFAULT: "#FFFFFF",
+          muted: "#FAF7F5",
+          subtle: "#F4F1EF",
+        },
+        // Thème de catégorie piloté par CSS vars
+        cat: {
+          primary: "var(--cat-primary)",
+          hover: "var(--cat-hover)",
+          accent: "var(--cat-accent)",
+          on: "var(--cat-on)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["var(--font-sora)", "var(--font-inter)", "system-ui", "sans-serif"],
       },
     },
   },
