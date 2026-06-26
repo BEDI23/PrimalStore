@@ -1,35 +1,169 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
 
-@layer base {
-  :root {
-    --background:          0 0% 100%;
-    --foreground:          220 13% 18%;    /* ink */
-    --card:                0 0% 100%;
-    --card-foreground:     220 13% 18%;
-    --popover:             0 0% 100%;
-    --popover-foreground:  220 13% 18%;
-    --primary:             14 87% 53%;     /* #ED4C20 */
-    --primary-foreground:  0 0% 100%;
-    --secondary:           220 13% 18%;    /* ink */
-    --secondary-foreground:0 0% 100%;
-    --muted:               20 30% 96%;
-    --muted-foreground:    220 6% 40%;
-    --accent:              20 30% 94%;
-    --accent-foreground:   220 13% 18%;
-    --destructive:         0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border:              220 13% 90%;
-    --input:               220 13% 90%;
-    --ring:                14 87% 53%;
-    --radius:              0.75rem;
-  }
+/* ─────────────────────────────────────────────────────────────────────────
+   Theme — tokens marque Primalstore + tokens shadcn (mappés en v4 @theme)
+   ───────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* Tokens marque (statiques, HEX) */
+  --color-primary: #ED4C20;
+  --color-primary-dark: #C53A14;
+  --color-primary-light: #FF6A42;
+  --color-primary-50: #FFF2ED;
+  --color-primary-100: #FFE1D5;
+
+  --color-graphite: #6F6E73;
+  --color-graphite-dark: #4A494E;
+  --color-graphite-light: #9B9AA1;
+  --color-graphite-50: #F4F4F5;
+
+  --color-ink: #0B0B0C;
+  --color-ink-soft: #18181A;
+
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #FAF7F5;
+  --color-surface-subtle: #F4F1EF;
+
+  /* Tokens thème catégorie (runtime CSS var, set par CategoryThemeProvider) */
+  --color-cat-primary: var(--cat-primary);
+  --color-cat-hover: var(--cat-hover);
+  --color-cat-accent: var(--cat-accent);
+  --color-cat-on: var(--cat-on);
+
+  /* Tokens shadcn — résolution via CSS vars définies dans :root */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Typography */
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-sora), var(--font-inter), system-ui, sans-serif;
+  --font-heading: var(--font-sora), var(--font-inter), system-ui, sans-serif;
+
+  /* Radius */
+  --radius: 0.875rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   Shadcn radix-lyra tokens (oklch) — light + dark
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0.008 326);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0.008 326);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0.008 326);
+  --primary-foreground: oklch(0.98 0.016 73.684);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.96 0.003 325.6);
+  --muted-foreground: oklch(0.542 0.034 322.5);
+  --accent: oklch(0.96 0.003 325.6);
+  --accent-foreground: oklch(0.212 0.019 322.12);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.922 0.005 325.62);
+  --input: oklch(0.922 0.005 325.62);
+  --ring: oklch(0.711 0.019 323.02);
+
+  --chart-1: oklch(0.865 0.127 207.078);
+  --chart-2: oklch(0.715 0.143 215.221);
+  --chart-3: oklch(0.609 0.126 221.723);
+  --chart-4: oklch(0.52 0.105 223.128);
+  --chart-5: oklch(0.45 0.085 224.283);
+
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0.008 326);
+  --sidebar-primary: oklch(0.646 0.222 41.116);
+  --sidebar-primary-foreground: oklch(0.98 0.016 73.684);
+  --sidebar-accent: oklch(0.96 0.003 325.6);
+  --sidebar-accent-foreground: oklch(0.212 0.019 322.12);
+  --sidebar-border: oklch(0.922 0.005 325.62);
+  --sidebar-ring: oklch(0.711 0.019 323.02);
+}
+
+.dark {
+  --background: oklch(0.145 0.008 326);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.212 0.019 322.12);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.212 0.019 322.12);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.98 0.016 73.684);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.263 0.024 320.12);
+  --muted-foreground: oklch(0.711 0.019 323.02);
+  --accent: oklch(0.263 0.024 320.12);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.542 0.034 322.5);
+
+  --chart-1: oklch(0.865 0.127 207.078);
+  --chart-2: oklch(0.715 0.143 215.221);
+  --chart-3: oklch(0.609 0.126 221.723);
+  --chart-4: oklch(0.52 0.105 223.128);
+  --chart-5: oklch(0.45 0.085 224.283);
+
+  --sidebar: oklch(0.212 0.019 322.12);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.705 0.213 47.604);
+  --sidebar-primary-foreground: oklch(0.98 0.016 73.684);
+  --sidebar-accent: oklch(0.263 0.024 320.12);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.542 0.034 322.5);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Base
+   ───────────────────────────────────────────────────────────────────────── */
 @layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
   body {
     @apply bg-surface-muted text-gray-900 antialiased;
+    font-family: var(--font-sans);
   }
 
   ::selection {
@@ -37,6 +171,9 @@
   }
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   Composants marque (préservés)
+   ───────────────────────────────────────────────────────────────────────── */
 @layer components {
   .btn-primary {
     @apply inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition hover:bg-primary-dark hover:shadow-md hover:shadow-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
@@ -58,29 +195,27 @@
     @apply rounded-2xl bg-white p-4 shadow-md;
   }
 
-  /* Filet de marque : dégradé orange du logo */
   .brand-rule {
     @apply h-1 w-16 rounded-full bg-gradient-to-r from-primary to-primary-light;
   }
 
-  /* Bouton thème catégorie */
   .btn-cat {
     @apply inline-flex items-center justify-center rounded-full bg-cat-primary px-6 py-3 text-sm font-semibold text-cat-on shadow-sm transition hover:bg-cat-hover focus:outline-none focus:ring-2 focus:ring-cat-accent focus:ring-offset-2;
   }
 
-  /* Chip filtre (sous-catégories) */
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium bg-surface-subtle text-graphite transition hover:bg-surface-subtle/70 cursor-pointer;
   }
 
-  /* Chip active */
   .chip-active {
     @apply bg-cat-primary text-cat-on;
   }
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   Utilities marque (préservées)
+   ───────────────────────────────────────────────────────────────────────── */
 @layer utilities {
-  /* Entrée de modale (age gate) — via animate-[scale-in_200ms_ease-out] */
   @keyframes scale-in {
     from {
       opacity: 0;
@@ -92,7 +227,6 @@
     }
   }
 
-  /* Surface sombre signature (fond du logo) */
   .bg-brand-dark {
     background-color: #0b0b0c;
     background-image: radial-gradient(
