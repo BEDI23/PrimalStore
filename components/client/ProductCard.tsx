@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ShoppingBag } from "lucide-react";
 import type { Produit } from "@/lib/api/types";
 import { formatPrix } from "@/lib/utils";
 
@@ -12,7 +13,7 @@ function Badge({
 }) {
   const colors = {
     promo: "bg-red-500 text-white",
-    nouveau: "bg-graphite text-white",
+    nouveau: "bg-ink text-white",
     bestseller: "bg-ink text-white",
   };
   return (
@@ -30,9 +31,9 @@ export default function ProductCard({ produit }: { produit: Produit }) {
   const prixFinal = promo ? promo.prixPromo : produit.prix;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl bg-white p-3 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-4">
-      <Link href={`/produits/${produit.id}`} className="group block">
-        <div className="relative h-[220px] overflow-hidden rounded-xl bg-gray-100">
+    <div className="group flex h-full flex-col overflow-hidden rounded-2xl bg-surface p-3 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
+      <Link href={`/produits/${produit.id}`} className="block">
+        <div className="relative aspect-square overflow-hidden rounded-xl bg-surface-subtle">
           {enPromo && <Badge label="Promo" type="promo" />}
           {!enPromo && produit.badge === "Nouveau" && (
             <Badge label="Nouveau" type="nouveau" />
@@ -44,7 +45,7 @@ export default function ProductCard({ produit }: { produit: Produit }) {
             src={produit.imageUrl || "/images/placeholder-produit.svg"}
             alt={produit.nom}
             fill
-            className="object-cover transition duration-300 group-hover:scale-105"
+            className="object-cover transition duration-200 group-hover:scale-105"
             sizes="(max-width: 640px) 50vw, 25vw"
           />
         </div>
@@ -52,7 +53,7 @@ export default function ProductCard({ produit }: { produit: Produit }) {
 
       <div className="mt-3 flex flex-1 flex-col">
         <Link href={`/produits/${produit.id}`}>
-          <h3 className="line-clamp-2 font-semibold text-gray-900 transition hover:text-primary">
+          <h3 className="line-clamp-2 font-medium text-gray-900 transition hover:text-primary">
             {produit.nom}
           </h3>
         </Link>
@@ -63,7 +64,7 @@ export default function ProductCard({ produit }: { produit: Produit }) {
           </p>
         )}
 
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+        <div className="mt-2 flex flex-wrap items-center gap-2 tabular-nums">
           {enPromo ? (
             <>
               <span className="text-sm text-gray-400 line-through">
@@ -82,8 +83,9 @@ export default function ProductCard({ produit }: { produit: Produit }) {
 
         <Link
           href={`/commander/${produit.id}`}
-          className="btn-primary mt-4 w-full py-2.5 text-sm"
+          className="btn-primary mt-4 flex w-full items-center justify-center gap-2 py-2.5 text-sm"
         >
+          <ShoppingBag className="h-4 w-4" aria-hidden="true" />
           Commander
         </Link>
       </div>
