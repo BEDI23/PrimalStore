@@ -1,3 +1,10 @@
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 export function formatPrix(prix: number): string {
   return `${Math.round(prix).toLocaleString("fr-FR")} FCFA`;
 }

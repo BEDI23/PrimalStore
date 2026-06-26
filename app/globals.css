@@ -3,6 +3,31 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background:          0 0% 100%;
+    --foreground:          220 13% 18%;    /* ink */
+    --card:                0 0% 100%;
+    --card-foreground:     220 13% 18%;
+    --popover:             0 0% 100%;
+    --popover-foreground:  220 13% 18%;
+    --primary:             14 87% 53%;     /* #ED4C20 */
+    --primary-foreground:  0 0% 100%;
+    --secondary:           220 13% 18%;    /* ink */
+    --secondary-foreground:0 0% 100%;
+    --muted:               20 30% 96%;
+    --muted-foreground:    220 6% 40%;
+    --accent:              20 30% 94%;
+    --accent-foreground:   220 13% 18%;
+    --destructive:         0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border:              220 13% 90%;
+    --input:               220 13% 90%;
+    --ring:                14 87% 53%;
+    --radius:              0.75rem;
+  }
+}
+
+@layer base {
   body {
     @apply bg-surface-muted text-gray-900 antialiased;
   }

@@ -16,6 +16,8 @@
     "@tanstack/react-query": "^5.101.1",
     "@tanstack/react-query-devtools": "^5.101.1",
     "axios": "^1.18.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
     "next": "16.2.9",
     "react": "^19.2.7",
@@ -23,6 +25,8 @@
     "react-hook-form": "^7.79.0",
     "recharts": "^2.14.1",
     "resend": "^6.12.4",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss-animate": "^1.0.7",
     "valibot": "^1.4.1"
   },
   "devDependencies": {
