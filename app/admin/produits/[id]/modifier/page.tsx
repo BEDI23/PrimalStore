@@ -1,14 +1,16 @@
 "use client";
 
+import { use } from "react";
 import { useProduitAdmin } from "@/lib/api/hooks/use-produits";
 import ProduitForm from "@/components/admin/ProduitForm";
 
 export default function ModifierProduitPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const id = Number(params.id);
+  const { id: idParam } = use(params);
+  const id = Number(idParam);
   const { data: produit } = useProduitAdmin(id, Number.isFinite(id));
 
   return (
