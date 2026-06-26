@@ -1,14 +1,15 @@
 import type { MetadataRoute } from "next";
 import { apiGet } from "@/lib/api/server-fetch";
+import { getCategoriesPublic } from "@/lib/api/public-data";
 import { SITE_URL } from "@/lib/site";
 import type { SitemapEntry } from "@/lib/api/types";
 
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const statics = ["", "/produits", "/a-propos", "/contact"].map((p) => ({
-    url: `${SITE_URL}${p}`,
-  }));
+  const statics = ["", "/produits", "/categories", "/a-propos", "/contact"].map(
+    (p) => ({ url: `${SITE_URL}${p}` })
+  );
 
   let dynamics: MetadataRoute.Sitemap = [];
   try {
@@ -20,9 +21,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     /* backend indisponible : on sert au moins les routes statiques */
   }
 
+  let categoryUrls: MetadataRoute.Sitemap = [];
+  try {
+    const categories = await getCategoriesPublic();
+    categoryUrls = categories
+      .filter((c) => c.actif)
+      .map((c) => ({ url: `${SITE_URL}/categories/${c.slug}` }));
+  } catch {
+    /* catégories indisponibles : on continue sans elles */
+  }
+
   // dédoublonne par URL
   const seen = new Set<string>();
-  return [...statics, ...dynamics].filter((e) =>
+  return [...statics, ...dynamics, ...categoryUrls].filter((e) =>
     seen.has(e.url) ? false : (seen.add(e.url), true)
   );
 }
