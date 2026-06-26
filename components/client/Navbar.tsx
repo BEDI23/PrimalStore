@@ -3,9 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import { BOUTIQUE_NOM } from "@/lib/constants";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const NAV_LINKS = [
   { href: "/categories", label: "Catégories" },
@@ -15,14 +20,9 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + "/");
-  }
-
-  function closeMobile() {
-    setMobileOpen(false);
   }
 
   return (
@@ -32,7 +32,6 @@ export default function Navbar() {
         <Link
           href="/"
           className="flex shrink-0 items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
-          onClick={closeMobile}
         >
           <Image
             src="/logo.jpeg"
@@ -71,51 +70,47 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          type="button"
-          aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
-          aria-expanded={mobileOpen}
-          onClick={() => setMobileOpen((o) => !o)}
-          className="flex h-11 w-11 items-center justify-center rounded-lg text-ink transition hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:hidden"
-        >
-          {mobileOpen ? (
-            <X className="h-6 w-6" strokeWidth={1.75} />
-          ) : (
-            <Menu className="h-6 w-6" strokeWidth={1.75} />
-          )}
-        </button>
-      </nav>
-
-      {/* Mobile menu panel */}
-      {mobileOpen && (
-        <div className="border-t border-gray-100 bg-white px-4 pb-4 sm:hidden">
-          <nav className="flex flex-col gap-1 pt-2">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={closeMobile}
-                className={[
-                  "flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium transition-colors duration-150",
-                  isActive(link.href)
-                    ? "bg-primary-50 text-primary font-semibold"
-                    : "text-graphite hover:bg-surface-subtle hover:text-ink",
-                ].join(" ")}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <Link
-              href="/categories"
-              onClick={closeMobile}
-              className="btn-primary mt-2 flex min-h-[44px] items-center justify-center text-sm focus:ring-2 focus:ring-primary focus:ring-offset-2"
+        {/* Mobile hamburger — Sheet trigger */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <button
+              type="button"
+              aria-label="Ouvrir le menu"
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-ink transition hover:bg-surface-subtle focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:hidden"
             >
-              Commander
-            </Link>
-          </nav>
-        </div>
-      )}
+              <Menu className="h-6 w-6" strokeWidth={1.75} />
+            </button>
+          </SheetTrigger>
+
+          <SheetContent side="right" className="w-72 px-4 py-6 sm:hidden">
+            <nav className="mt-6 flex flex-col gap-1">
+              {NAV_LINKS.map((link) => (
+                <SheetClose key={link.href} asChild>
+                  <Link
+                    href={link.href}
+                    className={[
+                      "flex min-h-[44px] items-center rounded-lg px-3 text-sm font-medium transition-colors duration-150",
+                      isActive(link.href)
+                        ? "bg-primary-50 text-primary font-semibold"
+                        : "text-graphite hover:bg-surface-subtle hover:text-ink",
+                    ].join(" ")}
+                  >
+                    {link.label}
+                  </Link>
+                </SheetClose>
+              ))}
+              <SheetClose asChild>
+                <Link
+                  href="/categories"
+                  className="btn-primary mt-2 flex min-h-[44px] items-center justify-center text-sm focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                >
+                  Commander
+                </Link>
+              </SheetClose>
+            </nav>
+          </SheetContent>
+        </Sheet>
+      </nav>
     </header>
   );
 }
