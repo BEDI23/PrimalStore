@@ -1,14 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Categorie } from "@/lib/api/types";
-import { CATEGORY_ICONS } from "@/lib/category-ui";
+import { getCategoryIcon } from "@/lib/category-ui";
 
 interface CategoryCardProps {
   categorie: Categorie;
 }
 
 export default function CategoryCard({ categorie }: CategoryCardProps) {
-  const Icon = CATEGORY_ICONS[categorie.iconName];
+  const Icon = getCategoryIcon(categorie.iconName);
 
   return (
     <Link

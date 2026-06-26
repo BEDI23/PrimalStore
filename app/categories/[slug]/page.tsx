@@ -11,7 +11,7 @@ import {
   getSousCategoriesPublic,
   getProduitsPublic,
 } from "@/lib/api/public-data";
-import { categoryThemeVars, CATEGORY_ICONS } from "@/lib/category-ui";
+import { categoryThemeVars, getCategoryIcon } from "@/lib/category-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +49,7 @@ export default async function CategorySlugPage({
     }),
   ]);
 
-  const Icon = CATEGORY_ICONS[categorie.iconName];
+  const Icon = getCategoryIcon(categorie.iconName);
 
   return (
     <div style={categoryThemeVars(categorie.theme)}>
