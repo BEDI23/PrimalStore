@@ -4,99 +4,137 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Leaf } from "lucide-react";
+import { Leaf, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { BOUTIQUE_NOM } from "@/lib/constants";
 import { loginSchema, type LoginFormValues } from "@/lib/api/schemas";
 import { useLogin } from "@/lib/api/hooks/use-auth";
 import { getApiErrorMessage } from "@/lib/api/http";
-import LoadingButton from "@/components/ui/LoadingButton";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const login = useLogin();
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({
+
+  const form = useForm<LoginFormValues>({
     resolver: valibotResolver(loginSchema),
     mode: "onTouched",
+    reValidateMode: "onChange",
     defaultValues: { email: "", password: "" },
   });
 
   useEffect(() => {
     if (searchParams.get("error") === "unauthorized") {
-      setError("root", {
+      form.setError("root", {
         message: "Accès refusé. Ce compte n'est pas autorisé.",
       });
     }
-  }, [searchParams, setError]);
+  }, [searchParams, form]);
 
   async function onSubmit(values: LoginFormValues) {
     try {
-      await login.mutateAsync({ email: values.email, password: values.password });
+      await login.mutateAsync({
+        email: values.email,
+        password: values.password,
+      });
       router.push("/admin/dashboard");
       router.refresh();
     } catch (error) {
-      setError("root", { message: getApiErrorMessage(error) });
+      const message = getApiErrorMessage(error);
+      form.setError("root", { message });
+      toast.error(message);
     }
   }
 
+  const { isSubmitting, errors } = form.formState;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-surface-muted px-4">
+      <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 shadow-sm">
         <div className="mb-6 flex items-center justify-center gap-2">
-          <Leaf className="h-8 w-8 text-primary" />
+          <Leaf className="h-8 w-8 text-primary" aria-hidden />
           <span className="text-lg font-bold">{BOUTIQUE_NOM}</span>
         </div>
-        <h1 className="mb-6 text-center text-xl font-semibold text-gray-900">
+        <h1 className="mb-6 text-center font-display text-xl font-semibold text-ink">
           Connexion admin
         </h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-medium">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              {...register("email")}
-              className="input-field"
-              placeholder="admin@example.com"
-            />
-            {errors.email && (
-              <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
-            )}
-          </div>
-          <div>
-            <label htmlFor="password" className="mb-1 block text-sm font-medium">
-              Mot de passe
-            </label>
-            <input
-              id="password"
-              type="password"
-              {...register("password")}
-              className="input-field"
-            />
-            {errors.password && (
-              <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>
-            )}
-          </div>
-          {errors.root && (
-            <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-              {errors.root.message}
-            </p>
-          )}
-          <LoadingButton
-            loading={isSubmitting}
-            loadingText="Connexion..."
-            className="btn-primary w-full"
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4"
+            noValidate
+            aria-busy={isSubmitting}
           >
-            Se connecter
-          </LoadingButton>
-        </form>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      autoComplete="email"
+                      placeholder="admin@example.com"
+                      disabled={isSubmitting}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mot de passe</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      autoComplete="current-password"
+                      disabled={isSubmitting}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {errors.root?.message ? (
+              <Alert variant="destructive">
+                <AlertDescription>{errors.root.message}</AlertDescription>
+              </Alert>
+            ) : null}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isSubmitting}
+              aria-disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  Connexion…
+                </>
+              ) : (
+                "Se connecter"
+              )}
+            </Button>
+          </form>
+        </Form>
       </div>
     </div>
   );
