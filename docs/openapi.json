@@ -1148,9 +1148,7 @@
     "title": "PrimalStore API",
     "description": "API backend PrimalStore (NestJS).",
     "version": "1.0",
-    "contact": {
-
-    }
+    "contact": {}
   },
   "tags": [],
   "servers": [],
