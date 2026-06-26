@@ -13,6 +13,7 @@ export interface ApiGetOptions {
 
 async function apiFetch<T>(path: string, opts?: ApiGetOptions): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
+    cache: "force-cache",
     next: { tags: opts?.tags, revalidate: opts?.revalidate ?? 60 },
     headers: {
       Accept: "application/json",

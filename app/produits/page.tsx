@@ -8,10 +8,11 @@ export const dynamic = "force-dynamic";
 export default async function ProduitsPage({
   searchParams,
 }: {
-  searchParams: { categorie?: string };
+  searchParams: Promise<{ categorie?: string }>;
 }) {
+  const { categorie } = await searchParams;
   const [produits, categories] = await Promise.all([
-    getProduitsPublic({ categorieSlug: searchParams.categorie, limit: 100 }),
+    getProduitsPublic({ categorieSlug: categorie, limit: 100 }),
     getCategoriesPublic(),
   ]);
 
@@ -26,7 +27,7 @@ export default async function ProduitsPage({
         <ProductGrid
           produits={produits}
           categories={categories}
-          activeCategorieSlug={searchParams.categorie}
+          activeCategorieSlug={categorie}
         />
       </main>
       <Footer />

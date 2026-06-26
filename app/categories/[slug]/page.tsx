@@ -16,14 +16,15 @@ import { categoryThemeVars, CATEGORY_ICONS } from "@/lib/category-ui";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  params: { slug: string };
-  searchParams: { sous_categorie?: string };
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ sous_categorie?: string }>;
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const categorie = await getCategoriePublic(params.slug);
+  const { slug } = await params;
+  const categorie = await getCategoriePublic(slug);
   if (!categorie) return {};
   return {
     title: `${categorie.nom} — PrimalStore`,
@@ -34,14 +35,16 @@ export default async function CategorySlugPage({
   params,
   searchParams,
 }: PageProps) {
-  const categorie = await getCategoriePublic(params.slug);
+  const { slug } = await params;
+  const { sous_categorie } = await searchParams;
+  const categorie = await getCategoriePublic(slug);
   if (!categorie) notFound();
 
   const [sousCategories, produits] = await Promise.all([
-    getSousCategoriesPublic(params.slug),
+    getSousCategoriesPublic(slug),
     getProduitsPublic({
-      categorieSlug: params.slug,
-      sousCategorieSlug: searchParams.sous_categorie,
+      categorieSlug: slug,
+      sousCategorieSlug: sous_categorie,
       limit: 100,
     }),
   ]);
@@ -103,7 +106,7 @@ export default async function CategorySlugPage({
         <FilterChips
           categorieSlug={categorie.slug}
           sousCategories={sousCategories}
-          activeSlug={searchParams.sous_categorie}
+          activeSlug={sous_categorie}
         />
 
         {/* Grille produits protégée par l'age gate */}

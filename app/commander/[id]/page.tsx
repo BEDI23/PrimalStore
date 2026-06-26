@@ -9,9 +9,10 @@ export const dynamic = "force-dynamic";
 export default async function CommanderPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const id = Number(params.id);
+  const { id: idParam } = await params;
+  const id = Number(idParam);
   if (!Number.isFinite(id)) notFound();
 
   const produit = await getProduitPublic(id);
