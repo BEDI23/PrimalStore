@@ -68,6 +68,8 @@ Le header de catégorie, les chips actives et accents utilisent `bg-cat-primary`
 
 ## 5. Composants (specs)
 
+Utiliser les composant de shadcn/ui s'il fait adapte avec notre desgin, ne reinvente pas la se qui marche
+
 - **Button** : garder `.btn-primary` (orange, `rounded-full`), `.btn-secondary` (outline),
   `.btn-dark` (ink). Ajouter variante `.btn-cat` (utilise `bg-cat-primary text-cat-on`).
   Touch target ≥ 44px (`py-3` mini). État `loading` (spinner) + `disabled` (opacity-50).
