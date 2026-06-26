@@ -3,6 +3,7 @@ import { Inter, Sora } from "next/font/google";
 import "./globals.css";
 import { BOUTIQUE_NOM, BOUTIQUE_DESCRIPTION } from "@/lib/constants";
 import { Providers } from "./providers";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const sora = Sora({
@@ -28,6 +29,7 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );
