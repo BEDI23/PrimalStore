@@ -1,4 +1,6 @@
+import { ShoppingBag, Truck, Wallet } from "lucide-react";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
+import Link from "next/link";
 
 export default function HeroSection() {
   const whatsappUrl = getWhatsAppUrl(
@@ -13,7 +15,7 @@ export default function HeroSection() {
           Large catalogue à Lomé
         </span>
 
-        <h1 className="mt-6 text-3xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+        <h1 className="font-display mt-6 text-3xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
           Tout ce qu&apos;il vous faut,
           <br className="hidden sm:block" />{" "}
           <span className="text-gradient-brand">livré chez vous</span>
@@ -25,17 +27,17 @@ export default function HeroSection() {
         </p>
 
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-          <a
-            href="#produits"
-            className="inline-flex w-full items-center justify-center rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary-dark sm:w-auto"
+          <Link
+            href="/categories"
+            className="inline-flex w-full items-center justify-center rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition duration-150 hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-brand-dark sm:w-auto"
           >
             Voir le catalogue
-          </a>
+          </Link>
           <a
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex w-full items-center justify-center rounded-full border border-white/25 bg-white/5 px-8 py-3.5 text-sm font-semibold text-white backdrop-blur transition hover:border-white/50 hover:bg-white/10 sm:w-auto"
+            className="inline-flex w-full items-center justify-center rounded-full border border-white/25 bg-white/5 px-8 py-3.5 text-sm font-semibold text-white backdrop-blur transition duration-150 hover:border-white/50 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-brand-dark sm:w-auto"
           >
             Commander sur WhatsApp
           </a>
@@ -45,15 +47,15 @@ export default function HeroSection() {
       <div className="border-t border-white/10 bg-black/40">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-4 py-6 sm:grid-cols-3 sm:gap-6 sm:py-8">
           <div className="flex items-center justify-center gap-2 text-sm font-medium text-white/80 sm:text-base">
-            <span className="text-lg">🛍️</span>
+            <ShoppingBag className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
             <span>Catalogue varié</span>
           </div>
           <div className="flex items-center justify-center gap-2 text-sm font-medium text-white/80 sm:text-base">
-            <span className="text-lg">🛵</span>
+            <Truck className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
             <span>Livraison à Lomé</span>
           </div>
           <div className="flex items-center justify-center gap-2 text-sm font-medium text-white/80 sm:text-base">
-            <span className="text-lg">💰</span>
+            <Wallet className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
             <span>Paiement à la livraison</span>
           </div>
         </div>
