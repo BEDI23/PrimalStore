@@ -1,50 +1,99 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { ShieldAlert } from "lucide-react";
 import { useConfirmAge } from "@/lib/api/hooks";
 
 const KEY = "primal-age-confirmed";
 
-export function AgeGate() {
-  const [open, setOpen] = useState(false);
-  const pathname = usePathname();
+export default function AgeGate({
+  isAdult,
+  children,
+}: {
+  isAdult: boolean;
+  children: React.ReactNode;
+}) {
+  // État initial à false : SSR-safe, évite de révéler le contenu adulte avant hydratation.
+  const [confirmed, setConfirmed] = useState(false);
+  const router = useRouter();
   const { mutate: confirmAge } = useConfirmAge();
 
   useEffect(() => {
-    if (pathname?.startsWith("/admin")) return;
-    if (!localStorage.getItem(KEY)) {
-      setOpen(true);
+    if (!isAdult) return;
+    if (localStorage.getItem(KEY)) {
+      setConfirmed(true);
     }
-  }, [pathname]);
+  }, [isAdult]);
 
-  if (!open) return null;
+  // Catégorie non adulte : pas de gate.
+  if (!isAdult) {
+    return <>{children}</>;
+  }
 
+  // Adulte + confirmé : révèle le contenu.
+  if (confirmed) {
+    return <>{children}</>;
+  }
+
+  // Adulte + non confirmé : overlay de protection (le contenu adulte reste masqué).
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl">
-        <h2 className="mb-3 text-center text-2xl font-bold text-gray-900">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="agegate-title"
+    >
+      <div
+        className={[
+          "w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl",
+          "motion-safe:animate-[scale-in_200ms_ease-out]",
+          "motion-reduce:transition-none",
+        ].join(" ")}
+        style={
+          {
+            "--tw-scale-in-from": "0.92",
+          } as React.CSSProperties
+        }
+      >
+        <div className="mb-4 flex justify-center">
+          <ShieldAlert
+            className="h-10 w-10 text-red-500"
+            strokeWidth={1.75}
+            aria-hidden="true"
+          />
+        </div>
+
+        <h2
+          id="agegate-title"
+          className="mb-3 text-center font-display text-2xl font-bold text-ink"
+        >
           Avez-vous 18 ans ou plus ?
         </h2>
-        <p className="mb-6 text-center text-sm text-gray-600">
-          L&apos;accès à ce site est réservé aux personnes majeures. En
-          continuant, vous confirmez avoir au moins 18 ans.
+
+        <p className="mb-6 text-center text-sm text-graphite">
+          Cette catégorie est réservée aux personnes majeures. Confirmez votre
+          âge pour accéder au contenu.
         </p>
+
         <div className="flex flex-col gap-3">
           <button
+            type="button"
             className="btn-primary w-full"
             onClick={() => {
               confirmAge();
               localStorage.setItem(KEY, "1");
-              setOpen(false);
+              setConfirmed(true);
             }}
           >
             J&apos;ai 18 ans ou plus
           </button>
+
           <button
+            type="button"
             className="btn-secondary w-full"
             onClick={() => {
-              window.location.href = "https://www.google.com";
+              router.push("/categories");
             }}
           >
             Quitter
