@@ -48,10 +48,14 @@ http.interceptors.response.use(
       await refreshing;
       return http(original);
     } catch {
-      // Refresh raté → en zone admin, redirige vers le login.
+      // Refresh raté → en zone admin protégée, redirige vers le login.
+      // Si on est déjà sur /admin/login, on rejette simplement pour éviter
+      // une boucle de rechargement (window.location.assign re-déclenche
+      // immédiatement useMe → 401 → refresh 401 → reload).
       if (
         typeof window !== "undefined" &&
-        window.location.pathname.startsWith("/admin")
+        window.location.pathname.startsWith("/admin") &&
+        window.location.pathname !== "/admin/login"
       ) {
         window.location.assign("/admin/login");
       }
