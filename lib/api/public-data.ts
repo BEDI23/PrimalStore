@@ -3,7 +3,7 @@
 // Aucun import de lib/data.ts ni de lib/types.ts.
 
 import { apiGet, apiGetList } from "@/lib/api/server-fetch";
-import type { Produit, Categorie } from "@/lib/api/types";
+import type { Produit, Categorie, SousCategorie } from "@/lib/api/types";
 
 /**
  * Retourne la liste publique des produits actifs.
@@ -13,6 +13,7 @@ import type { Produit, Categorie } from "@/lib/api/types";
  */
 export async function getProduitsPublic(params?: {
   categorieSlug?: string;
+  sousCategorieSlug?: string;
   q?: string;
   limit?: number;
 }): Promise<Produit[]> {
@@ -21,6 +22,9 @@ export async function getProduitsPublic(params?: {
 
   if (params?.categorieSlug) {
     qs.set("categorie_slug", params.categorieSlug);
+  }
+  if (params?.sousCategorieSlug) {
+    qs.set("sous_categorie_slug", params.sousCategorieSlug);
   }
   if (params?.q) {
     qs.set("q", params.q);
@@ -53,6 +57,30 @@ export async function getProduitPublic(
 export async function getCategoriesPublic(): Promise<Categorie[]> {
   try {
     return await apiGet<Categorie[]>("/categories");
+  } catch {
+    return [];
+  }
+}
+
+/** Détail public d'une catégorie par slug (GET /categories/:slug), ou null si absente/erreur. */
+export async function getCategoriePublic(
+  slug: string
+): Promise<Categorie | null> {
+  try {
+    return await apiGet<Categorie>(`/categories/${encodeURIComponent(slug)}`);
+  } catch {
+    return null;
+  }
+}
+
+/** Sous-catégories publiques d'une catégorie (GET /categories/:slug/sous-categories). */
+export async function getSousCategoriesPublic(
+  slug: string
+): Promise<SousCategorie[]> {
+  try {
+    return await apiGet<SousCategorie[]>(
+      `/categories/${encodeURIComponent(slug)}/sous-categories`
+    );
   } catch {
     return [];
   }
