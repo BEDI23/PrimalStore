@@ -1,105 +1,58 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { ShieldAlert } from "lucide-react";
-import { useConfirmAge } from "@/lib/api/hooks";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { ShieldAlert } from 'lucide-react';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { useConfirmAge } from '@/lib/api/hooks';
 
-const KEY = "primal-age-confirmed";
+const KEY = 'primal-age-confirmed';
 
-export default function AgeGate({
-  isAdult,
-  children,
-}: {
-  isAdult: boolean;
-  children: React.ReactNode;
-}) {
-  // État initial à false : SSR-safe, évite de révéler le contenu adulte avant hydratation.
+export default function AgeGate({ isAdult, children }: { isAdult: boolean; children: React.ReactNode }) {
   const [confirmed, setConfirmed] = useState(false);
   const router = useRouter();
   const { mutate: confirmAge } = useConfirmAge();
 
   useEffect(() => {
     if (!isAdult) return;
-    if (localStorage.getItem(KEY)) {
-      setConfirmed(true);
-    }
+    if (typeof window !== 'undefined' && localStorage.getItem(KEY)) setConfirmed(true);
   }, [isAdult]);
 
-  // Catégorie non adulte : pas de gate.
-  if (!isAdult) {
-    return <>{children}</>;
-  }
+  if (!isAdult || confirmed) return <>{children}</>;
 
-  // Adulte + confirmé : révèle le contenu.
-  if (confirmed) {
-    return <>{children}</>;
-  }
-
-  // Adulte + non confirmé : overlay de protection (le contenu adulte reste masqué).
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="agegate-title"
-    >
-      <div
-        className={[
-          "w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl",
-          "motion-safe:animate-[scale-in_200ms_ease-out]",
-          "motion-reduce:transition-none",
-        ].join(" ")}
-        style={
-          {
-            "--tw-scale-in-from": "0.92",
-          } as React.CSSProperties
-        }
-      >
-        <div className="mb-4 flex justify-center">
-          <ShieldAlert
-            className="h-10 w-10 text-red-500"
-            strokeWidth={1.75}
-            aria-hidden="true"
-          />
-        </div>
-
-        <h2
-          id="agegate-title"
-          className="mb-3 text-center font-display text-2xl font-bold text-ink"
-        >
-          Avez-vous 18 ans ou plus ?
-        </h2>
-
-        <p className="mb-6 text-center text-sm text-graphite">
-          Cette catégorie est réservée aux personnes majeures. Confirmez votre
-          âge pour accéder au contenu.
-        </p>
-
-        <div className="flex flex-col gap-3">
-          <button
+    <Dialog open onOpenChange={(open) => { if (!open) router.push('/categories'); }}>
+      <DialogContent className="max-w-sm rounded-2xl">
+        <DialogHeader>
+          <ShieldAlert className="mx-auto mb-2 h-10 w-10 text-destructive" strokeWidth={1.75} aria-hidden />
+          <DialogTitle className="text-center font-display text-2xl">
+            Avez-vous 18 ans ou plus&nbsp;?
+          </DialogTitle>
+          <DialogDescription className="text-center">
+            Cette catégorie est réservée aux personnes majeures.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex-col gap-2 sm:flex-col">
+          <Button
             type="button"
-            className="btn-primary w-full"
-            onClick={() => {
-              confirmAge();
-              localStorage.setItem(KEY, "1");
-              setConfirmed(true);
-            }}
+            onClick={() => { confirmAge(); localStorage.setItem(KEY, '1'); setConfirmed(true); }}
+            className="w-full"
           >
             J&apos;ai 18 ans ou plus
-          </button>
-
-          <button
+          </Button>
+          <Button
             type="button"
-            className="btn-secondary w-full"
-            onClick={() => {
-              router.push("/categories");
-            }}
+            variant="secondary"
+            onClick={() => router.push('/categories')}
+            className="w-full"
           >
             Quitter
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
