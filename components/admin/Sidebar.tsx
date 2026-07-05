@@ -30,7 +30,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-screen w-56 flex-col border-r border-gray-200 bg-white">
+    <aside className="fixed left-0 top-0 z-40 flex h-screen w-56 flex-col border-r border-gray-100 bg-white">
       <div className="flex items-center gap-2.5 bg-ink px-4 py-4">
         <Image
           src="/logo.jpeg"
@@ -51,7 +51,7 @@ export default function Sidebar() {
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                 active
                   ? "bg-primary/10 text-primary"
-                  : "text-gray-600 hover:bg-gray-100"
+                  : "text-graphite hover:bg-surface-subtle"
               }`}
             >
               <Icon className="h-5 w-5" />

@@ -299,7 +299,7 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
             <FormItem>
               <FormLabel>
                 Slug{" "}
-                <span className="font-normal text-gray-400">(optionnel)</span>
+                <span className="font-normal text-graphite-light">(optionnel)</span>
               </FormLabel>
               <FormControl>
                 <Input {...field} placeholder="généré-automatiquement" />
@@ -407,7 +407,7 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
             </div>
           )}
           {uploadingImage && (
-            <p className="mb-1 text-xs text-gray-500">Upload…</p>
+            <p className="mb-1 text-xs text-graphite">Upload…</p>
           )}
           <Input
             id="image-upload"
@@ -436,7 +436,7 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
             />
           )}
           {uploadingVideo && (
-            <p className="mb-1 text-xs text-gray-500">Upload…</p>
+            <p className="mb-1 text-xs text-graphite">Upload…</p>
           )}
           <Input
             id="video-upload"
@@ -449,7 +449,7 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
           />
           {/* Champ caché pour transporter la valeur dans react-hook-form */}
           <input type="hidden" {...register("videoUrl")} />
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-graphite-light">
             MP4, WebM — max recommandé 50 Mo
           </p>
         </div>
@@ -468,7 +468,7 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-graphite">
                   {field.value ? "Oui" : "Non"}
                 </span>
               </div>

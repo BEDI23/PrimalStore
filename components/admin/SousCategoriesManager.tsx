@@ -133,10 +133,10 @@ export default function SousCategoriesManager() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="max-w-2xl space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+          className="max-w-2xl space-y-5 rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
           noValidate
         >
-          <h3 className="font-semibold text-gray-900">Nouvelle sous-catégorie</h3>
+          <h3 className="font-display font-semibold text-ink">Nouvelle sous-catégorie</h3>
 
           {/* Catégorie parente */}
           <FormField
@@ -244,7 +244,7 @@ export default function SousCategoriesManager() {
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-graphite">
                   {field.value ? "Oui" : "Non"}
                 </span>
               </FormItem>
@@ -295,7 +295,7 @@ export default function SousCategoriesManager() {
       </Form>
 
       {/* ── Table ───────────────────────────────────────────────────────── */}
-      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
         {isLoading ? (
           <div className="flex justify-center p-8">
             <LoadingSpinner />
@@ -303,18 +303,18 @@ export default function SousCategoriesManager() {
         ) : (
           <>
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-gray-200 bg-gray-50">
+              <thead className="border-b border-gray-100 bg-surface-subtle">
                 <tr>
-                  <th className="px-4 py-3 font-medium text-gray-600">Nom</th>
-                  <th className="px-4 py-3 font-medium text-gray-600">Slug</th>
-                  <th className="px-4 py-3 font-medium text-gray-600">
+                  <th className="px-4 py-3 font-medium text-graphite">Nom</th>
+                  <th className="px-4 py-3 font-medium text-graphite">Slug</th>
+                  <th className="px-4 py-3 font-medium text-graphite">
                     Catégorie parente
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-600">
+                  <th className="px-4 py-3 font-medium text-graphite">
                     Actif
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-600">Pos.</th>
-                  <th className="px-4 py-3 font-medium text-gray-600">
+                  <th className="px-4 py-3 font-medium text-graphite">Pos.</th>
+                  <th className="px-4 py-3 font-medium text-graphite">
                     Actions
                   </th>
                 </tr>
@@ -323,16 +323,16 @@ export default function SousCategoriesManager() {
                 {(sousCategories ?? []).map((sousCat, i) => (
                   <tr
                     key={sousCat.id}
-                    className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
+                    className={i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}
                   >
                     {/* Nom */}
                     <td className="px-4 py-3 font-medium">{sousCat.nom}</td>
                     {/* Slug */}
-                    <td className="px-4 py-3 font-mono text-xs text-gray-500">
+                    <td className="px-4 py-3 font-mono text-xs text-graphite">
                       {sousCat.slug}
                     </td>
                     {/* Catégorie parente */}
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-3 text-graphite">
                       {nomCategorie(sousCat.categorieId)}
                     </td>
                     {/* Badge actif */}
@@ -341,14 +341,14 @@ export default function SousCategoriesManager() {
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                           sousCat.actif
                             ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-500"
+                            : "bg-surface-subtle text-graphite"
                         }`}
                       >
                         {sousCat.actif ? "Oui" : "Non"}
                       </span>
                     </td>
                     {/* Position */}
-                    <td className="px-4 py-3 text-gray-500">
+                    <td className="px-4 py-3 text-graphite">
                       {sousCat.position}
                     </td>
                     {/* Actions */}
@@ -365,7 +365,7 @@ export default function SousCategoriesManager() {
               </tbody>
             </table>
             {(sousCategories ?? []).length === 0 && (
-              <p className="p-8 text-center text-gray-500">
+              <p className="p-8 text-center text-graphite">
                 Aucune sous-catégorie. Créez-en une avant d&apos;ajouter des
                 produits.
               </p>

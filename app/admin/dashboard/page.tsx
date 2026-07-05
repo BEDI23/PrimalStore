@@ -52,7 +52,7 @@ export default function DashboardPage() {
 
   if (isError) {
     return (
-      <p className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
+      <p className="rounded-xl bg-red-50 p-4 text-sm text-red-600">
         Erreur lors du chargement des commandes. Veuillez rafraîchir la page.
       </p>
     );
@@ -84,10 +84,10 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h2 className="mb-6 text-xl font-bold text-gray-900">Dashboard</h2>
+      <h2 className="font-display mb-6 text-xl font-bold text-ink">Dashboard</h2>
 
       <div className="mb-4">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-graphite">
           Revenus réels (commandes livrées)
         </h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

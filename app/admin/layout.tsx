@@ -44,7 +44,7 @@ export default function AdminLayout({
 
   // Authentifié : shell admin complet
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-muted">
       <Sidebar />
       <div className="ml-56">
         <AdminHeader email={data.email} />

@@ -45,27 +45,27 @@ export default function ProduitsTable() {
           {error}
         </p>
       )}
-      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50">
+          <thead className="border-b border-gray-100 bg-surface-subtle">
             <tr>
-              <th className="px-4 py-3 font-medium text-gray-600">Image</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Nom</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Catégorie</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Prix</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Badge</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Statut</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Actions</th>
+              <th className="px-4 py-3 font-medium text-graphite">Image</th>
+              <th className="px-4 py-3 font-medium text-graphite">Nom</th>
+              <th className="px-4 py-3 font-medium text-graphite">Catégorie</th>
+              <th className="px-4 py-3 font-medium text-graphite">Prix</th>
+              <th className="px-4 py-3 font-medium text-graphite">Badge</th>
+              <th className="px-4 py-3 font-medium text-graphite">Statut</th>
+              <th className="px-4 py-3 font-medium text-graphite">Actions</th>
             </tr>
           </thead>
           <tbody>
             {produits.map((p, i) => (
               <tr
                 key={p.id}
-                className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
+                className={i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}
               >
                 <td className="px-4 py-3">
-                  <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-gray-100">
+                  <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-surface-subtle">
                     <Image
                       src={p.imageUrl || "/images/placeholder-produit.svg"}
                       alt={p.nom}
@@ -75,7 +75,7 @@ export default function ProduitsTable() {
                   </div>
                 </td>
                 <td className="px-4 py-3 font-medium">{p.nom}</td>
-                <td className="px-4 py-3 text-gray-500">{"—"}</td>
+                <td className="px-4 py-3 text-graphite">{"—"}</td>
                 <td className="px-4 py-3">{formatPrix(p.prix)}</td>
                 <td className="px-4 py-3">{p.badge ?? "—"}</td>
                 <td className="px-4 py-3">
@@ -83,7 +83,7 @@ export default function ProduitsTable() {
                     className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                       p.actif
                         ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-600"
+                        : "bg-surface-subtle text-graphite"
                     }`}
                   >
                     {p.actif ? "Actif" : "Inactif"}
@@ -100,7 +100,7 @@ export default function ProduitsTable() {
                     <button
                       onClick={() => toggleActif(p.id, p.actif)}
                       disabled={isPending}
-                      className="rounded-lg bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg bg-surface-subtle px-3 py-1 text-xs font-medium text-graphite hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {p.actif ? "Désactiver" : "Activer"}
                     </button>
@@ -111,7 +111,7 @@ export default function ProduitsTable() {
           </tbody>
         </table>
         {produits.length === 0 && (
-          <p className="p-8 text-center text-gray-500">Aucun produit.</p>
+          <p className="p-8 text-center text-graphite">Aucun produit.</p>
         )}
       </div>
     </div>

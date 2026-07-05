@@ -6,7 +6,7 @@ export default function AdminProduitsPage() {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-bold text-gray-900">Produits</h2>
+        <h2 className="font-display text-xl font-bold text-ink">Produits</h2>
         <div className="flex gap-2">
           <Link
             href="/admin/categories"

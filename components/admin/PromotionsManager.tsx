@@ -144,30 +144,30 @@ export default function PromotionsManager() {
 
       {/* Tableau des promotions */}
       {!produitId ? (
-        <p className="rounded-xl border border-gray-200 bg-white p-8 text-center text-gray-500 shadow-sm">
+        <p className="rounded-xl border border-gray-100 bg-white p-8 text-center text-graphite shadow-sm">
           Sélectionnez un produit pour voir ses promotions.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50">
+            <thead className="border-b border-gray-100 bg-surface-subtle">
               <tr>
-                <th className="px-4 py-3 font-medium text-gray-600">Prix promo</th>
-                <th className="px-4 py-3 font-medium text-gray-600">Fin</th>
-                <th className="px-4 py-3 font-medium text-gray-600">Statut</th>
-                <th className="px-4 py-3 font-medium text-gray-600">Actions</th>
+                <th className="px-4 py-3 font-medium text-graphite">Prix promo</th>
+                <th className="px-4 py-3 font-medium text-graphite">Fin</th>
+                <th className="px-4 py-3 font-medium text-graphite">Statut</th>
+                <th className="px-4 py-3 font-medium text-graphite">Actions</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-gray-400">
+                  <td colSpan={4} className="px-4 py-8 text-center text-graphite-light">
                     Chargement…
                   </td>
                 </tr>
               ) : promotions.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={4} className="px-4 py-8 text-center text-graphite">
                     Aucune promotion pour ce produit.
                   </td>
                 </tr>
@@ -178,12 +178,12 @@ export default function PromotionsManager() {
                   return (
                     <tr
                       key={promo.id}
-                      className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
+                      className={i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}
                     >
                       <td className="px-4 py-3 font-medium text-red-600">
                         {formatPrix(promo.prixPromo)}
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-500">
+                      <td className="px-4 py-3 text-xs text-graphite">
                         {new Date(promo.dateFin).toLocaleDateString("fr-FR")}
                       </td>
                       <td className="px-4 py-3">
@@ -191,7 +191,7 @@ export default function PromotionsManager() {
                           className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                             isActive
                               ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-600"
+                              : "bg-surface-subtle text-graphite"
                           }`}
                         >
                           {isActive ? "Active" : "Inactive"}
@@ -201,7 +201,7 @@ export default function PromotionsManager() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => toggleActif(promo.id, promo.actif)}
-                            className="rounded-lg bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                            className="rounded-lg bg-surface-subtle px-3 py-1 text-xs font-medium text-graphite hover:bg-gray-200"
                           >
                             {promo.actif ? "Désactiver" : "Activer"}
                           </button>
@@ -226,10 +226,10 @@ export default function PromotionsManager() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="max-w-lg space-y-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+          className="max-w-lg space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm"
           noValidate
         >
-          <h3 className="font-semibold text-gray-900">Nouvelle promotion</h3>
+          <h3 className="font-display font-semibold text-ink">Nouvelle promotion</h3>
 
           {/* Produit */}
           <FormField

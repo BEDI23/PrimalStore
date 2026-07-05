@@ -15,7 +15,7 @@ export default function ModifierProduitPage({
 
   return (
     <div>
-      <h2 className="mb-6 text-xl font-bold text-gray-900">
+      <h2 className="mb-6 font-display text-xl font-bold text-ink">
         {produit?.nom ? `Modifier : ${produit.nom}` : "Modifier le produit"}
       </h2>
       <ProduitForm produitId={id} />

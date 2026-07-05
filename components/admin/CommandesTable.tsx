@@ -73,7 +73,7 @@ export default function CommandesTable() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-12 text-gray-500">
+      <div className="flex items-center justify-center p-12 text-graphite">
         Chargement des commandes…
       </div>
     );
@@ -87,11 +87,11 @@ export default function CommandesTable() {
         </p>
       )}
       <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="rounded-xl border border-gray-200 bg-graphite-50 p-4">
+        <div className="rounded-xl border border-gray-100 bg-graphite-50 p-4">
           <p className="text-sm text-graphite-dark">Commandes réellement livrées</p>
           <p className="text-2xl font-bold text-primary">{livrees.length}</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-graphite-50 p-4">
+        <div className="rounded-xl border border-gray-100 bg-graphite-50 p-4">
           <p className="text-sm text-graphite-dark">Revenu réel (livrées)</p>
           <p className="text-2xl font-bold text-primary">
             {revenuReel.toLocaleString("fr-FR")} FCFA
@@ -108,7 +108,7 @@ export default function CommandesTable() {
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 filtreStatut === s
                   ? "bg-primary text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-100"
+                  : "bg-white text-graphite hover:bg-surface-subtle"
               }`}
             >
               {s === "toutes" ? "Tous statuts" : STATUT_LABELS[s]}
@@ -127,7 +127,7 @@ export default function CommandesTable() {
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 filtreDate === f.id && !dateSpecifique
                   ? "bg-gray-800 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-100"
+                  : "bg-white text-graphite hover:bg-surface-subtle"
               }`}
             >
               {f.label}
@@ -145,7 +145,7 @@ export default function CommandesTable() {
           {dateSpecifique && (
             <button
               onClick={() => setDateSpecifique("")}
-              className="text-xs text-gray-500 hover:text-gray-700"
+              className="text-xs text-graphite hover:text-graphite"
             >
               Effacer date
             </button>
@@ -153,25 +153,25 @@ export default function CommandesTable() {
         </div>
       </div>
 
-      <p className="mb-3 text-xs text-gray-500">
+      <p className="mb-3 text-xs text-graphite">
         {filtered.length} commande{filtered.length !== 1 ? "s" : ""} — cochez
         &quot;Livré&quot; pour confirmer la livraison et le revenu réel
       </p>
 
-      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50">
+          <thead className="border-b border-gray-100 bg-surface-subtle">
             <tr>
-              <th className="px-4 py-3 font-medium text-gray-600">Livré</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Date</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Client</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Téléphone</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Produit</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Qté</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Total</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Zone</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Statut</th>
-              <th className="px-4 py-3 font-medium text-gray-600">Message</th>
+              <th className="px-4 py-3 font-medium text-graphite">Livré</th>
+              <th className="px-4 py-3 font-medium text-graphite">Date</th>
+              <th className="px-4 py-3 font-medium text-graphite">Client</th>
+              <th className="px-4 py-3 font-medium text-graphite">Téléphone</th>
+              <th className="px-4 py-3 font-medium text-graphite">Produit</th>
+              <th className="px-4 py-3 font-medium text-graphite">Qté</th>
+              <th className="px-4 py-3 font-medium text-graphite">Total</th>
+              <th className="px-4 py-3 font-medium text-graphite">Zone</th>
+              <th className="px-4 py-3 font-medium text-graphite">Statut</th>
+              <th className="px-4 py-3 font-medium text-graphite">Message</th>
             </tr>
           </thead>
           <tbody>
@@ -181,7 +181,7 @@ export default function CommandesTable() {
               return (
                 <tr
                   key={c.id}
-                  className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
+                  className={i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}
                 >
                   <td className="px-4 py-3">
                     <Checkbox
@@ -195,7 +195,7 @@ export default function CommandesTable() {
                       }
                     />
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-xs text-gray-500">
+                  <td className="whitespace-nowrap px-4 py-3 text-xs text-graphite">
                     {new Date(c.createdAt).toLocaleDateString("fr-FR", {
                       day: "2-digit",
                       month: "short",
@@ -233,7 +233,7 @@ export default function CommandesTable() {
                       </SelectContent>
                     </Select>
                   </td>
-                  <td className="max-w-[150px] truncate px-4 py-3 text-gray-500">
+                  <td className="max-w-[150px] truncate px-4 py-3 text-graphite">
                     {c.message || "—"}
                   </td>
                 </tr>
@@ -242,7 +242,7 @@ export default function CommandesTable() {
           </tbody>
         </table>
         {filtered.length === 0 && (
-          <p className="p-8 text-center text-gray-500">Aucune commande.</p>
+          <p className="p-8 text-center text-graphite">Aucune commande.</p>
         )}
       </div>
     </div>

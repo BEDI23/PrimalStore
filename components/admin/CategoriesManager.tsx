@@ -163,10 +163,10 @@ export default function CategoriesManager() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="max-w-2xl space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+          className="max-w-2xl space-y-5 rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
           noValidate
         >
-          <h3 className="font-semibold text-gray-900">Nouvelle catégorie</h3>
+          <h3 className="font-display font-semibold text-ink">Nouvelle catégorie</h3>
 
           {/* Nom */}
           <FormField
@@ -252,10 +252,10 @@ export default function CategoriesManager() {
                           {...field}
                         />
                       </FormControl>
-                      <code className="w-20 text-xs text-gray-600">
+                      <code className="w-20 text-xs text-graphite">
                         {theme?.[key] ?? ""}
                       </code>
-                      <span className="text-xs text-gray-500">{label}</span>
+                      <span className="text-xs text-graphite">{label}</span>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -298,7 +298,7 @@ export default function CategoriesManager() {
               <FormItem>
                 <FormLabel>Image de couverture *</FormLabel>
                 {coverImageUrl && (
-                  <div className="relative mb-2 h-32 w-32 overflow-hidden rounded-lg border border-gray-200">
+                  <div className="relative mb-2 h-32 w-32 overflow-hidden rounded-lg border border-gray-100">
                     <Image
                       src={coverImageUrl}
                       alt="Aperçu couverture"
@@ -308,7 +308,7 @@ export default function CategoriesManager() {
                   </div>
                 )}
                 {uploading && (
-                  <div className="mb-2 flex items-center gap-2 text-sm text-gray-500">
+                  <div className="mb-2 flex items-center gap-2 text-sm text-graphite">
                     <LoadingSpinner size="sm" />
                     Upload en cours…
                   </div>
@@ -343,7 +343,7 @@ export default function CategoriesManager() {
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-graphite">
                     {field.value ? "Oui" : "Non"}
                   </span>
                 </FormItem>
@@ -363,7 +363,7 @@ export default function CategoriesManager() {
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-graphite">
                     {field.value ? "Oui" : "Non"}
                   </span>
                 </FormItem>
@@ -415,7 +415,7 @@ export default function CategoriesManager() {
       </Form>
 
       {/* ── Table ───────────────────────────────────────────────────────── */}
-      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
         {isLoading ? (
           <div className="flex justify-center p-8">
             <LoadingSpinner />
@@ -423,24 +423,24 @@ export default function CategoriesManager() {
         ) : (
           <>
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-gray-200 bg-gray-50">
+              <thead className="border-b border-gray-100 bg-surface-subtle">
                 <tr>
-                  <th className="px-4 py-3 font-medium text-gray-600">
+                  <th className="px-4 py-3 font-medium text-graphite">
                     Couleur
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-600">
+                  <th className="px-4 py-3 font-medium text-graphite">
                     Icône
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-600">Nom</th>
-                  <th className="px-4 py-3 font-medium text-gray-600">Slug</th>
-                  <th className="px-4 py-3 font-medium text-gray-600">
+                  <th className="px-4 py-3 font-medium text-graphite">Nom</th>
+                  <th className="px-4 py-3 font-medium text-graphite">Slug</th>
+                  <th className="px-4 py-3 font-medium text-graphite">
                     Adulte
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-600">
+                  <th className="px-4 py-3 font-medium text-graphite">
                     Actif
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-600">Pos.</th>
-                  <th className="px-4 py-3 font-medium text-gray-600">
+                  <th className="px-4 py-3 font-medium text-graphite">Pos.</th>
+                  <th className="px-4 py-3 font-medium text-graphite">
                     Actions
                   </th>
                 </tr>
@@ -449,24 +449,24 @@ export default function CategoriesManager() {
                 {(categories ?? []).map((cat, i) => (
                   <tr
                     key={cat.id}
-                    className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
+                    className={i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}
                   >
                     {/* Pastille couleur primaire */}
                     <td className="px-4 py-3">
                       <span
-                        className="inline-block h-5 w-5 rounded-full border border-gray-200"
+                        className="inline-block h-5 w-5 rounded-full border border-gray-100"
                         style={{ backgroundColor: cat.theme.primary }}
                         title={cat.theme.primary}
                       />
                     </td>
                     {/* Icône */}
-                    <td className="px-4 py-3 font-mono text-xs text-gray-600">
+                    <td className="px-4 py-3 font-mono text-xs text-graphite">
                       {cat.iconName}
                     </td>
                     {/* Nom */}
                     <td className="px-4 py-3 font-medium">{cat.nom}</td>
                     {/* Slug */}
-                    <td className="px-4 py-3 font-mono text-xs text-gray-500">
+                    <td className="px-4 py-3 font-mono text-xs text-graphite">
                       {cat.slug}
                     </td>
                     {/* Badge isAdult */}
@@ -475,7 +475,7 @@ export default function CategoriesManager() {
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                           cat.isAdult
                             ? "bg-rose-100 text-rose-700"
-                            : "bg-gray-100 text-gray-500"
+                            : "bg-surface-subtle text-graphite"
                         }`}
                       >
                         {cat.isAdult ? "18+" : "Non"}
@@ -487,14 +487,14 @@ export default function CategoriesManager() {
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                           cat.actif
                             ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-500"
+                            : "bg-surface-subtle text-graphite"
                         }`}
                       >
                         {cat.actif ? "Oui" : "Non"}
                       </span>
                     </td>
                     {/* Position */}
-                    <td className="px-4 py-3 text-gray-500">{cat.position}</td>
+                    <td className="px-4 py-3 text-graphite">{cat.position}</td>
                     {/* Actions */}
                     <td className="px-4 py-3">
                       <button
@@ -509,7 +509,7 @@ export default function CategoriesManager() {
               </tbody>
             </table>
             {(categories ?? []).length === 0 && (
-              <p className="p-8 text-center text-gray-500">
+              <p className="p-8 text-center text-graphite">
                 Aucune catégorie. Créez-en une avant d&apos;ajouter des
                 produits.
               </p>

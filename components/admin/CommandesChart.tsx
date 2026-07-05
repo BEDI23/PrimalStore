@@ -17,8 +17,8 @@ interface ChartData {
 
 export default function CommandesChart({ data }: { data: ChartData[] }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-      <h3 className="mb-4 text-sm font-semibold text-gray-900">
+    <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+      <h3 className="mb-4 text-sm font-semibold text-ink">
         Commandes des 7 derniers jours
       </h3>
       <ResponsiveContainer width="100%" height={250}>
