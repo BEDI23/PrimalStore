@@ -9,12 +9,18 @@ import {
   ShoppingCart,
   Tag,
   FolderOpen,
+  FolderTree,
 } from "lucide-react";
 import { BOUTIQUE_NOM } from "@/lib/constants";
 
 const links = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/categories", label: "Catégories", icon: FolderOpen },
+  {
+    href: "/admin/sous-categories",
+    label: "Sous-catégories",
+    icon: FolderTree,
+  },
   { href: "/admin/produits", label: "Produits", icon: Package },
   { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
   { href: "/admin/promotions", label: "Promotions", icon: Tag },
