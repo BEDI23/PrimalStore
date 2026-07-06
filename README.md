@@ -1,6 +1,6 @@
-# PIPA-STOR — E-commerce produits thérapeutiques naturels
+# PrimalStore — E-commerce produits thérapeutiques naturels
 
-Boutique en ligne PIPA-STOR pour vendre des produits thérapeutiques naturels à Lomé, Togo.
+Boutique en ligne PrimalStore pour vendre des produits thérapeutiques naturels à Lomé, Togo.
 
 **Stack :** Next.js 14 (App Router) · Tailwind CSS · Supabase · CallMeBot · Resend · Vercel
 
@@ -38,7 +38,7 @@ npm install
 ### 2. Créer le projet Supabase
 
 1. Aller sur [supabase.com](https://supabase.com) → **New project**
-2. Choisir une organisation, un nom (ex. `pipastor`), un mot de passe de base de données (à conserver) et une région proche (ex. *West EU*)
+2. Choisir une organisation, un nom (ex. `primalstore`), un mot de passe de base de données (à conserver) et une région proche (ex. *West EU*)
 3. Attendre la fin de la création (~2 min)
 
 ### 3. Récupérer les clés et configurer l'environnement
@@ -155,7 +155,7 @@ select id from auth.users where email = 'votre-email@example.com';
 3. Pour les tests, utiliser `onboarding@resend.dev` comme expéditeur
 4. Renseigner dans `.env.local` :
    - `RESEND_API_KEY` — votre clé API
-   - `RESEND_FROM_EMAIL` — ex. `PIPA-STOR <onboarding@resend.dev>`
+   - `RESEND_FROM_EMAIL` — ex. `PrimalStore <onboarding@resend.dev>`
    - `RESEND_TO_EMAIL` — votre email pour recevoir les commandes
 5. En production, vérifier votre domaine sur Resend pour un expéditeur personnalisé
 

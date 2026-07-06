@@ -19,6 +19,13 @@ export default function AProposPage() {
         </h1>
 
         <p className="mt-6 text-graphite leading-relaxed">
+          Nous sommes une boutique en ligne qui simplifie vos achats du
+          quotidien. Chaque commande est traitée personnellement, avec un vrai
+          contact humain avant la livraison. Pas de robot, pas de surprise :
+          juste des produits de qualité et un service à l&apos;écoute.
+        </p>
+
+        <p className="mt-4 text-graphite leading-relaxed">
           {BOUTIQUE_DESCRIPTION}
         </p>
 

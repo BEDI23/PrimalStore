@@ -8,6 +8,7 @@ import Breadcrumbs from "@/components/client/Breadcrumbs";
 import { getProduitPublic } from "@/lib/api/public-data";
 import { formatPrix } from "@/lib/utils";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
+import { BOUTIQUE_NOM } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export default async function ProduitDetailPage({
   const promo = p.promotion;
   const prixFinal = promo ? promo.prixPromo : p.prix;
   const whatsappUrl = getWhatsAppUrl(
-    `Bonjour PIPA-STOR, je suis intéressé par "${p.nom}".`
+    `Bonjour ${BOUTIQUE_NOM}, je suis intéressé par "${p.nom}".`
   );
 
   return (

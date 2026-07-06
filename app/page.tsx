@@ -6,6 +6,7 @@ import HeroSection from "@/components/client/HeroSection";
 import ProductCard from "@/components/client/ProductCard";
 import CategoryCard from "@/components/client/CategoryCard";
 import WhyChooseUs from "@/components/client/WhyChooseUs";
+import CommentCaMarche from "@/components/client/CommentCaMarche";
 import Reveal from "@/components/client/Reveal";
 import { getProduitsPublic, getCategoriesPublic } from "@/lib/api/public-data";
 
@@ -30,6 +31,10 @@ export default async function HomePage() {
       <Navbar />
       <main>
         <HeroSection />
+
+        <Reveal>
+          <CommentCaMarche />
+        </Reveal>
 
         {featuredCategories.length > 0 && (
           <Reveal>

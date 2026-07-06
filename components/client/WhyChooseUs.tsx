@@ -1,28 +1,28 @@
-import type { LucideIcon } from "lucide-react";
-import { ShoppingBag, Truck, Wallet } from "lucide-react";
+import type { IconType } from "react-icons";
+import { FcShop, FcShipped, FcMoneyTransfer } from "react-icons/fc";
 import { BOUTIQUE_NOM } from "@/lib/constants";
 
 interface Feature {
-  Icon: LucideIcon;
+  Icon: IconType;
   title: string;
   description: string;
 }
 
 const features: Feature[] = [
   {
-    Icon: ShoppingBag,
+    Icon: FcShop,
     title: "Catalogue varié",
     description:
       "Produits naturels, articles ménagers, projecteurs, high-tech et plus encore — trouvez par catégorie ce qu'il vous faut.",
   },
   {
-    Icon: Truck,
+    Icon: FcShipped,
     title: "Livraison rapide",
     description:
       "Livraison à domicile partout à Lomé. Nous vous contactons sous 30 minutes.",
   },
   {
-    Icon: Wallet,
+    Icon: FcMoneyTransfer,
     title: "Paiement à la livraison",
     description:
       "Payez uniquement à la réception de votre commande. Zéro risque pour vous.",
@@ -47,10 +47,7 @@ export default function WhyChooseUs() {
               className="group rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm transition duration-200 hover:-translate-y-1 hover:border-primary-100 hover:shadow-md"
             >
               <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-50 transition duration-200 group-hover:bg-primary-100">
-                <feature.Icon
-                  className="h-7 w-7 text-primary"
-                  strokeWidth={1.75}
-                />
+                <feature.Icon className="h-8 w-8" />
               </span>
               <h3 className="mt-4 text-lg font-semibold text-ink">
                 {feature.title}
@@ -61,6 +58,12 @@ export default function WhyChooseUs() {
             </div>
           ))}
         </div>
+
+        <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-graphite">
+          Contact direct avec un vendeur, produits vérifiés, livraison suivie
+          près de chez vous. Votre satisfaction, notre priorité — à chaque
+          commande.
+        </p>
       </div>
     </section>
   );

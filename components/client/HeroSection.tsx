@@ -1,10 +1,11 @@
-import { ShoppingBag, Truck, Wallet } from "lucide-react";
+import { FcShop, FcShipped, FcMoneyTransfer } from "react-icons/fc";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
+import { BOUTIQUE_NOM } from "@/lib/constants";
 import Link from "next/link";
 
 export default function HeroSection() {
   const whatsappUrl = getWhatsAppUrl(
-    "Bonjour PIPA-STOR, je souhaite passer une commande."
+    `Bonjour ${BOUTIQUE_NOM}, je souhaite passer une commande.`
   );
 
   return (
@@ -18,12 +19,12 @@ export default function HeroSection() {
         <h1 className="font-display mt-6 text-3xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
           Tout ce qu&apos;il vous faut,
           <br className="hidden sm:block" />{" "}
-          <span className="text-gradient-brand">livré chez vous</span>
+          <span className="text-gradient-brand">à portée de clic</span>
         </h1>
 
         <p className="mx-auto mt-5 max-w-2xl text-base text-white/70 sm:text-lg">
-          Produits naturels, articles ménagers, projecteurs, high-tech et bien
-          plus — parcourez nos catégories et commandez facilement
+          Parcourez, choisissez, commandez en un message. Simple comme
+          bonjour.
         </p>
 
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
@@ -47,15 +48,15 @@ export default function HeroSection() {
       <div className="border-t border-white/10 bg-black/40">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-4 py-6 sm:grid-cols-3 sm:gap-6 sm:py-8">
           <div className="flex items-center justify-center gap-2 text-sm font-medium text-white/80 sm:text-base">
-            <ShoppingBag className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
+            <FcShop className="h-5 w-5 shrink-0" />
             <span>Catalogue varié</span>
           </div>
           <div className="flex items-center justify-center gap-2 text-sm font-medium text-white/80 sm:text-base">
-            <Truck className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
+            <FcShipped className="h-5 w-5 shrink-0" />
             <span>Livraison à Lomé</span>
           </div>
           <div className="flex items-center justify-center gap-2 text-sm font-medium text-white/80 sm:text-base">
-            <Wallet className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
+            <FcMoneyTransfer className="h-5 w-5 shrink-0" />
             <span>Paiement à la livraison</span>
           </div>
         </div>

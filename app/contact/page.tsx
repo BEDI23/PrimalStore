@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function ContactPage() {
   const whatsappUrl = getWhatsAppUrl(
-    "Bonjour PIPA-STOR, j'ai une question."
+    `Bonjour ${BOUTIQUE_NOM}, j'ai une question.`
   );
   const email = getContactEmail();
 

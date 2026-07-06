@@ -2,13 +2,14 @@
 
 import StatCard from "@/components/admin/StatCard";
 import CommandesChart from "@/components/admin/CommandesChart";
+import StatutDonutChart from "@/components/admin/StatutDonutChart";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
 import { useCommandesAdmin } from "@/lib/api/hooks";
 import { formatPrix, getStartOfDay, getStartOfWeek } from "@/lib/utils";
 import type { Commande } from "@/lib/api/types";
 
 function getChartData(commandes: Commande[]) {
-  const days: { date: string; commandes: number }[] = [];
+  const days: { date: string; commandes: number; revenu: number }[] = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
@@ -16,17 +17,22 @@ function getChartData(commandes: Commande[]) {
     const end = new Date(start);
     end.setDate(end.getDate() + 1);
 
-    const count = commandes.filter((c) => {
+    const jour = commandes.filter((c) => {
       const created = new Date(c.createdAt);
       return created >= start && created < end;
-    }).length;
+    });
+
+    const revenu = jour
+      .filter((c) => c.statut === "livree")
+      .reduce((s, c) => s + (c.prixTotal ?? 0), 0);
 
     days.push({
       date: start.toLocaleDateString("fr-FR", {
         weekday: "short",
         day: "numeric",
       }),
-      commandes: count,
+      commandes: jour.length,
+      revenu,
     });
   }
   return days;
@@ -81,49 +87,57 @@ export default function DashboardPage() {
     0
   );
   const annulees = commandes.filter((c) => c.statut === "annulee");
+  const panierMoyen = livrees.length > 0 ? revenuReel / livrees.length : 0;
+
+  const secondaryStats = [
+    { label: "Total commandes", value: commandes.length },
+    { label: "Aujourd'hui", value: today },
+    { label: "Cette semaine", value: weekCommandes.length },
+    { label: "Annulées", value: annulees.length },
+    { label: "Top produit", value: getTopProduit(commandes) },
+  ];
 
   return (
     <div>
       <h2 className="font-display mb-6 text-xl font-bold text-ink">Dashboard</h2>
 
-      <div className="mb-4">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-graphite">
-          Revenus réels (commandes livrées)
-        </h3>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Commandes livrées"
-            value={livrees.length}
-            subtitle="Cochées « Livré » dans l'admin"
-          />
-          <StatCard
-            title="Revenu réel (total)"
-            value={formatPrix(revenuReel)}
-            subtitle="Uniquement les commandes livrées"
-          />
-          <StatCard
-            title="Revenu réel (semaine)"
-            value={formatPrix(revenuReelSemaine)}
-          />
-          <StatCard
-            title="Commandes annulées"
-            value={annulees.length}
-            subtitle="Marquées « Annulée » dans l'admin"
-          />
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Revenu réel (total)"
+          value={formatPrix(revenuReel)}
+          subtitle="Commandes livrées uniquement"
+        />
+        <StatCard
+          title="Revenu réel (semaine)"
+          value={formatPrix(revenuReelSemaine)}
+        />
+        <StatCard
+          title="Commandes livrées"
+          value={livrees.length}
+          subtitle="Cochées « Livré » dans l'admin"
+        />
+        <StatCard title="Panier moyen" value={formatPrix(panierMoyen)} />
+      </div>
+
+      <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <CommandesChart data={getChartData(commandes)} />
+        </div>
+        <StatutDonutChart commandes={commandes} />
+      </div>
+
+      <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+        <div className="grid grid-cols-2 divide-y divide-gray-100 sm:grid-cols-5 sm:divide-y-0 sm:divide-x">
+          {secondaryStats.map((stat) => (
+            <div key={stat.label} className="px-3 py-2 first:pl-0 sm:py-0">
+              <p className="text-xs text-graphite">{stat.label}</p>
+              <p className="mt-1 truncate text-lg font-semibold text-ink">
+                {stat.value}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
-
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total commandes" value={commandes.length} />
-        <StatCard title="Commandes aujourd'hui" value={today} />
-        <StatCard title="Commandes cette semaine" value={weekCommandes.length} />
-        <StatCard
-          title="Produit le plus commandé"
-          value={getTopProduit(commandes)}
-        />
-      </div>
-
-      <CommandesChart data={getChartData(commandes)} />
     </div>
   );
 }

@@ -223,7 +223,7 @@ export default function CommandeForm({ produit }: { produit: Produit }) {
               Envoi en cours…
             </>
           ) : (
-            "Envoyer ma commande"
+            "Commander maintenant"
           )}
         </Button>
       </form>
