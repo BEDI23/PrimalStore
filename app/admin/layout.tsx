@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useMe } from "@/lib/api/hooks";
 import { PageLoader } from "@/components/ui/LoadingSpinner";
@@ -15,8 +15,14 @@ export default function AdminLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { data, isLoading, isError } = useMe();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isLoginPage = pathname === "/admin/login";
+
+  // Fermer le menu mobile à chaque changement de page
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
 
   // Sur la page de login : rediriger si déjà connecté
   useEffect(() => {
@@ -45,10 +51,13 @@ export default function AdminLayout({
   // Authentifié : shell admin complet
   return (
     <div className="min-h-screen bg-surface-muted">
-      <Sidebar />
-      <div className="ml-56">
-        <AdminHeader email={data.email} />
-        <main className="p-6">{children}</main>
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="md:ml-56">
+        <AdminHeader
+          email={data.email}
+          onMenuClick={() => setSidebarOpen(true)}
+        />
+        <main className="p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );

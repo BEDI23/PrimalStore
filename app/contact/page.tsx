@@ -3,7 +3,7 @@ import Footer from "@/components/client/Footer";
 import { BOUTIQUE_NOM, WHATSAPP_DISPLAY } from "@/lib/constants";
 import { getContactEmail } from "@/lib/contact";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
-import { Clock, Mail, MapPin, MessageCircle } from "lucide-react";
+import { ChevronRight, Clock, Mail, MapPin, MessageCircle } from "lucide-react";
 
 export const metadata = {
   title: `Contact — ${BOUTIQUE_NOM}`,
@@ -38,13 +38,14 @@ export default function ContactPage() {
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white">
               <MessageCircle className="h-6 w-6" />
             </div>
-            <div>
+            <div className="flex-1">
               <p className="font-semibold text-ink">WhatsApp</p>
               <p className="text-sm text-primary">{WHATSAPP_DISPLAY}</p>
               <p className="mt-1 text-xs text-graphite">
                 Réponse rapide — idéal pour commander
               </p>
             </div>
+            <ChevronRight className="h-5 w-5 shrink-0 text-graphite" />
           </a>
 
           <a
@@ -54,13 +55,14 @@ export default function ContactPage() {
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Mail className="h-6 w-6" />
             </div>
-            <div>
+            <div className="flex-1">
               <p className="font-semibold text-ink">Email</p>
               <p className="text-sm text-primary">{email}</p>
               <p className="mt-1 text-xs text-graphite">
                 Pour vos questions et demandes
               </p>
             </div>
+            <ChevronRight className="h-5 w-5 shrink-0 text-graphite" />
           </a>
         </div>
 

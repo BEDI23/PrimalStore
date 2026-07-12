@@ -1,6 +1,6 @@
 import { BOUTIQUE_NOM, WHATSAPP_DISPLAY } from "@/lib/constants";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
-import { Clock, MapPin, Phone } from "lucide-react";
+import { ChevronRight, Clock, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -56,6 +56,7 @@ export default function Footer() {
             >
               <Phone className="h-4 w-4" strokeWidth={1.75} />
               {WHATSAPP_DISPLAY}
+              <ChevronRight className="h-4 w-4 shrink-0 opacity-70" />
             </a>
             <Link
               href="/contact"

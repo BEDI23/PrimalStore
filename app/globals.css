@@ -82,6 +82,16 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
+   Signature motion & depth — un seul langage d'interaction dans tout le site
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Entrées / hover : confiant, jamais mou (pas de ease/linear générique) */
+  --ease-signature: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Feedback tactile (press des CTA) : léger ressort, sans rebond excessif */
+  --ease-press: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
    Shadcn radix-lyra tokens (oklch) — light + dark
    ───────────────────────────────────────────────────────────────────────── */
 :root {
@@ -239,15 +249,29 @@
 
   .bg-brand-dark {
     background-color: #0b0b0c;
-    background-image: radial-gradient(
-      120% 120% at 50% 0%,
-      rgba(237, 76, 32, 0.18) 0%,
-      rgba(11, 11, 12, 0) 55%
-    );
+    background-image:
+      radial-gradient(120% 120% at 50% 0%, rgba(237, 76, 32, 0.18) 0%, rgba(11, 11, 12, 0) 55%),
+      radial-gradient(80% 60% at 85% 15%, rgba(255, 106, 66, 0.05) 0%, rgba(11, 11, 12, 0) 60%),
+      radial-gradient(60% 50% at 8% 85%, rgba(255, 255, 255, 0.03) 0%, rgba(11, 11, 12, 0) 60%);
   }
 
   .text-gradient-brand {
     @apply bg-gradient-to-r from-primary via-primary-light to-primary bg-clip-text text-transparent;
+  }
+
+  /* Ombres à plusieurs couches — remplace les shadow-md/lg plates */
+  .shadow-layered {
+    box-shadow:
+      0 1px 2px rgba(11, 11, 12, 0.04),
+      0 8px 16px -4px rgba(11, 11, 12, 0.08),
+      0 24px 48px -14px rgba(237, 76, 32, 0.12);
+  }
+
+  .shadow-layered-lg {
+    box-shadow:
+      0 2px 4px rgba(11, 11, 12, 0.08),
+      0 12px 24px -6px rgba(11, 11, 12, 0.16),
+      0 32px 64px -16px rgba(237, 76, 32, 0.22);
   }
 }
 
