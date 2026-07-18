@@ -1,3 +1,10 @@
+# Approuve l'exécution des scripts de build natifs.
+# `onlyBuiltDependencies` : lu par pnpm 10.x (utilisé par le Dockerfile, PNPM_VERSION=10.33.3).
+# `allowBuilds`          : lu par pnpm 11.x (version locale via corepack).
+# Les deux clés sont tolérées par chaque version -> config valable en local ET au build Docker.
+onlyBuiltDependencies:
+  - sharp
+  - unrs-resolver
 allowBuilds:
   sharp: true
   unrs-resolver: true
