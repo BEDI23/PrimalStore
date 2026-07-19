@@ -4,7 +4,8 @@ import { getCategoriesPublic } from "@/lib/api/public-data";
 import { SITE_URL } from "@/lib/site";
 import type { SitemapEntry } from "@/lib/api/types";
 
-export const revalidate = 3600;
+// Généré au runtime (pas au build) : le backend n'est pas joignable pendant `docker build`.
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const statics = ["", "/produits", "/categories", "/a-propos", "/contact"].map(

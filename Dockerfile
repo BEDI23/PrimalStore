@@ -46,6 +46,18 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=cache,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 
+# Variables publiques inlinées dans le bundle client au build (NEXT_PUBLIC_*).
+# Fournies via --build-arg. Les secrets serveur (Resend, CallMeBot, Supabase service role)
+# ne sont PAS ici : ils sont passés au runtime (docker run -e ...).
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_WHATSAPP_NUMBER
+ARG NEXT_PUBLIC_CONTACT_EMAIL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
+    NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} \
+    NEXT_PUBLIC_WHATSAPP_NUMBER=${NEXT_PUBLIC_WHATSAPP_NUMBER} \
+    NEXT_PUBLIC_CONTACT_EMAIL=${NEXT_PUBLIC_CONTACT_EMAIL}
+
 # Copy the rest of the source files into the image.
 COPY . .
 # Run the build script.
@@ -57,7 +69,7 @@ RUN pnpm run build
 FROM base AS final
 
 # Use production node environment by default.
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 # Run the application as a non-root user.
 USER node

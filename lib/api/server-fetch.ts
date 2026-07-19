@@ -19,6 +19,7 @@ async function apiFetch<T>(path: string, opts?: ApiGetOptions): Promise<T> {
       Accept: "application/json",
       ...(opts?.cookie ? { cookie: opts.cookie } : {}),
     },
+    signal: AbortSignal.timeout(8000),
   });
   if (!res.ok) {
     throw new Error(`API ${res.status} ${path}`);
