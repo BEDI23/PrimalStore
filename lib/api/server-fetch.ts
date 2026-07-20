@@ -2,7 +2,8 @@
 // Pas d'axios ici (client-only). Aucune session requise pour les lectures publiques.
 import type { ApiResponse, ApiListResponse } from "@/lib/api/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://api.plamastore.net/api/v1";
 
 export interface ApiGetOptions {
   tags?: string[];
