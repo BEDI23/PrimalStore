@@ -57,9 +57,6 @@ Renseigner dans `.env.local` :
 
 | Variable | Source |
 |----------|--------|
-| `NEXT_PUBLIC_SUPABASE_URL` | API → Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | API → anon public |
-| `SUPABASE_SERVICE_ROLE_KEY` | API → service_role (⚠️ secret, jamais exposé côté client) |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | Numéro WhatsApp public affiché sur le site |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Email affiché sur la page Contact |
 | `CALLMEBOT_PHONE` / `CALLMEBOT_APIKEY` | Voir [CallMeBot](#configuration-callmebot-whatsapp) |
