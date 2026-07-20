@@ -5,7 +5,7 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import type { ApiErrorBody } from "@/lib/api/types";
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "/api/v1";
+const baseURL = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
 
 export const http = axios.create({
   baseURL,

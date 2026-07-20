@@ -13,7 +13,9 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://primal.tg"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://plamastore.net",
+  ),
   title: `${BOUTIQUE_NOM} — Boutique en ligne à Lomé`,
   description: BOUTIQUE_DESCRIPTION,
 };
