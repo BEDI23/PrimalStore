@@ -19,18 +19,27 @@ export const http = axios.create({
 
 let refreshing: Promise<void> | null = null;
 
+// Routes d'auth qui ne doivent PAS déclencher de refresh sur 401 :
+// - /auth/refresh : éviterait une boucle de refresh.
+// - /auth/login   : un 401 = mauvais identifiants, pas une session expirée
+//   (sinon un login raté lance un refresh parasite, voire rejoue le login).
+// - /auth/logout  : inutile de rejouer.
+// /auth/me reste éligible → récupération transparente de la session au boot
+// (at expiré mais rt encore valide).
+const NO_REFRESH_ON_401 = ["/auth/refresh", "/auth/login", "/auth/logout"];
+
 http.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const original = error.config;
     const status = error.response?.status;
 
-    // Pas un 401, déjà retried, ou requête de refresh elle-même → on propage.
+    // Pas un 401, déjà retried, ou route d'auth non refreshable → on propage.
     if (
       !original ||
       status !== 401 ||
       (original as { _retried?: boolean })._retried ||
-      original.url?.includes("/auth/refresh")
+      NO_REFRESH_ON_401.some((path) => original.url?.includes(path))
     ) {
       return Promise.reject(error);
     }
