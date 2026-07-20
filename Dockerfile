@@ -78,13 +78,16 @@ USER node
 COPY package.json .
 
 # Copy the production dependencies from the deps stage and also
-# the built application from the build stage into the image.
+# the built application (.next includes the CSS/JS static assets) and the
+# public folder (logo, images) from the build stage into the image.
 COPY --from=deps /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/.next ./.next
-
+COPY --from=build /usr/src/app/public ./public
 
 # Expose the port that the application listens on.
 EXPOSE 3000
 
-# Run the application.
-CMD [ "pnpm", "start"]
+# Run Next directly instead of `pnpm start`. Going through pnpm triggers its
+# verify-deps-before-run check, which tries to `pnpm install --production` at
+# startup and fails with EACCES (the node user cannot write to the app dir).
+CMD ["node_modules/.bin/next", "start", "-H", "0.0.0.0"]
