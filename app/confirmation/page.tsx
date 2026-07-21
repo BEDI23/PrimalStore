@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
+import ConfirmationWhatsApp from "@/components/client/ConfirmationWhatsApp";
 import { CheckCircle } from "lucide-react";
 
 export default function ConfirmationPage() {
@@ -24,6 +25,7 @@ export default function ConfirmationPage() {
             Voir nos autres produits
           </Link>
         </div>
+        <ConfirmationWhatsApp />
       </main>
       <Footer />
     </>

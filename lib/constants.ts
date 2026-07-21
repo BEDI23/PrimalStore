@@ -7,6 +7,10 @@ export const WHATSAPP_NUMERO = "+22891810838";
 export const WHATSAPP_DISPLAY = "+228 91 81 08 38";
 export const CONTACT_EMAIL = "support@gmail.com";
 
+// Clé sessionStorage utilisée pour transmettre la dernière commande créée
+// (CommandeForm → page /confirmation) sans store global.
+export const LAST_COMMANDE_STORAGE_KEY = "primal:last-commande";
+
 export const STATUTS_COMMANDE = ["nouvelle", "livree", "annulee"] as const;
 
 export const STATUT_LABELS: Record<string, string> = {

@@ -10,6 +10,7 @@ import { useCreateCommande } from "@/lib/api/hooks";
 import { getApiErrorMessage } from "@/lib/api";
 import type { Produit } from "@/lib/api/types";
 import { formatPrix } from "@/lib/utils";
+import { LAST_COMMANDE_STORAGE_KEY } from "@/lib/constants";
 import {
   Form,
   FormControl,
@@ -56,7 +57,15 @@ export default function CommandeForm({ produit }: { produit: Produit }) {
         prixAttendu: prixFinal,
       },
       {
-        onSuccess: () => router.push("/confirmation"),
+        onSuccess: (data) => {
+          try {
+            sessionStorage.setItem(LAST_COMMANDE_STORAGE_KEY, JSON.stringify(data));
+          } catch {
+            // Storage indisponible (navigation privée, quota…) : on ignore,
+            // la commande a bien été créée côté serveur.
+          }
+          router.push("/confirmation");
+        },
         onError: (err) => {
           const message = getApiErrorMessage(err);
           form.setError("root", { message });

@@ -4,7 +4,8 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import CommandeForm from "./CommandeForm";
 import { formatPrix } from "@/lib/utils";
-import type { Produit } from "@/lib/api/types";
+import { LAST_COMMANDE_STORAGE_KEY } from "@/lib/constants";
+import type { Commande, Produit } from "@/lib/api/types";
 
 // formatPrix utilise une espace fine insécable (U+202F) comme séparateur de
 // milliers ; RTL normalise tout espace en espace normale dans le DOM. On aligne
@@ -45,6 +46,7 @@ const produit: Produit = {
 beforeEach(() => {
   push.mockReset();
   mutateMock.mockReset();
+  sessionStorage.clear();
 });
 
 describe("CommandeForm", () => {
@@ -91,7 +93,7 @@ describe("CommandeForm", () => {
     const user = userEvent.setup();
     render(<CommandeForm produit={produit} />);
 
-    await user.click(screen.getByRole("button", { name: /Envoyer ma commande/i }));
+    await user.click(screen.getByRole("button", { name: /Commander maintenant/i }));
 
     expect(
       await screen.findByText("Le nom complet est obligatoire.")
@@ -110,7 +112,7 @@ describe("CommandeForm", () => {
     await user.clear(quantite);
     await user.type(quantite, "2");
 
-    await user.click(screen.getByRole("button", { name: /Envoyer ma commande/i }));
+    await user.click(screen.getByRole("button", { name: /Commander maintenant/i }));
 
     await waitFor(() => expect(mutateMock).toHaveBeenCalledTimes(1));
 
@@ -125,8 +127,25 @@ describe("CommandeForm", () => {
     });
   });
 
-  it("redirige vers /confirmation après succès", async () => {
-    mutateMock.mockImplementation((_input, { onSuccess }) => onSuccess());
+  it("redirige vers /confirmation après succès et sauvegarde la commande en sessionStorage", async () => {
+    const commandeCreee: Commande = {
+      id: 843,
+      produitId: 1,
+      produitNom: "Huile essentielle",
+      produitPrix: 1000,
+      clientNom: "Awa Koffi",
+      clientTelephone: "+22890123456",
+      quartier: "Adidogomé",
+      quantite: 1,
+      prixTotal: 1000,
+      message: null,
+      statut: "nouvelle",
+      createdAt: "2026-07-21T10:00:00.000Z",
+    };
+    mutateMock.mockImplementation((_input, { onSuccess }) =>
+      onSuccess(commandeCreee)
+    );
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
     const user = userEvent.setup();
     render(<CommandeForm produit={produit} />);
 
@@ -134,8 +153,14 @@ describe("CommandeForm", () => {
     await user.type(screen.getByLabelText(/Téléphone/i), "+22890123456");
     await user.type(screen.getByLabelText(/Quartier/i), "Adidogomé");
 
-    await user.click(screen.getByRole("button", { name: /Envoyer ma commande/i }));
+    await user.click(screen.getByRole("button", { name: /Commander maintenant/i }));
 
     await waitFor(() => expect(push).toHaveBeenCalledWith("/confirmation"));
+    expect(setItemSpy).toHaveBeenCalledWith(
+      LAST_COMMANDE_STORAGE_KEY,
+      JSON.stringify(commandeCreee)
+    );
+
+    setItemSpy.mockRestore();
   });
 });
