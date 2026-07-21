@@ -5,6 +5,6 @@
     <path d="M130 215l38-34 30 26 34-40 38 45"/>
     <circle cx="172" cy="178" r="12"/>
   </g>
-  <text x="200" y="300" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="600" fill="#16a34a">PrimalStore</text>
+  <text x="200" y="300" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="600" fill="#16a34a">Plamastore</text>
   <text x="200" y="328" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="14" fill="#86efac">Image non disponible</text>
 </svg>

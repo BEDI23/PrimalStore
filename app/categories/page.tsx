@@ -7,7 +7,7 @@ import { getCategoriesPublic } from "@/lib/api/public-data";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Catégories — PrimalStore",
+  title: "Catégories — Plamastore",
 };
 
 export default async function CategoriesPage() {

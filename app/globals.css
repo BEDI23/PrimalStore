@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Theme — tokens marque Primalstore + tokens shadcn (mappés en v4 @theme)
+   Theme — tokens marque Plamastore + tokens shadcn (mappés en v4 @theme)
    ───────────────────────────────────────────────────────────────────────── */
 @theme {
   /* Tokens marque (statiques, HEX) */

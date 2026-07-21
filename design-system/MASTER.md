@@ -1,4 +1,4 @@
-# PrimalStore — Design System (refonte visuelle)
+# Plamastore — Design System (refonte visuelle)
 
 Source de vérité visuelle. Tout composant/page de la refonte suit ce document.
 Stack : Next.js 14 (App Router) + Tailwind + lucide-react. Mobile-first.

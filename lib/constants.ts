@@ -1,8 +1,8 @@
-export const BOUTIQUE_NOM = "PrimalStore";
+export const BOUTIQUE_NOM = "Plamastore";
 export const BOUTIQUE_SLOGAN =
   "Votre boutique en ligne à Lomé — santé, maison, high-tech et bien plus";
 export const BOUTIQUE_DESCRIPTION =
-  "PrimalStore propose un large catalogue à Lomé : produits naturels, articles ménagers, projecteurs, high-tech et bien d'autres. Parcourez nos catégories et commandez en ligne.";
+  "Plamastore propose un large catalogue à Lomé : produits naturels, articles ménagers, projecteurs, high-tech et bien d'autres. Parcourez nos catégories et commandez en ligne.";
 export const WHATSAPP_NUMERO = "+22891810838";
 export const WHATSAPP_DISPLAY = "+228 91 81 08 38";
 export const CONTACT_EMAIL = "support@gmail.com";

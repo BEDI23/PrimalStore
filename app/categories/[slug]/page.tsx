@@ -27,7 +27,7 @@ export async function generateMetadata({
   const categorie = await getCategoriePublic(slug);
   if (!categorie) return {};
   return {
-    title: `${categorie.nom} — PrimalStore`,
+    title: `${categorie.nom} — Plamastore`,
   };
 }
 

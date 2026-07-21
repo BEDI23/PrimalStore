@@ -1,6 +1,6 @@
-# PrimalStore — E-commerce produits thérapeutiques naturels
+# Plamastore — E-commerce produits thérapeutiques naturels
 
-Boutique en ligne PrimalStore pour vendre des produits thérapeutiques naturels à Lomé, Togo.
+Boutique en ligne Plamastore pour vendre des produits thérapeutiques naturels à Lomé, Togo.
 
 **Stack :** Next.js 14 (App Router) · Tailwind CSS · Supabase · Vercel
 
@@ -30,7 +30,7 @@ Boutique en ligne PrimalStore pour vendre des produits thérapeutiques naturels 
 
 ```bash
 git clone <url-du-repo>
-cd PrimalStore
+cd Plamastore
 npm install
 ```
 

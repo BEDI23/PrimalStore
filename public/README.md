@@ -21,7 +21,7 @@ Tout ce qui est ici est servi **statiquement à la racine du site** par Next.js.
 import Image from "next/image";
 
 // Chemin absolu depuis la racine du site (pas d'import du fichier)
-<Image src="/logo.jpeg" alt="PrimalStore" width={40} height={40} />
+<Image src="/logo.jpeg" alt="Plamastore" width={40} height={40} />
 ```
 
 ```css
