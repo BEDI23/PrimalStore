@@ -1,0 +1,105 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-master
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # Construit l'image Docker et la pousse sur GitHub Container Registry (GHCR).
+  build-and-push:
+    name: Build et push de l'image
+    runs-on: ubuntu-latest
+    outputs:
+      image_ref: ${{ steps.img.outputs.image }}:sha-${{ github.sha }}
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Calcul du nom de l'image (owner en minuscules)
+        id: img
+        run: |
+          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/plamastore" >> "$GITHUB_OUTPUT"
+          echo "tag=sha-${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Configuration de Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Connexion à GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Métadonnées de l'image (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.img.outputs.image }}
+          tags: |
+            type=raw,value=latest
+            type=sha,format=long
+
+      - name: Build et push de l'image Docker
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_WHATSAPP_NUMBER=${{ vars.NEXT_PUBLIC_WHATSAPP_NUMBER }}
+            NEXT_PUBLIC_CONTACT_EMAIL=${{ vars.NEXT_PUBLIC_CONTACT_EMAIL }}
+
+  # Déploie l'image sur le VPS via SSH + docker compose.
+  deploy:
+    name: Déploiement sur le VPS
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Copie du docker-compose de production sur le VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          source: docker-compose.prod.yml
+          target: ~/plamastore/
+
+      - name: Déploiement via docker compose
+        uses: appleboy/ssh-action@v1
+        env:
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          IMAGE_REF: ${{ needs.build-and-push.outputs.image_ref }}
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          envs: GHCR_USERNAME,GHCR_TOKEN,IMAGE_REF
+          script: |
+            set -e
+            cd ~/plamastore
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+            echo "IMAGE=$IMAGE_REF" > .env
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
+            docker image prune -f
