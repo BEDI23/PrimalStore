@@ -2,7 +2,7 @@
 
 Boutique en ligne PrimalStore pour vendre des produits thérapeutiques naturels à Lomé, Togo.
 
-**Stack :** Next.js 14 (App Router) · Tailwind CSS · Supabase · CallMeBot · Resend · Vercel
+**Stack :** Next.js 14 (App Router) · Tailwind CSS · Supabase · Vercel
 
 ## Fonctionnalités
 
@@ -10,7 +10,6 @@ Boutique en ligne PrimalStore pour vendre des produits thérapeutiques naturels 
 - Accueil avec hero, promotions et produits vedettes
 - Catalogue avec filtre promotions
 - Détail produit et formulaire de commande
-- Alerte WhatsApp discrète (CallMeBot) + email détaillé (Resend) à chaque commande
 
 ### Back-office admin (protégé)
 - Authentification Supabase
@@ -59,8 +58,6 @@ Renseigner dans `.env.local` :
 |----------|--------|
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | Numéro WhatsApp public affiché sur le site |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Email affiché sur la page Contact |
-| `CALLMEBOT_PHONE` / `CALLMEBOT_APIKEY` | Voir [CallMeBot](#configuration-callmebot-whatsapp) |
-| `RESEND_API_KEY` / `RESEND_FROM_EMAIL` / `RESEND_TO_EMAIL` | Voir [Resend](#configuration-resend-email) |
 
 ### 4. Initialiser la base de données (migrations)
 
@@ -128,34 +125,6 @@ select id from auth.users where email = 'votre-email@example.com';
 
 > Seuls les comptes présents dans `admin_users` peuvent accéder à `/admin/*`. Un utilisateur Supabase non autorisé verra « Accès refusé ».
 
-## Notifications de commande
-
-À chaque commande, deux notifications sont envoyées :
-
-| Canal | Contenu | Sécurité |
-|-------|---------|----------|
-| **WhatsApp** (CallMeBot) | Message simple : *« Salim a commandé un produit »* | Aucun détail sensible sur WhatsApp |
-| **Email** (Resend) | Tous les détails : produit, prix, client, téléphone, zone, message | Réservé à votre boîte mail |
-
-### Configuration CallMeBot (WhatsApp)
-
-1. Ajouter le numéro CallMeBot sur WhatsApp ([guide](https://www.callmebot.com/blog/free-api-whatsapp-messages/))
-2. Récupérer l'API key
-3. Renseigner dans `.env.local` :
-   - `CALLMEBOT_PHONE`
-   - `CALLMEBOT_APIKEY`
-
-### Configuration Resend (email)
-
-1. Créer un compte sur [resend.com](https://resend.com)
-2. Générer une API key
-3. Pour les tests, utiliser `onboarding@resend.dev` comme expéditeur
-4. Renseigner dans `.env.local` :
-   - `RESEND_API_KEY` — votre clé API
-   - `RESEND_FROM_EMAIL` — ex. `PrimalStore <onboarding@resend.dev>`
-   - `RESEND_TO_EMAIL` — votre email pour recevoir les commandes
-5. En production, vérifier votre domaine sur Resend pour un expéditeur personnalisé
-
 ## Déploiement Vercel
 
 1. Pousser le repo sur GitHub
@@ -174,12 +143,6 @@ app/
   admin/                      # Back-office
   api/
     commandes/route.ts        # Création commande + notifications
-    notif/route.ts            # WhatsApp (alerte simple)
-    email/route.ts            # Email Resend (détails complets)
-lib/
-  notifications/
-    callmebot.ts              # Alerte WhatsApp
-    email.ts                  # Email détaillé Resend
 components/
   client/                     # Navbar, Footer, ProductCard...
   admin/                      # Sidebar, tables, formulaires...
