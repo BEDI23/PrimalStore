@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { LAST_COMMANDE_STORAGE_KEY } from "@/lib/constants";
-import { buildCommandeRecapMessage, getWhatsAppForwardUrl } from "@/lib/whatsapp";
 import { formatPrix } from "@/lib/utils";
 import type { Commande } from "@/lib/api/types";
-import { Button } from "@/components/ui/button";
 
 export default function ConfirmationWhatsApp() {
   const [commande, setCommande] = useState<Commande | null>(null);
@@ -21,7 +19,6 @@ export default function ConfirmationWhatsApp() {
 
   if (!commande) return null;
 
-  const recap = buildCommandeRecapMessage(commande);
 
   return (
     <div className="mt-8 rounded-2xl border border-border bg-card p-4 text-left shadow-sm">
@@ -42,11 +39,6 @@ export default function ConfirmationWhatsApp() {
           </dd>
         </div>
       </dl>
-      <Button asChild className="mt-4 w-full bg-[#25D366] text-white hover:bg-[#1ebe57]">
-        <a href={getWhatsAppForwardUrl(recap)} target="_blank" rel="noopener noreferrer">
-          📲 Transférer par WhatsApp
-        </a>
-      </Button>
     </div>
   );
 }
