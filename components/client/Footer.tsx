@@ -16,11 +16,17 @@ export default function Footer() {
               {BOUTIQUE_NOM}
             </p>
             <p className="mt-2 flex items-center justify-center gap-1.5 text-sm text-white/70 sm:justify-start">
-              <MapPin className="h-4 w-4 shrink-0 text-primary" strokeWidth={1.75} />
-              Livraison uniquement à Lomé, Togo
+              <MapPin
+                className="h-4 w-4 shrink-0 text-primary"
+                strokeWidth={1.75}
+              />
+              Livraison partout , gratuis à Lomé, Togo
             </p>
             <p className="mt-1 flex items-center justify-center gap-1.5 text-sm text-white/70 sm:justify-start">
-              <Clock className="h-4 w-4 shrink-0 text-primary" strokeWidth={1.75} />
+              <Clock
+                className="h-4 w-4 shrink-0 text-primary"
+                strokeWidth={1.75}
+              />
               Disponible 7j/7 de 8h à 20h
             </p>
             <div className="mt-3 flex justify-center gap-4 text-sm sm:justify-start">

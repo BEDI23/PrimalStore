@@ -71,7 +71,7 @@ export default function ContactPage() {
           <ul className="mt-4 space-y-3 text-sm text-graphite">
             <li className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" />
-              Livraison uniquement à Lomé, Togo
+              Livraison partout , gratuis à Lomé, Togo
             </li>
             <li className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-primary" />
