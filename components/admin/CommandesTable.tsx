@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Send } from "lucide-react";
 import {
   useCommandesAdmin,
   useUpdateStatutCommande,
 } from "@/lib/api/hooks/use-commandes";
 import { getApiErrorMessage } from "@/lib/api/http";
+import { buildCommandeRecapMessage, getWhatsAppForwardUrl } from "@/lib/whatsapp";
 import type { Commande, StatutCommande } from "@/lib/api/types";
 import {
   STATUT_COLORS,
@@ -254,6 +255,17 @@ export default function CommandesTable() {
                   </SelectContent>
                 </Select>
               </div>
+
+              <a
+                href={getWhatsAppForwardUrl(buildCommandeRecapMessage(c))}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-green-700"
+                title="Transférer les infos de la commande par WhatsApp"
+              >
+                <Send className="h-4 w-4" />
+                Transférer par WhatsApp
+              </a>
             </div>
           );
         })}
@@ -279,6 +291,7 @@ export default function CommandesTable() {
               <th className="px-4 py-3 font-medium text-graphite">Zone</th>
               <th className="px-4 py-3 font-medium text-graphite">Statut</th>
               <th className="px-4 py-3 font-medium text-graphite">Message</th>
+              <th className="px-4 py-3 font-medium text-graphite">Envoyer</th>
             </tr>
           </thead>
           <tbody>
@@ -353,6 +366,18 @@ export default function CommandesTable() {
                   </td>
                   <td className="max-w-[150px] truncate px-4 py-3 text-graphite">
                     {c.message || "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <a
+                      href={getWhatsAppForwardUrl(buildCommandeRecapMessage(c))}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 whitespace-nowrap rounded-lg bg-green-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-green-700"
+                      title="Transférer les infos de la commande par WhatsApp"
+                    >
+                      <Send className="h-3.5 w-3.5" />
+                      WhatsApp
+                    </a>
                   </td>
                 </tr>
               );
