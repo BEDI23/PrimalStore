@@ -1,15 +1,10 @@
-# Compose de production, déployé sur le VPS par le workflow "Deploy".
-# L'image complète (avec le tag) est injectée via la variable d'environnement IMAGE,
-# écrite dans un fichier .env à côté de ce compose par le job de déploiement.
 services:
   web:
     image: ${IMAGE:-ghcr.io/OWNER/plamastore:latest}
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3000:3000"
-    # Le reverse-proxy (Nginx/Caddy) gère le TLS et route vers 127.0.0.1:3000.
-    # env_file:
-    #   - .env.runtime
+      - "127.0.0.1:3002:3000"
+   
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s
