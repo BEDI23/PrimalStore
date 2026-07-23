@@ -260,7 +260,7 @@ export type UpdatePromotionInput = Partial<CreatePromotionInput>;
 export interface CreateCommandeInput {
   produitId: number;
   clientNom: string;
-  clientTelephone: string;
+  clientTelephone?: string;
   quartier: string;
   quantite: number;
   message?: string;
