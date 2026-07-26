@@ -20,7 +20,7 @@ export default function Footer() {
                 className="h-4 w-4 shrink-0 text-primary"
                 strokeWidth={1.75}
               />
-              Livraison partout , gratuite à Lomé, Togo
+              On vous livre partout au Togo ! (Et 100% gratuit à Lomé 🎁)
             </p>
             <p className="mt-1 flex items-center justify-center gap-1.5 text-sm text-white/70 sm:justify-start">
               <Clock
