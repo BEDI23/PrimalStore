@@ -26,8 +26,8 @@ export const STATUT_COLORS: Record<string, string> = {
 };
 
 // Transitions autorisées : une commande « nouvelle » peut devenir livrée ou
-// annulée. Une fois sortie de « nouvelle », elle ne peut plus y revenir ; seul
-// le basculement livrée ↔ annulée reste possible (correction d'erreur).
+// annulée. Une fois sortie de « nouvelle », son statut est définitif : aucun
+// changement n'est plus possible (ni retour à « nouvelle », ni livrée ↔ annulée).
 export function statutsDisponibles(
   statutCourant: string
 ): readonly string[] {

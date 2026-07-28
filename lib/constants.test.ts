@@ -13,18 +13,18 @@ describe("statutsDisponibles", () => {
   it("interdit le retour à « nouvelle » depuis « livree »", () => {
     const dispo = statutsDisponibles("livree");
     expect(dispo).not.toContain("nouvelle");
-    expect(dispo).toEqual(["livree", "annulee"]);
+    expect(dispo).toEqual(["livree"]);
   });
 
   it("interdit le retour à « nouvelle » depuis « annulee »", () => {
     const dispo = statutsDisponibles("annulee");
     expect(dispo).not.toContain("nouvelle");
-    expect(dispo).toEqual(["livree", "annulee"]);
+    expect(dispo).toEqual(["annulee"]);
   });
 
-  it("permet de corriger livree <-> annulee dans les deux sens", () => {
-    expect(statutsDisponibles("livree")).toContain("annulee");
-    expect(statutsDisponibles("annulee")).toContain("livree");
+  it("verrouille définitivement le statut une fois sorti de « nouvelle »", () => {
+    expect(statutsDisponibles("livree")).toEqual(["livree"]);
+    expect(statutsDisponibles("annulee")).toEqual(["annulee"]);
   });
 
   it("expose exactement les trois statuts métier", () => {

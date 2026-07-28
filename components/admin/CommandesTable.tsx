@@ -53,8 +53,8 @@ export default function CommandesTable() {
   const revenuReel = livrees.reduce((s, c) => s + (c.prixTotal ?? 0), 0);
 
   // La case « Livré » ne sert qu'à confirmer la livraison d'une commande
-  // nouvelle. Une commande livrée ne peut pas redevenir « nouvelle » : pour
-  // corriger une erreur, on bascule en « annulée » via le menu Statut.
+  // nouvelle. Une fois le statut sorti de « nouvelle », il est définitif :
+  // aucune modification ultérieure n'est possible.
   async function marquerLivree(commande: Commande) {
     setActionError("");
     try {
@@ -189,7 +189,7 @@ export default function CommandesTable() {
                   title={
                     c.statut === "nouvelle"
                       ? "Marquer comme livré"
-                      : "Statut verrouillé — modifiable via le menu Statut"
+                      : "Statut définitivement figé"
                   }
                 />
               </div>
@@ -236,13 +236,18 @@ export default function CommandesTable() {
               <div className="mt-3">
                 <Select
                   value={c.statut}
-                  disabled={isUpdating}
+                  disabled={isUpdating || c.statut !== "nouvelle"}
                   onValueChange={(v) =>
                     handleStatutChange(c.id, v as StatutCommande)
                   }
                 >
                   <SelectTrigger
                     className={`h-auto w-full border-0 px-2 py-1.5 text-xs font-medium shadow-none focus:ring-0 ${STATUT_COLORS[c.statut]}`}
+                    title={
+                      c.statut === "nouvelle"
+                        ? "Modifier le statut"
+                        : "Statut définitivement figé"
+                    }
                   >
                     <SelectValue />
                   </SelectTrigger>
@@ -311,7 +316,7 @@ export default function CommandesTable() {
                       title={
                         c.statut === "nouvelle"
                           ? "Marquer comme livré"
-                          : "Statut verrouillé — modifiable via le menu Statut"
+                          : "Statut définitivement figé"
                       }
                     />
                   </td>
@@ -345,13 +350,18 @@ export default function CommandesTable() {
                   <td className="px-4 py-3">
                     <Select
                       value={c.statut}
-                      disabled={isUpdating}
+                      disabled={isUpdating || c.statut !== "nouvelle"}
                       onValueChange={(v) =>
                         handleStatutChange(c.id, v as StatutCommande)
                       }
                     >
                       <SelectTrigger
                         className={`h-auto w-auto border-0 px-2 py-1 text-xs font-medium shadow-none focus:ring-0 ${STATUT_COLORS[c.statut]}`}
+                        title={
+                          c.statut === "nouvelle"
+                            ? "Modifier le statut"
+                            : "Statut définitivement figé"
+                        }
                       >
                         <SelectValue />
                       </SelectTrigger>
