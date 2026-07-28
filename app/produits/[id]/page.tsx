@@ -99,11 +99,19 @@ export default async function ProduitDetailPage({
 
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-graphite">
               <span className="inline-flex items-center gap-1.5">
-                <Truck className="h-4 w-4 text-primary" strokeWidth={1.75} aria-hidden="true" />
+                <Truck
+                  className="h-4 w-4 text-primary"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                />
                 Livraison à Lomé
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <Wallet className="h-4 w-4 text-primary" strokeWidth={1.75} aria-hidden="true" />
+                <Wallet
+                  className="h-4 w-4 text-primary"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                />
                 Paiement à la livraison
               </span>
             </div>
@@ -127,14 +135,14 @@ export default async function ProduitDetailPage({
               <Link href={`/commander/${p.id}`} className="btn-primary">
                 Commander ce produit
               </Link>
-              <a
+              {/* <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-secondary"
               >
                 Commander sur WhatsApp
-              </a>
+              </a> */}
             </div>
           </div>
         </div>
