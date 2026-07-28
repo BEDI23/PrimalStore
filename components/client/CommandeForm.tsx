@@ -9,7 +9,7 @@ import { commandeSchema, type CommandeFormValues } from "@/lib/api/schemas";
 import { useCreateCommande } from "@/lib/api/hooks";
 import { getApiErrorMessage } from "@/lib/api";
 import type { Produit } from "@/lib/api/types";
-import { formatPrix } from "@/lib/utils";
+import { formatPrix, toTelephoneE164 } from "@/lib/utils";
 import { LAST_COMMANDE_STORAGE_KEY } from "@/lib/constants";
 import {
   Form,
@@ -53,6 +53,7 @@ export default function CommandeForm({ produit }: { produit: Produit }) {
     createCommande(
       {
         ...values,
+        clientTelephone: toTelephoneE164(values.clientTelephone),
         message: values.message?.trim() || undefined,
         prixAttendu: prixFinal,
       },
@@ -127,20 +128,29 @@ export default function CommandeForm({ produit }: { produit: Produit }) {
               <FormLabel>
                 Téléphone <span className="text-destructive">*</span>
               </FormLabel>
-              <FormControl>
-                <Input
-                  type="tel"
-                  inputMode="tel"
-                  autoComplete="tel"
-                  placeholder="+22890123456"
-                  disabled={isPending}
-                  {...field}
-                />
-              </FormControl>
+              <div className="relative">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-y-0 left-0 flex items-center rounded-l-xl border-r border-input bg-muted px-3.5 text-sm text-muted-foreground"
+                >
+                  +228
+                </span>
+                <FormControl>
+                  <Input
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    placeholder="90 12 34 56"
+                    disabled={isPending}
+                    className="pl-16"
+                    {...field}
+                  />
+                </FormControl>
+              </div>
               {fieldState.error ? (
                 <FormMessage />
               ) : (
-                <FormDescription>Format : +228XXXXXXXX</FormDescription>
+                <FormDescription>Format : 8 chiffres, sans indicatif</FormDescription>
               )}
             </FormItem>
           )}

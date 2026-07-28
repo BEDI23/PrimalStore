@@ -9,11 +9,23 @@ export function formatPrix(prix: number): string {
   return `${Math.round(prix).toLocaleString("fr-FR")} FCFA`;
 }
 
+// Le client saisit son numéro togolais SANS indicatif (8 chiffres). On tolère les
+// séparateurs courants et un indicatif éventuellement collé (+228 / 00228 / 228),
+// mais on ne le retire que si le reste fait bien 8 chiffres — sinon un fixe de
+// Lomé (22 xx xx xx) serait tronqué à tort.
+function nettoyerTelephone(phone: string): string {
+  const compact = phone.replace(/[\s.\-()]/g, "");
+  const sansIndicatif = compact.replace(/^(?:\+228|00228|228)/, "");
+  return sansIndicatif.length === 8 ? sansIndicatif : compact;
+}
+
 export function validatePhoneTogo(phone: string): boolean {
-  // On tolère les séparateurs courants (espaces, tirets, points, parenthèses)
-  // saisis par les clients avant de valider le format togolais (+228 + 8 chiffres).
-  const cleaned = phone.replace(/[\s.\-()]/g, "");
-  return /^\+228\d{8}$/.test(cleaned);
+  return /^\d{8}$/.test(nettoyerTelephone(phone));
+}
+
+/** Convertit la saisie locale au format attendu par l'API (+228XXXXXXXX). */
+export function toTelephoneE164(phone: string): string {
+  return `+228${nettoyerTelephone(phone)}`;
 }
 
 export function getStartOfDay(date: Date = new Date()): Date {

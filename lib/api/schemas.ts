@@ -201,15 +201,13 @@ export type PromotionFormValues = v.InferInput<typeof promotionSchema>;
 export const commandeSchema = v.object({
   produitId: entierMin(1, "Le produit est invalide."),
   clientNom: champRequis("Le nom complet est obligatoire."),
-  clientTelephone: v.optional(
-    v.pipe(
-      v.string(),
-      v.trim(),
-      v.minLength(1, "Le téléphone est obligatoire."),
-      v.check(
-        validatePhoneTogo,
-        "Numéro invalide. Format attendu : +228XXXXXXXX",
-      ),
+  clientTelephone: v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, "Le téléphone est obligatoire."),
+    v.check(
+      validatePhoneTogo,
+      "Numéro invalide. Format attendu : 8 chiffres (ex. 90 12 34 56)",
     ),
   ),
   quartier: champRequis("Le quartier de livraison est obligatoire."),

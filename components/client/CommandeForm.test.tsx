@@ -85,7 +85,9 @@ describe("CommandeForm", () => {
     await user.tab(); // blur → déclenche la validation onTouched
 
     expect(
-      await screen.findByText("Numéro invalide. Format attendu : +228XXXXXXXX")
+      await screen.findByText(
+        "Numéro invalide. Format attendu : 8 chiffres (ex. 90 12 34 56)"
+      )
     ).toBeInTheDocument();
   });
 
@@ -106,7 +108,7 @@ describe("CommandeForm", () => {
     render(<CommandeForm produit={produit} />);
 
     await user.type(screen.getByLabelText(/Nom complet/i), "Awa Koffi");
-    await user.type(screen.getByLabelText(/Téléphone/i), "+22890123456");
+    await user.type(screen.getByLabelText(/Téléphone/i), "90123456");
     await user.type(screen.getByLabelText(/Quartier/i), "Adidogomé");
     const quantite = screen.getByLabelText(/Quantité/i);
     await user.clear(quantite);
@@ -150,7 +152,7 @@ describe("CommandeForm", () => {
     render(<CommandeForm produit={produit} />);
 
     await user.type(screen.getByLabelText(/Nom complet/i), "Awa Koffi");
-    await user.type(screen.getByLabelText(/Téléphone/i), "+22890123456");
+    await user.type(screen.getByLabelText(/Téléphone/i), "90123456");
     await user.type(screen.getByLabelText(/Quartier/i), "Adidogomé");
 
     await user.click(screen.getByRole("button", { name: /Commander maintenant/i }));
