@@ -32,7 +32,7 @@ export function statutsDisponibles(
   statutCourant: string
 ): readonly string[] {
   if (statutCourant === "nouvelle") return STATUTS_COMMANDE;
-  return ["livree", "annulee"];
+  return [statutCourant];
 }
 
 export const FILTRES_DATE = [
