@@ -1,9 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Truck, Wallet } from "lucide-react";
-import Navbar from "@/components/client/Navbar";
-import Footer from "@/components/client/Footer";
+import { Wallet } from "lucide-react";
 import Breadcrumbs from "@/components/client/Breadcrumbs";
 import { getProduitPublic } from "@/lib/api/public-data";
 import { formatPrix } from "@/lib/utils";
@@ -32,8 +30,7 @@ export default async function ProduitDetailPage({
 
   return (
     <>
-      <Navbar />
-      <main className="mx-auto max-w-6xl px-4 py-8 pb-24 sm:pb-8">
+      <div className="mx-auto max-w-6xl px-4 py-8 pb-24 sm:pb-8">
         <Breadcrumbs
           items={[
             { label: "Accueil", href: "/" },
@@ -138,7 +135,7 @@ export default async function ProduitDetailPage({
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Barre CTA sticky — mobile uniquement */}
       <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-gray-100 bg-white/95 px-4 py-3 backdrop-blur sm:hidden">
@@ -149,8 +146,6 @@ export default async function ProduitDetailPage({
           Commander
         </Link>
       </div>
-
-      <Footer />
     </>
   );
 }

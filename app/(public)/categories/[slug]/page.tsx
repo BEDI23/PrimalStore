@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
-import Navbar from "@/components/client/Navbar";
-import Footer from "@/components/client/Footer";
 import ProductCard from "@/components/client/ProductCard";
 import FilterChips from "@/components/client/FilterChips";
 import AgeGate from "@/components/client/AgeGate";
@@ -53,8 +51,6 @@ export default async function CategorySlugPage({
 
   return (
     <div style={categoryThemeVars(categorie.theme)}>
-      <Navbar />
-
       {/* Header thémé */}
       <header className="relative overflow-hidden">
         {/* Cover image */}
@@ -101,7 +97,7 @@ export default async function CategorySlugPage({
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8">
         {/* Filtre sous-catégories */}
         <FilterChips
           categorieSlug={categorie.slug}
@@ -125,9 +121,7 @@ export default async function CategorySlugPage({
             )}
           </AgeGate>
         </div>
-      </main>
-
-      <Footer />
+      </div>
     </div>
   );
 }
