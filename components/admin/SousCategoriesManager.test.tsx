@@ -56,6 +56,11 @@ describe("SousCategoriesManager", () => {
     const user = userEvent.setup();
     renderWithClient(<SousCategoriesManager />);
 
+    // Ouvrir le modal.
+    await user.click(
+      screen.getByRole("button", { name: /Nouvelle sous-catégorie/i })
+    );
+
     // Soumettre sans remplir le nom (valeur par défaut : "").
     await user.click(
       screen.getByRole("button", { name: /Créer la sous-catégorie/i })
@@ -74,6 +79,11 @@ describe("SousCategoriesManager", () => {
 
     const user = userEvent.setup();
     renderWithClient(<SousCategoriesManager />);
+
+    // Ouvrir le modal.
+    await user.click(
+      screen.getByRole("button", { name: /Nouvelle sous-catégorie/i })
+    );
 
     // Attendre le chargement des catégories parentes dans le Select.
     await waitFor(() => expect(mockCategoriesAdminList).toHaveBeenCalled());
