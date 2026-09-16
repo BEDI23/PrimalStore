@@ -13,7 +13,7 @@ if (typeof globalThis.ResizeObserver === "undefined") {
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import Image from "next/image";
 import { categorieSchema, type CategorieFormValues } from "@/lib/api/schemas";
 import { ICON_NAMES } from "@/lib/api/types";
@@ -46,6 +46,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Valeurs par défaut
@@ -104,6 +110,7 @@ export default function CategoriesManager() {
 
   const coverRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const form = useForm<CategorieFormValues>({
     resolver: valibotResolver(categorieSchema),
@@ -140,6 +147,7 @@ export default function CategoriesManager() {
       });
       form.reset(DEFAULT_VALUES);
       if (coverRef.current) coverRef.current.value = "";
+      setOpen(false);
     } catch (err) {
       form.setError("root", { message: getApiErrorMessage(err) });
     }
@@ -159,15 +167,39 @@ export default function CategoriesManager() {
 
   return (
     <div className="space-y-8">
-      {/* ── Formulaire ──────────────────────────────────────────────────── */}
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="max-w-2xl space-y-5 rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
-          noValidate
+      {/* ── Déclencheur du modal ────────────────────────────────────────── */}
+      <div className="flex justify-end">
+        <Button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="gap-2"
         >
-          <h3 className="font-display font-semibold text-ink">Nouvelle catégorie</h3>
+          <Plus className="h-4 w-4" aria-hidden />
+          Nouvelle catégorie
+        </Button>
+      </div>
 
+      {/* ── Formulaire (modal) ──────────────────────────────────────────── */}
+      <Dialog
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next);
+          if (!next) {
+            form.reset(DEFAULT_VALUES);
+            if (coverRef.current) coverRef.current.value = "";
+          }
+        }}
+      >
+        <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Nouvelle catégorie</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-5"
+              noValidate
+            >
           {/* Nom */}
           <FormField
             control={form.control}
@@ -411,8 +443,10 @@ export default function CategoriesManager() {
               "Créer la catégorie"
             )}
           </Button>
-        </form>
-      </Form>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Table ───────────────────────────────────────────────────────── */}
       <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
