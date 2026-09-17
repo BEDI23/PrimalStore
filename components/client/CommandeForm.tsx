@@ -190,9 +190,10 @@ export default function CommandeForm({ produit }: { produit: Produit }) {
                   className="w-24 tabular-nums"
                   disabled={isPending}
                   {...field}
+                  value={Number.isNaN(field.value) ? "" : field.value}
                   onChange={(e) =>
                     field.onChange(
-                      e.target.value === "" ? 0 : e.target.valueAsNumber
+                      e.target.value === "" ? NaN : e.target.valueAsNumber
                     )
                   }
                 />

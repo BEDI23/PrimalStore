@@ -416,8 +416,11 @@ export default function CategoriesManager() {
                     min={0}
                     className="w-28"
                     {...field}
+                    value={Number.isNaN(field.value) ? "" : field.value}
                     onChange={(e) =>
-                      field.onChange(e.target.valueAsNumber || 0)
+                      field.onChange(
+                        e.target.value === "" ? NaN : e.target.valueAsNumber
+                      )
                     }
                   />
                 </FormControl>

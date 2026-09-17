@@ -274,8 +274,11 @@ export default function PromotionsManager() {
                     min={1}
                     className="w-40"
                     {...field}
+                    value={Number.isNaN(field.value) ? "" : field.value}
                     onChange={(e) =>
-                      field.onChange(e.target.valueAsNumber || 0)
+                      field.onChange(
+                        e.target.value === "" ? NaN : e.target.valueAsNumber
+                      )
                     }
                   />
                 </FormControl>
