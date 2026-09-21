@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight, Send } from "lucide-react";
+import { ChevronRight, PackageCheck, Send, Wallet } from "lucide-react";
+import StatCard from "@/components/admin/StatCard";
 import {
   useCommandesAdmin,
   useUpdateStatutCommande,
@@ -88,17 +89,20 @@ export default function CommandesTable() {
           {actionError}
         </p>
       )}
-      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="rounded-xl border border-gray-100 bg-graphite-50 p-4">
-          <p className="text-sm text-graphite-dark">Commandes réellement livrées</p>
-          <p className="text-2xl font-bold text-primary">{livrees.length}</p>
-        </div>
-        <div className="rounded-xl border border-gray-100 bg-graphite-50 p-4">
-          <p className="text-sm text-graphite-dark">Revenu réel (livrées)</p>
-          <p className="text-2xl font-bold text-primary">
-            {revenuReel.toLocaleString("fr-FR")} FCFA
-          </p>
-        </div>
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <StatCard
+          title="Commandes réellement livrées"
+          value={livrees.length}
+          icon={PackageCheck}
+          tone="blue"
+        />
+        <StatCard
+          title="Revenu réel (livrées)"
+          value={`${revenuReel.toLocaleString("fr-FR")} FCFA`}
+          icon={Wallet}
+          tone="green"
+          delay={80}
+        />
       </div>
 
       <div className="mb-4 space-y-3">
@@ -109,8 +113,8 @@ export default function CommandesTable() {
               onClick={() => setFiltreStatut(s)}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 filtreStatut === s
-                  ? "bg-primary text-white"
-                  : "bg-white text-graphite hover:bg-surface-subtle"
+                  ? "bg-primary text-white shadow-md shadow-primary/30"
+                  : "bg-white text-graphite shadow-sm hover:-translate-y-0.5 hover:bg-surface-subtle"
               }`}
             >
               {s === "toutes" ? "Tous statuts" : STATUT_LABELS[s]}
@@ -128,8 +132,8 @@ export default function CommandesTable() {
               }}
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 filtreDate === f.id && !dateSpecifique
-                  ? "bg-gray-800 text-white"
-                  : "bg-white text-graphite hover:bg-surface-subtle"
+                  ? "bg-gray-800 text-white shadow-md"
+                  : "bg-white text-graphite shadow-sm hover:-translate-y-0.5 hover:bg-surface-subtle"
               }`}
             >
               {f.label}
@@ -168,7 +172,7 @@ export default function CommandesTable() {
           return (
             <div
               key={c.id}
-              className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm"
+              className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -275,28 +279,28 @@ export default function CommandesTable() {
           );
         })}
         {filtered.length === 0 && (
-          <p className="rounded-xl border border-gray-100 bg-white p-8 text-center text-graphite shadow-sm">
+          <p className="rounded-2xl border border-gray-100 bg-white p-8 text-center text-graphite shadow-sm">
             Aucune commande.
           </p>
         )}
       </div>
 
       {/* Desktop : tableau (>= md) */}
-      <div className="hidden overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm md:block">
+      <div className="hidden overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm md:block">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-gray-100 bg-surface-subtle">
             <tr>
-              <th className="px-4 py-3 font-medium text-graphite">Livré</th>
-              <th className="px-4 py-3 font-medium text-graphite">Date</th>
-              <th className="px-4 py-3 font-medium text-graphite">Client</th>
-              <th className="px-4 py-3 font-medium text-graphite">Téléphone</th>
-              <th className="px-4 py-3 font-medium text-graphite">Produit</th>
-              <th className="px-4 py-3 font-medium text-graphite">Qté</th>
-              <th className="px-4 py-3 font-medium text-graphite">Total</th>
-              <th className="px-4 py-3 font-medium text-graphite">Zone</th>
-              <th className="px-4 py-3 font-medium text-graphite">Statut</th>
-              <th className="px-4 py-3 font-medium text-graphite">Message</th>
-              <th className="px-4 py-3 font-medium text-graphite">Envoyer</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Livré</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Date</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Client</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Téléphone</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Produit</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Qté</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Total</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Zone</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Statut</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Message</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Envoyer</th>
             </tr>
           </thead>
           <tbody>
@@ -306,7 +310,8 @@ export default function CommandesTable() {
               return (
                 <tr
                   key={c.id}
-                  className={i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}
+                  className={`animate-in fade-in-0 slide-in-from-left-2 fill-mode-both transition-colors duration-300 hover:bg-primary-50/70 ${i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}`}
+ style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }}
                 >
                   <td className="px-4 py-3">
                     <Checkbox

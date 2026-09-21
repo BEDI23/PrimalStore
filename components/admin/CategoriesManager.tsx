@@ -452,7 +452,7 @@ export default function CategoriesManager() {
       </Dialog>
 
       {/* ── Table ───────────────────────────────────────────────────────── */}
-      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
         {isLoading ? (
           <div className="flex justify-center p-8">
             <LoadingSpinner />
@@ -462,22 +462,22 @@ export default function CategoriesManager() {
             <table className="w-full text-left text-sm">
               <thead className="border-b border-gray-100 bg-surface-subtle">
                 <tr>
-                  <th className="px-4 py-3 font-medium text-graphite">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">
                     Couleur
                   </th>
-                  <th className="px-4 py-3 font-medium text-graphite">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">
                     Icône
                   </th>
-                  <th className="px-4 py-3 font-medium text-graphite">Nom</th>
-                  <th className="px-4 py-3 font-medium text-graphite">Slug</th>
-                  <th className="px-4 py-3 font-medium text-graphite">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Nom</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Slug</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">
                     Adulte
                   </th>
-                  <th className="px-4 py-3 font-medium text-graphite">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">
                     Actif
                   </th>
-                  <th className="px-4 py-3 font-medium text-graphite">Pos.</th>
-                  <th className="px-4 py-3 font-medium text-graphite">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Pos.</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">
                     Actions
                   </th>
                 </tr>
@@ -486,7 +486,8 @@ export default function CategoriesManager() {
                 {(categories ?? []).map((cat, i) => (
                   <tr
                     key={cat.id}
-                    className={i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}
+                    className={`animate-in fade-in-0 slide-in-from-left-2 fill-mode-both transition-colors duration-300 hover:bg-primary-50/70 ${i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}`}
+ style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }}
                   >
                     {/* Pastille couleur primaire */}
                     <td className="px-4 py-3">
@@ -509,7 +510,7 @@ export default function CategoriesManager() {
                     {/* Badge isAdult */}
                     <td className="px-4 py-3">
                       <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                           cat.isAdult
                             ? "bg-rose-100 text-rose-700"
                             : "bg-surface-subtle text-graphite"
@@ -521,7 +522,7 @@ export default function CategoriesManager() {
                     {/* Badge actif */}
                     <td className="px-4 py-3">
                       <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                           cat.actif
                             ? "bg-green-100 text-green-700"
                             : "bg-surface-subtle text-graphite"
@@ -536,7 +537,7 @@ export default function CategoriesManager() {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => supprimer(cat.id)}
-                        className="rounded-lg bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
+                        className="rounded-lg transition-colors bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
                       >
                         Supprimer
                       </button>

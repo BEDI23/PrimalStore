@@ -1,79 +1,142 @@
-import { BOUTIQUE_NOM, WHATSAPP_DISPLAY } from "@/lib/constants";
-import { getWhatsAppUrl } from "@/lib/whatsapp";
-import { ChevronRight, Clock, MapPin, Phone } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { Clock, Mail, MapPin, MessageCircle, Wallet } from "lucide-react";
+import {
+  BOUTIQUE_NOM,
+  BOUTIQUE_SLOGAN,
+  WHATSAPP_DISPLAY,
+} from "@/lib/constants";
+import { getContactEmail } from "@/lib/contact";
+import { getWhatsAppUrl } from "@/lib/whatsapp";
+
+const NAV_LINKS = [
+  { href: "/categories", label: "Catégories" },
+  { href: "/produits", label: "Catalogue" },
+  { href: "/a-propos", label: "À propos" },
+  { href: "/contact", label: "Contact" },
+];
+
+const linkClass =
+  "inline-flex min-h-9 items-center text-sm text-white/65 transition-colors duration-200 hover:text-white";
 
 export default function Footer() {
   const whatsappUrl = getWhatsAppUrl();
+  const email = getContactEmail();
 
   return (
     <footer className="bg-ink text-white">
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-          {/* Brand + info */}
-          <div className="text-center sm:text-left">
-            <p className="font-display text-lg font-bold text-white">
-              {BOUTIQUE_NOM}
-            </p>
-            <p className="mt-2 flex items-center justify-center gap-1.5 text-sm text-white/70 sm:justify-start">
-              <MapPin
-                className="h-4 w-4 shrink-0 text-primary"
-                strokeWidth={1.75}
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.2fr_1.2fr] lg:gap-12">
+          {/* Marque */}
+          <div>
+            <Link href="/" className="inline-flex items-center gap-2.5">
+              <Image
+                src="/logo.jpeg"
+                alt=""
+                width={36}
+                height={36}
+                className="h-9 w-9 rounded-lg object-cover"
               />
-              On vous livre partout au Togo ! (Et 100% gratuit à Lomé 🎁)
+              <span className="font-display text-lg font-bold tracking-tight">
+                {BOUTIQUE_NOM}
+              </span>
+            </Link>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/65">
+              {BOUTIQUE_SLOGAN}
             </p>
-            <p className="mt-1 flex items-center justify-center gap-1.5 text-sm text-white/70 sm:justify-start">
-              <Clock
-                className="h-4 w-4 shrink-0 text-primary"
-                strokeWidth={1.75}
-              />
-              Disponible 7j/7 de 8h à 20h
-            </p>
-            <div className="mt-3 flex justify-center gap-4 text-sm sm:justify-start">
-              <Link
-                href="/categories"
-                className="text-white/70 transition-colors duration-150 hover:text-white"
-              >
-                Catégories
-              </Link>
-              <Link
-                href="/a-propos"
-                className="text-white/70 transition-colors duration-150 hover:text-white"
-              >
-                À propos
-              </Link>
-              <Link
-                href="/contact"
-                className="text-white/70 transition-colors duration-150 hover:text-white"
-              >
-                Contact
-              </Link>
-            </div>
+          </div>
+
+          {/* Navigation */}
+          <nav aria-label="Pied de page">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-white/45">
+              Navigation
+            </h2>
+            <ul className="mt-4 space-y-1">
+              {NAV_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className={linkClass}>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Informations */}
+          <div>
+            <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-white/45">
+              Informations
+            </h2>
+            <ul className="mt-4 space-y-3 text-sm text-white/65">
+              <li className="flex items-start gap-2.5">
+                <MapPin
+                  className="mt-0.5 h-4 w-4 shrink-0 text-primary-light"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                />
+                Livraison partout au Togo, gratuite à Lomé
+              </li>
+              <li className="flex items-start gap-2.5">
+                <Clock
+                  className="mt-0.5 h-4 w-4 shrink-0 text-primary-light"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                />
+                Disponible 7j/7 de 8h à 20h
+              </li>
+              <li className="flex items-start gap-2.5">
+                <Wallet
+                  className="mt-0.5 h-4 w-4 shrink-0 text-primary-light"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                />
+                Paiement à la livraison
+              </li>
+            </ul>
           </div>
 
           {/* Contact */}
-          <div className="flex flex-col items-center gap-2 text-center sm:items-end sm:text-right">
-            <p className="text-sm font-medium text-white/70">Contactez-nous</p>
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white transition duration-150 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-ink"
-            >
-              <Phone className="h-4 w-4" strokeWidth={1.75} />
-              {WHATSAPP_DISPLAY}
-              <ChevronRight className="h-4 w-4 shrink-0 opacity-70" />
-            </a>
+          <div>
+            <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-white/45">
+              Contact
+            </h2>
+            <ul className="mt-4 space-y-1">
+              <li>
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${linkClass} gap-2.5`}
+                >
+                  <MessageCircle
+                    className="h-4 w-4 shrink-0 text-primary-light"
+                    strokeWidth={1.75}
+                    aria-hidden="true"
+                  />
+                  WhatsApp&nbsp;: {WHATSAPP_DISPLAY}
+                </a>
+              </li>
+              <li>
+                <a href={`mailto:${email}`} className={`${linkClass} gap-2.5`}>
+                  <Mail
+                    className="h-4 w-4 shrink-0 text-primary-light"
+                    strokeWidth={1.75}
+                    aria-hidden="true"
+                  />
+                  <span className="break-all">{email}</span>
+                </a>
+              </li>
+            </ul>
             <Link
-              href="/contact"
-              className="text-xs text-white/50 transition-colors duration-150 hover:text-white/80"
+              href="/categories"
+              className="btn-primary mt-5 min-h-10! px-5"
             >
-              Email et autres moyens →
+              Commander
             </Link>
           </div>
         </div>
 
-        <p className="mt-8 border-t border-white/10 pt-6 text-center text-xs text-white/40">
+        <p className="mt-12 border-t border-white/10 pt-6 text-center text-xs text-white/40 sm:text-left">
           © {new Date().getFullYear()} {BOUTIQUE_NOM}. Tous droits réservés.
         </p>
       </div>

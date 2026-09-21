@@ -186,6 +186,22 @@
   ::selection {
     @apply bg-primary/20 text-ink;
   }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
   html {
     @apply font-sans;
   }
@@ -195,16 +211,22 @@
    Composants marque (préservés)
    ───────────────────────────────────────────────────────────────────────── */
 @layer components {
+  /* Boutons — rayon 12px, hauteur confortable (≥ 44px), ombres quasi nulles */
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition hover:bg-primary-dark hover:shadow-md hover:shadow-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-graphite hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-ink transition-colors duration-200 hover:border-gray-300 hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+  }
+
+  /* Action secondaire "orange discret" : cartes produit, listes denses */
+  .btn-outline {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-primary/40 bg-transparent px-4 py-2 text-sm font-semibold text-primary-dark transition-colors duration-200 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
   }
 
   .btn-dark {
-    @apply inline-flex items-center justify-center rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-ink-soft focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
   }
 
   .input-field {
@@ -212,7 +234,7 @@
   }
 
   .card {
-    @apply rounded-2xl bg-white p-4 shadow-md;
+    @apply rounded-2xl border border-gray-100 bg-white p-4 shadow-sm;
   }
 
   .brand-rule {
@@ -224,11 +246,16 @@
   }
 
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium bg-surface-subtle text-graphite transition hover:bg-surface-subtle/70 cursor-pointer;
+    @apply inline-flex min-h-10 cursor-pointer items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-graphite transition-colors duration-200 hover:border-gray-300 hover:text-ink;
   }
 
   .chip-active {
-    @apply bg-cat-primary text-cat-on;
+    @apply border-transparent bg-cat-primary text-cat-on hover:text-cat-on;
+  }
+
+  /* Petit libellé au-dessus d'un titre */
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-primary-dark;
   }
 }
 
@@ -259,6 +286,19 @@
     @apply bg-gradient-to-r from-primary via-primary-light to-primary bg-clip-text text-transparent;
   }
 
+  /* Ombre unique du design system public : très discrète */
+  .shadow-soft {
+    box-shadow:
+      0 1px 2px rgba(11, 11, 12, 0.04),
+      0 1px 1px rgba(11, 11, 12, 0.03);
+  }
+
+  .shadow-soft-hover {
+    box-shadow:
+      0 1px 2px rgba(11, 11, 12, 0.05),
+      0 8px 20px -8px rgba(11, 11, 12, 0.14);
+  }
+
   /* Ombres à plusieurs couches — remplace les shadow-md/lg plates */
   .shadow-layered {
     box-shadow:
@@ -276,8 +316,6 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-sans);
-  --font-heading: var(--font-heading);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

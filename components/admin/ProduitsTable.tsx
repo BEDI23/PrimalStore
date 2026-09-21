@@ -45,24 +45,25 @@ export default function ProduitsTable() {
           {error}
         </p>
       )}
-      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-gray-100 bg-surface-subtle">
             <tr>
-              <th className="px-4 py-3 font-medium text-graphite">Image</th>
-              <th className="px-4 py-3 font-medium text-graphite">Nom</th>
-              <th className="px-4 py-3 font-medium text-graphite">Catégorie</th>
-              <th className="px-4 py-3 font-medium text-graphite">Prix</th>
-              <th className="px-4 py-3 font-medium text-graphite">Badge</th>
-              <th className="px-4 py-3 font-medium text-graphite">Statut</th>
-              <th className="px-4 py-3 font-medium text-graphite">Actions</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Image</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Nom</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Catégorie</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Prix</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Badge</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Statut</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Actions</th>
             </tr>
           </thead>
           <tbody>
             {produits.map((p, i) => (
               <tr
                 key={p.id}
-                className={i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}
+                className={`animate-in fade-in-0 slide-in-from-left-2 fill-mode-both transition-colors duration-300 hover:bg-primary-50/70 ${i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}`}
+ style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }}
               >
                 <td className="px-4 py-3">
                   <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-surface-subtle">
@@ -80,7 +81,7 @@ export default function ProduitsTable() {
                 <td className="px-4 py-3">{p.badge ?? "—"}</td>
                 <td className="px-4 py-3">
                   <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                    className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                       p.actif
                         ? "bg-green-100 text-green-800"
                         : "bg-surface-subtle text-graphite"
@@ -93,14 +94,14 @@ export default function ProduitsTable() {
                   <div className="flex gap-2">
                     <Link
                       href={`/admin/produits/${p.id}/modifier`}
-                      className="rounded-lg bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100"
+                      className="rounded-lg transition-colors bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100"
                     >
                       Modifier
                     </Link>
                     <button
                       onClick={() => toggleActif(p.id, p.actif)}
                       disabled={isPending}
-                      className="rounded-lg bg-surface-subtle px-3 py-1 text-xs font-medium text-graphite hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg transition-colors bg-surface-subtle px-3 py-1 text-xs font-medium text-graphite hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {p.actif ? "Désactiver" : "Activer"}
                     </button>

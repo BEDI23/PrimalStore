@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { produitSchema, type ProduitFormValues } from "@/lib/api/schemas";
@@ -19,7 +18,8 @@ import {
   useCreateProduit,
   useUpdateProduit,
 } from "@/lib/api/hooks/use-produits";
-import { useUpload } from "@/lib/api/hooks/use-uploads";
+import ProduitMediaManager from "@/components/admin/ProduitMediaManager";
+import { galleryOf, toMediaInputs } from "@/lib/media";
 import { getApiErrorMessage } from "@/lib/api/http";
 import {
   Form,
@@ -51,10 +51,9 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
   const router = useRouter();
   const isEdit = !!produitId;
 
-  const imageRef = useRef<HTMLInputElement>(null);
-  const videoRef = useRef<HTMLInputElement>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [uploadingVideo, setUploadingVideo] = useState(false);
+  // Vrai tant qu'un média est en cours d'envoi : on bloque l'enregistrement pour ne
+  // jamais sauvegarder une galerie incomplète.
+  const [mediaBusy, setMediaBusy] = useState(false);
   const [selectedCategorieId, setSelectedCategorieId] = useState<number | "">("");
 
   // ── Data ───────────────────────────────────────────────────────────────────
@@ -75,7 +74,6 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
 
   const create = useCreateProduit();
   const update = useUpdateProduit();
-  const upload = useUpload();
 
   // ── Form ───────────────────────────────────────────────────────────────────
 
@@ -89,15 +87,13 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
       descriptionCourte: "",
       descriptionLongue: "",
       badge: "",
-      imageUrl: "",
-      videoUrl: "",
+      medias: [],
       sousCategorieId: 0,
       actif: true,
     },
   });
 
   const {
-    register,
     handleSubmit,
     watch,
     setValue,
@@ -106,8 +102,7 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
     formState: { errors, isSubmitting },
   } = form;
 
-  const watchedImageUrl = watch("imageUrl");
-  const watchedVideoUrl = watch("videoUrl");
+  const watchedMedias = watch("medias");
 
   // ── Pre-fill (edit mode) ───────────────────────────────────────────────────
 
@@ -121,8 +116,8 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
       descriptionCourte: produit.descriptionCourte,
       descriptionLongue: produit.descriptionLongue,
       badge: produit.badge ?? "",
-      imageUrl: produit.imageUrl,
-      videoUrl: produit.videoUrl ?? "",
+      // Galerie ordonnée ; repli sur imageUrl/videoUrl pour un produit sans lignes de média.
+      medias: toMediaInputs(galleryOf(produit)),
       sousCategorieId: produit.sousCategorieId,
       actif: produit.actif,
     });
@@ -137,34 +132,6 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
 
   // ── Handlers ───────────────────────────────────────────────────────────────
 
-  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingImage(true);
-    try {
-      const res = await upload.mutateAsync({ bucket: "produits", file });
-      setValue("imageUrl", res.publicUrl, { shouldValidate: true });
-    } catch (err) {
-      setError("root", { message: getApiErrorMessage(err) });
-    } finally {
-      setUploadingImage(false);
-    }
-  }
-
-  async function handleVideoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingVideo(true);
-    try {
-      const res = await upload.mutateAsync({ bucket: "videos", file });
-      setValue("videoUrl", res.publicUrl);
-    } catch (err) {
-      setError("root", { message: getApiErrorMessage(err) });
-    } finally {
-      setUploadingVideo(false);
-    }
-  }
-
   async function onSubmit(values: ProduitFormValues) {
     try {
       const payload = {
@@ -173,9 +140,10 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
         prix: values.prix,
         descriptionCourte: values.descriptionCourte,
         descriptionLongue: values.descriptionLongue,
-        badge: values.badge || undefined,
-        imageUrl: values.imageUrl,
-        videoUrl: values.videoUrl || undefined,
+        // null (et non undefined) : permet d'EFFACER le badge en édition.
+        badge: values.badge || null,
+        // Galerie complète : l'API en dérive imageUrl (1ʳᵉ image) et videoUrl (1ʳᵉ vidéo).
+        medias: values.medias,
         sousCategorieId: values.sousCategorieId,
         actif: values.actif,
       };
@@ -214,7 +182,7 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
     <Form {...form}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="max-w-2xl space-y-5"
+        className="max-w-2xl space-y-5 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
         noValidate
       >
         {/* Catégorie (hors payload — pilote la cascade, hors useForm) */}
@@ -394,66 +362,16 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
           )}
         />
 
-        {/* Image */}
-        <div className="space-y-1">
-          <Label htmlFor="image-upload">Image *</Label>
-          {watchedImageUrl && (
-            <div className="relative mb-2 h-32 w-32 overflow-hidden rounded-lg">
-              <Image
-                src={watchedImageUrl}
-                alt="Aperçu"
-                fill
-                className="object-cover"
-              />
-            </div>
-          )}
-          {uploadingImage && (
-            <p className="mb-1 text-xs text-graphite">Upload…</p>
-          )}
-          <Input
-            id="image-upload"
-            ref={imageRef}
-            type="file"
-            accept="image/*"
-            className="text-sm"
-            onChange={handleImageChange}
-            disabled={uploadingImage}
-          />
-          {/* Champ caché pour transporter la valeur dans react-hook-form */}
-          <input type="hidden" {...register("imageUrl")} />
-          {errors.imageUrl && (
-            <p className="mt-1 text-xs text-red-600">{errors.imageUrl.message}</p>
-          )}
-        </div>
-
-        {/* Vidéo */}
-        <div className="space-y-1">
-          <Label htmlFor="video-upload">Vidéo publicitaire</Label>
-          {watchedVideoUrl && (
-            <video
-              src={watchedVideoUrl}
-              controls
-              className="mb-2 max-h-48 w-full max-w-sm rounded-lg"
-            />
-          )}
-          {uploadingVideo && (
-            <p className="mb-1 text-xs text-graphite">Upload…</p>
-          )}
-          <Input
-            id="video-upload"
-            ref={videoRef}
-            type="file"
-            accept="video/mp4,video/webm,video/quicktime"
-            className="text-sm"
-            onChange={handleVideoChange}
-            disabled={uploadingVideo}
-          />
-          {/* Champ caché pour transporter la valeur dans react-hook-form */}
-          <input type="hidden" {...register("videoUrl")} />
-          <p className="mt-1 text-xs text-graphite-light">
-            MP4, WebM — max recommandé 50 Mo
-          </p>
-        </div>
+        {/* Médias : images + vidéos, ordre = ordre d'affichage */}
+        <ProduitMediaManager
+          value={watchedMedias ?? []}
+          onChange={(next) =>
+            setValue("medias", next, { shouldValidate: true, shouldDirty: true })
+          }
+          onBusyChange={setMediaBusy}
+          disabled={isSubmitting}
+          error={errors.medias?.message ?? errors.medias?.root?.message}
+        />
 
         {/* Switch actif */}
         <FormField
@@ -485,12 +403,14 @@ export default function ProduitForm({ produitId }: ProduitFormProps) {
         ) : null}
 
         <div className="flex gap-3">
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting || mediaBusy}>
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                 Enregistrement...
               </>
+            ) : mediaBusy ? (
+              "Envoi des médias en cours…"
             ) : isEdit ? (
               "Mettre à jour"
             ) : (

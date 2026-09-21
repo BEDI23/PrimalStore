@@ -2,6 +2,8 @@
 
 import { use } from "react";
 import { useProduitAdmin } from "@/lib/api/hooks/use-produits";
+import { PackageOpen } from "lucide-react";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import ProduitForm from "@/components/admin/ProduitForm";
 
 export default function ModifierProduitPage({
@@ -15,9 +17,10 @@ export default function ModifierProduitPage({
 
   return (
     <div>
-      <h2 className="mb-6 font-display text-xl font-bold text-ink">
-        {produit?.nom ? `Modifier : ${produit.nom}` : "Modifier le produit"}
-      </h2>
+      <AdminPageHeader
+        title={produit?.nom ? `Modifier : ${produit.nom}` : "Modifier le produit"}
+        icon={PackageOpen}
+      />
       <ProduitForm produitId={id} />
     </div>
   );

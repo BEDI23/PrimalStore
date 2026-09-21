@@ -26,8 +26,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
-      <body className={`${inter.variable} ${sora.variable} font-sans`}>
+    // Les variables next/font doivent être sur <html> : --font-sans (défini sur
+    // :root dans globals.css) les référence, elles doivent donc exister à ce niveau.
+    <html lang="fr" className={`${inter.variable} ${sora.variable}`}>
+      <body className="font-sans">
         <Providers>
           {children}
         </Providers>

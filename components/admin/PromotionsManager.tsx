@@ -144,18 +144,18 @@ export default function PromotionsManager() {
 
       {/* Tableau des promotions */}
       {!produitId ? (
-        <p className="rounded-xl border border-gray-100 bg-white p-8 text-center text-graphite shadow-sm">
+        <p className="rounded-2xl border border-gray-100 bg-white p-8 text-center text-graphite shadow-sm">
           Sélectionnez un produit pour voir ses promotions.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-gray-100 bg-surface-subtle">
               <tr>
-                <th className="px-4 py-3 font-medium text-graphite">Prix promo</th>
-                <th className="px-4 py-3 font-medium text-graphite">Fin</th>
-                <th className="px-4 py-3 font-medium text-graphite">Statut</th>
-                <th className="px-4 py-3 font-medium text-graphite">Actions</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Prix promo</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Fin</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Statut</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -178,7 +178,8 @@ export default function PromotionsManager() {
                   return (
                     <tr
                       key={promo.id}
-                      className={i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}
+                      className={`animate-in fade-in-0 slide-in-from-left-2 fill-mode-both transition-colors duration-300 hover:bg-primary-50/70 ${i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}`}
+ style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }}
                     >
                       <td className="px-4 py-3 font-medium text-red-600">
                         {formatPrix(promo.prixPromo)}
@@ -188,7 +189,7 @@ export default function PromotionsManager() {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                             isActive
                               ? "bg-green-100 text-green-800"
                               : "bg-surface-subtle text-graphite"
@@ -201,13 +202,13 @@ export default function PromotionsManager() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => toggleActif(promo.id, promo.actif)}
-                            className="rounded-lg bg-surface-subtle px-3 py-1 text-xs font-medium text-graphite hover:bg-gray-200"
+                            className="rounded-lg transition-colors bg-surface-subtle px-3 py-1 text-xs font-medium text-graphite hover:bg-gray-200"
                           >
                             {promo.actif ? "Désactiver" : "Activer"}
                           </button>
                           <button
                             onClick={() => handleDelete(promo.id)}
-                            className="rounded-lg bg-red-50 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
+                            className="rounded-lg transition-colors bg-red-50 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-100"
                           >
                             Supprimer
                           </button>
@@ -226,7 +227,7 @@ export default function PromotionsManager() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="max-w-lg space-y-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm"
+          className="max-w-lg space-y-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
           noValidate
         >
           <h3 className="font-display font-semibold text-ink">Nouvelle promotion</h3>

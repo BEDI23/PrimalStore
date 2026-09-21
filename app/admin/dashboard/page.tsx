@@ -1,5 +1,6 @@
 "use client";
 
+import { PackageCheck, ShoppingBag, TrendingUp, Wallet } from "lucide-react";
 import StatCard from "@/components/admin/StatCard";
 import CommandesChart from "@/components/admin/CommandesChart";
 import StatutDonutChart from "@/components/admin/StatutDonutChart";
@@ -36,6 +37,13 @@ function getChartData(commandes: Commande[]) {
     });
   }
   return days;
+}
+
+function getGreeting(d: Date): string {
+  const h = d.getHours();
+  if (h < 12) return "Bonjour";
+  if (h < 18) return "Bon après-midi";
+  return "Bonsoir";
 }
 
 function getTopProduit(commandes: Commande[]): string {
@@ -99,24 +107,54 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h2 className="font-display mb-6 text-xl font-bold text-ink">Dashboard</h2>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 className="font-display text-2xl font-bold text-ink">
+            {getGreeting(now)}
+          </h2>
+          <p className="mt-1 text-sm text-graphite">
+            Voici un aperçu de l&apos;activité de votre boutique.
+          </p>
+        </div>
+        <p className="text-sm capitalize text-graphite-light">
+          {now.toLocaleDateString("fr-FR", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+          })}
+        </p>
+      </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Revenu réel (total)"
           value={formatPrix(revenuReel)}
           subtitle="Commandes livrées uniquement"
+          icon={Wallet}
+          tone="primary"
         />
         <StatCard
           title="Revenu réel (semaine)"
           value={formatPrix(revenuReelSemaine)}
+          icon={TrendingUp}
+          tone="green"
+          delay={80}
         />
         <StatCard
           title="Commandes livrées"
           value={livrees.length}
           subtitle="Cochées « Livré » dans l'admin"
+          icon={PackageCheck}
+          tone="blue"
+          delay={160}
         />
-        <StatCard title="Panier moyen" value={formatPrix(panierMoyen)} />
+        <StatCard
+          title="Panier moyen"
+          value={formatPrix(panierMoyen)}
+          icon={ShoppingBag}
+          tone="violet"
+          delay={240}
+        />
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -126,12 +164,15 @@ export default function DashboardPage() {
         <StatutDonutChart commandes={commandes} />
       </div>
 
-      <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <div className="grid grid-cols-2 divide-y divide-gray-100 sm:grid-cols-5 sm:divide-y-0 sm:divide-x">
           {secondaryStats.map((stat) => (
-            <div key={stat.label} className="px-3 py-2 first:pl-0 sm:py-0">
+            <div
+              key={stat.label}
+              className="rounded-lg px-3 py-2 transition-colors first:pl-0 hover:bg-primary-50/60 sm:py-1"
+            >
               <p className="text-xs text-graphite">{stat.label}</p>
-              <p className="mt-1 truncate text-lg font-semibold text-ink">
+              <p className="mt-1 truncate font-display text-lg font-semibold text-ink">
                 {stat.value}
               </p>
             </div>

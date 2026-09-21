@@ -28,8 +28,8 @@ export default function StatutDonutChart({
   const total = commandes.length;
 
   return (
-    <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-      <h3 className="mb-4 text-sm font-semibold text-ink">
+    <div className="animate-in fade-in-0 slide-in-from-bottom-3 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm duration-500 fill-mode-both [animation-delay:400ms]">
+      <h3 className="mb-4 font-display text-sm font-semibold text-ink">
         Répartition par statut
       </h3>
       {total === 0 ? (
@@ -46,7 +46,10 @@ export default function StatutDonutChart({
                 nameKey="statut"
                 innerRadius={55}
                 outerRadius={80}
-                paddingAngle={2}
+                paddingAngle={3}
+                cornerRadius={6}
+                stroke="none"
+                animationDuration={900}
               >
                 {data.map((entry) => (
                   <Cell

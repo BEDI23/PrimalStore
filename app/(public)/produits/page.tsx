@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
+import PageHeader from "@/components/client/PageHeader";
 import ProductGrid from "@/components/client/ProductGrid";
 import { getProduitsPublic, getCategoriesPublic } from "@/lib/api/public-data";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Catalogue — Plamastore",
+};
 
 export default async function ProduitsPage({
   searchParams,
@@ -15,14 +21,14 @@ export default async function ProduitsPage({
   ]);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="mb-2 text-2xl font-bold text-gray-900">Catalogue</h1>
-      <p className="mb-8 text-gray-500">
-        Naturel, ménager, high-tech et plus — livraison à Lomé
-      </p>
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+      <PageHeader
+        title="Catalogue"
+        description="Naturel, ménager, high-tech et plus — livraison à Lomé"
+      />
       <ProductGrid
         produits={produits}
-        categories={categories}
+        categories={categories.filter((c) => c.actif)}
         activeCategorieSlug={categorie}
       />
     </div>

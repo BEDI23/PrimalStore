@@ -1,13 +1,20 @@
 import Link from "next/link";
+import { SearchX } from "lucide-react";
+import EmptyState from "@/components/client/EmptyState";
 
 export default function NotFound() {
   return (
-    <div className="mx-auto max-w-lg px-4 py-24 text-center">
-      <h1 className="text-4xl font-bold text-gray-900">404</h1>
-      <p className="mt-4 text-gray-600">Page introuvable.</p>
-      <Link href="/" className="btn-primary mt-8 inline-flex">
-        Retour à l&apos;accueil
-      </Link>
+    <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <EmptyState
+        icon={SearchX}
+        title="Page introuvable"
+        description="La page que vous cherchez n'existe pas ou a été déplacée."
+        action={
+          <Link href="/" className="btn-primary">
+            Retour à l&apos;accueil
+          </Link>
+        }
+      />
     </div>
   );
 }

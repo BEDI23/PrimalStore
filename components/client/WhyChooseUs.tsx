@@ -1,69 +1,63 @@
-import type { IconType } from "react-icons";
-import { FcShop, FcShipped, FcMoneyTransfer } from "react-icons/fc";
+import type { LucideIcon } from "lucide-react";
+import { Store, Truck, Wallet } from "lucide-react";
 import { BOUTIQUE_NOM } from "@/lib/constants";
+import SectionHeading from "./SectionHeading";
 
 interface Feature {
-  Icon: IconType;
+  Icon: LucideIcon;
   title: string;
   description: string;
 }
 
 const features: Feature[] = [
   {
-    Icon: FcShop,
+    Icon: Store,
     title: "Catalogue varié",
     description:
       "Produits naturels, articles ménagers, projecteurs, high-tech et plus encore — trouvez par catégorie ce qu'il vous faut.",
   },
   {
-    Icon: FcShipped,
+    Icon: Truck,
     title: "Livraison rapide",
     description:
       "Livraison à domicile partout à Lomé. Nous vous contactons sous 30 minutes.",
   },
   {
-    Icon: FcMoneyTransfer,
+    Icon: Wallet,
     title: "Paiement à la livraison",
     description:
-      "Payez uniquement à la réception de votre commande. Zéro risque pour vous.",
+      "Vous ne payez qu'à la réception de votre commande, une fois le produit en main.",
   },
 ];
 
 export default function WhyChooseUs() {
   return (
-    <section className="bg-surface-subtle px-4 py-14 sm:py-20">
-      <div className="mx-auto max-w-6xl">
-        <div className="flex flex-col items-center">
-          <h2 className="font-display text-center text-2xl font-bold text-ink sm:text-3xl">
-            Pourquoi choisir {BOUTIQUE_NOM} ?
-          </h2>
-          <span className="brand-rule mt-4" />
-        </div>
+    <section className="border-y border-gray-100 bg-white">
+      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+        <SectionHeading
+          eyebrow="Nos engagements"
+          title={`Pourquoi choisir ${BOUTIQUE_NOM} ?`}
+          description="Contact direct avec notre équipe, paiement à la réception, livraison près de chez vous."
+        />
 
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
           {features.map((feature) => (
-            <div
+            <li
               key={feature.title}
-              className="group rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm transition duration-200 hover:-translate-y-1 hover:border-primary-100 hover:shadow-md"
+              className="rounded-2xl bg-surface-muted p-6 transition-colors duration-200 hover:bg-surface-subtle"
             >
-              <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-50 transition duration-200 group-hover:bg-primary-100">
-                <feature.Icon className="h-8 w-8" />
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-primary-dark shadow-soft">
+                <feature.Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
               </span>
-              <h3 className="mt-4 text-lg font-semibold text-ink">
+              <h3 className="mt-5 font-display text-lg font-semibold text-ink">
                 {feature.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-graphite">
+              <p className="mt-1.5 text-sm leading-relaxed text-graphite">
                 {feature.description}
               </p>
-            </div>
+            </li>
           ))}
-        </div>
-
-        <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-graphite">
-          Contact direct avec un vendeur, produits vérifiés, livraison suivie
-          près de chez vous. Votre satisfaction, notre priorité — à chaque
-          commande.
-        </p>
+        </ul>
       </div>
     </section>
   );

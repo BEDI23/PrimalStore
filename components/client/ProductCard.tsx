@@ -1,81 +1,94 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag } from "lucide-react";
+import { Play, ShoppingBag } from "lucide-react";
 import type { Produit } from "@/lib/api/types";
+import { hasRealImage } from "@/lib/images";
 import { formatPrix } from "@/lib/utils";
+import ImageFallback from "./ImageFallback";
+import SmartImage from "./SmartImage";
 
-function Badge({
-  label,
-  type,
-}: {
-  label: string;
-  type: "promo" | "nouveau" | "bestseller";
-}) {
-  const colors = {
-    promo: "bg-red-500 text-white",
-    nouveau: "bg-ink text-white",
-    bestseller: "bg-ink text-white",
-  };
+function Badge({ label, promo }: { label: string; promo?: boolean }) {
   return (
     <span
-      className={`absolute left-3 top-3 z-10 rounded-full px-2.5 py-0.5 text-xs font-semibold shadow-sm ${colors[type]}`}
+      className={`absolute left-2.5 top-2.5 z-10 rounded-md px-2 py-1 text-xs font-semibold ${
+        promo ? "bg-primary text-white" : "bg-ink/85 text-white"
+      }`}
     >
       {label}
     </span>
   );
 }
 
-export default function ProductCard({ produit }: { produit: Produit }) {
+export default function ProductCard({
+  produit,
+  categorie,
+}: {
+  produit: Produit;
+  /** Libellé de catégorie affiché au-dessus du nom (si connu de la page) */
+  categorie?: string;
+}) {
   const promo = produit.promotion;
-  const enPromo = !!promo;
   const prixFinal = promo ? promo.prixPromo : produit.prix;
+  const image = hasRealImage(produit.imageUrl) ? produit.imageUrl : null;
+  const href = `/produits/${produit.id}`;
 
   return (
-    <div className="group flex h-full flex-col overflow-hidden rounded-2xl bg-surface p-3 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
-      <Link href={`/produits/${produit.id}`} className="block">
-        <div className="relative aspect-square overflow-hidden rounded-xl bg-surface-subtle">
-          {enPromo && <Badge label="Promo" type="promo" />}
-          {!enPromo && produit.badge === "Nouveau" && (
-            <Badge label="Nouveau" type="nouveau" />
-          )}
-          {!enPromo && produit.badge === "Bestseller" && (
-            <Badge label="Bestseller" type="bestseller" />
-          )}
-          <Image
-            src={produit.imageUrl || "/images/placeholder-produit.svg"}
-            alt={produit.nom}
-            fill
-            className="object-cover transition duration-200 group-hover:scale-105"
-            sizes="(max-width: 640px) 50vw, 25vw"
-          />
-        </div>
+    <article className="group flex h-full min-w-0 flex-col">
+      <Link
+        href={href}
+        className="relative block aspect-[4/5] overflow-hidden rounded-xl bg-surface-subtle"
+        tabIndex={-1}
+        aria-hidden="true"
+      >
+        {promo && <Badge label="Promo" promo />}
+        {!promo && produit.badge === "Nouveau" && <Badge label="Nouveau" />}
+        {!promo && produit.badge === "Bestseller" && (
+          <Badge label="Bestseller" />
+        )}
+        <SmartImage
+          src={image}
+          alt=""
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          className="transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+          fallback={
+            <ImageFallback icon={ShoppingBag} tone="light" label={produit.nom} />
+          }
+        />
+        {produit.videoUrl && (
+          <span
+            title="Ce produit a une vidéo"
+            className="absolute bottom-2.5 right-2.5 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-ink/80 text-white"
+          >
+            <Play className="ml-0.5 h-3.5 w-3.5 fill-current" aria-hidden="true" />
+            <span className="sr-only">Vidéo disponible</span>
+          </span>
+        )}
       </Link>
 
       <div className="mt-3 flex flex-1 flex-col">
-        <Link href={`/produits/${produit.id}`}>
-          <h3 className="line-clamp-2 font-medium text-gray-900 transition hover:text-primary">
-            {produit.nom}
-          </h3>
-        </Link>
-
-        {produit.descriptionCourte && (
-          <p className="mt-1 line-clamp-2 text-sm text-gray-500">
-            {produit.descriptionCourte}
+        {categorie && (
+          <p className="truncate text-xs font-medium uppercase tracking-wide text-graphite-light">
+            {categorie}
           </p>
         )}
+        <h3 className="mt-0.5 line-clamp-2 break-words text-sm font-medium leading-snug text-ink sm:text-base">
+          <Link
+            href={href}
+            className="transition-colors hover:text-primary-dark"
+          >
+            {produit.nom}
+          </Link>
+        </h3>
 
-        <div className="mt-2 flex flex-wrap items-center gap-2 tabular-nums">
-          {enPromo ? (
-            <>
-              <span className="text-sm text-gray-400 line-through">
-                {formatPrix(produit.prix)}
-              </span>
-              <span className="text-lg font-bold text-red-600">
-                {formatPrix(prixFinal)}
-              </span>
-            </>
-          ) : (
-            <span className="text-lg font-bold text-primary">
+        <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 tabular-nums">
+          <span
+            className={`text-base font-semibold ${
+              promo ? "text-primary-dark" : "text-ink"
+            }`}
+          >
+            {formatPrix(prixFinal)}
+          </span>
+          {promo && (
+            <span className="text-sm text-graphite-light line-through">
               {formatPrix(produit.prix)}
             </span>
           )}
@@ -83,12 +96,12 @@ export default function ProductCard({ produit }: { produit: Produit }) {
 
         <Link
           href={`/commander/${produit.id}`}
-          className="btn-primary mt-4 flex w-full items-center justify-center gap-2 py-2.5 text-sm"
+          className="btn-outline mt-3 w-full"
         >
           <ShoppingBag className="h-4 w-4" aria-hidden="true" />
           Commander
         </Link>
       </div>
-    </div>
+    </article>
   );
 }

@@ -1,12 +1,15 @@
+import { FolderOpen } from "lucide-react";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import CategoriesManager from "@/components/admin/CategoriesManager";
 
 export default function AdminCategoriesPage() {
   return (
     <div>
-      <h2 className="mb-2 font-display text-xl font-bold text-ink">Catégories</h2>
-      <p className="mb-6 text-sm text-graphite">
-        Créez d&apos;abord une catégorie, puis ajoutez vos produits.
-      </p>
+      <AdminPageHeader
+        title="Catégories"
+        description="Créez d'abord une catégorie, puis ajoutez vos produits."
+        icon={FolderOpen}
+      />
       <CategoriesManager />
     </div>
   );
