@@ -6,12 +6,36 @@ import CategoriesManager from "./CategoriesManager";
 import { renderWithClient } from "./test-utils";
 
 // ── Fonctions mock hoistées ───────────────────────────────────────────────────
-const { mockAdminList, mockCreate, mockRemove, mockUpload } = vi.hoisted(() => ({
-  mockAdminList: vi.fn(),
-  mockCreate: vi.fn(),
-  mockRemove: vi.fn(),
-  mockUpload: vi.fn(),
-}));
+const { mockAdminList, mockCreate, mockUpdate, mockRemove, mockUpload } =
+  vi.hoisted(() => ({
+    mockAdminList: vi.fn(),
+    mockCreate: vi.fn(),
+    mockUpdate: vi.fn(),
+    mockRemove: vi.fn(),
+    mockUpload: vi.fn(),
+  }));
+
+// Catégorie existante utilisée pour les tests d'édition.
+const CATEGORIE_EXISTANTE = {
+  id: 7,
+  nom: "Bien-être",
+  slug: "bien-etre",
+  description: null,
+  theme: {
+    primary: "#ed4c20",
+    primaryHover: "#c53a14",
+    onPrimary: "#ffffff",
+    secondary: "#ffa500",
+    accent: "#00bfff",
+  },
+  iconName: "leaf",
+  coverImageUrl: "https://cdn.test/bien-etre.jpg",
+  isAdult: false,
+  position: 2,
+  actif: true,
+  createdAt: "2026-01-01T00:00:00.000Z",
+  updatedAt: "2026-01-01T00:00:00.000Z",
+};
 
 // ── next/image (stub minimal : <Image> → <img>) ───────────────────────────────
 // next/image utilise des API non disponibles en jsdom (IntersectionObserver,
@@ -37,6 +61,7 @@ vi.mock("@/lib/api/services", () => ({
   categoriesService: {
     adminList: mockAdminList,
     create: mockCreate,
+    update: mockUpdate,
     remove: mockRemove,
   },
   uploadsService: { upload: mockUpload },
@@ -48,6 +73,7 @@ vi.mock("@/lib/api/services", () => ({
 beforeEach(() => {
   mockAdminList.mockReset();
   mockCreate.mockReset();
+  mockUpdate.mockReset();
   mockUpload.mockReset();
   // État vide par défaut : la liste admin renvoie un tableau vide.
   mockAdminList.mockResolvedValue([]);
@@ -132,5 +158,78 @@ describe("CategoriesManager", () => {
         })
       )
     );
+  });
+
+  it("pré-remplit le formulaire avec la catégorie à modifier", async () => {
+    mockAdminList.mockResolvedValue([CATEGORIE_EXISTANTE]);
+    const user = userEvent.setup();
+    renderWithClient(<CategoriesManager />);
+
+    await user.click(
+      await screen.findByRole("button", { name: /Modifier Bien-être/i })
+    );
+
+    expect(
+      screen.getByRole("heading", { name: /Modifier la catégorie/i })
+    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Ex: Bien-être")).toHaveValue(
+      "Bien-être"
+    );
+    expect(screen.getByPlaceholderText("bien-etre")).toHaveValue("bien-etre");
+    expect(screen.getByAltText("Aperçu couverture")).toHaveAttribute(
+      "src",
+      "https://cdn.test/bien-etre.jpg"
+    );
+  });
+
+  it("met à jour la catégorie via update (et non create)", async () => {
+    mockAdminList.mockResolvedValue([CATEGORIE_EXISTANTE]);
+    mockUpdate.mockResolvedValue({ ...CATEGORIE_EXISTANTE, nom: "Détente" });
+    const user = userEvent.setup();
+    renderWithClient(<CategoriesManager />);
+
+    await user.click(
+      await screen.findByRole("button", { name: /Modifier Bien-être/i })
+    );
+
+    const nomInput = screen.getByPlaceholderText("Ex: Bien-être");
+    await user.clear(nomInput);
+    await user.type(nomInput, "Détente");
+
+    await user.click(
+      screen.getByRole("button", { name: /Enregistrer les modifications/i })
+    );
+
+    await waitFor(() =>
+      expect(mockUpdate).toHaveBeenCalledWith(
+        7,
+        expect.objectContaining({
+          nom: "Détente",
+          slug: "bien-etre",
+          iconName: "leaf",
+          coverImageUrl: "https://cdn.test/bien-etre.jpg",
+          position: 2,
+        })
+      )
+    );
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
+  it("réaffiche un formulaire vide en création après une édition annulée", async () => {
+    mockAdminList.mockResolvedValue([CATEGORIE_EXISTANTE]);
+    const user = userEvent.setup();
+    renderWithClient(<CategoriesManager />);
+
+    await user.click(
+      await screen.findByRole("button", { name: /Modifier Bien-être/i })
+    );
+    await user.keyboard("{Escape}");
+
+    await user.click(screen.getByRole("button", { name: /Nouvelle catégorie/i }));
+
+    expect(
+      screen.getByRole("heading", { name: /Nouvelle catégorie/i })
+    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Ex: Bien-être")).toHaveValue("");
   });
 });
