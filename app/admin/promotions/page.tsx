@@ -1,9 +1,15 @@
+import { Tag } from "lucide-react";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import PromotionsManager from "@/components/admin/PromotionsManager";
 
 export default function AdminPromotionsPage() {
   return (
     <div>
-      <h2 className="mb-6 font-display text-xl font-bold text-ink">Promotions</h2>
+      <AdminPageHeader
+        title="Promotions"
+        description="Gérez les prix promotionnels de vos produits."
+        icon={Tag}
+      />
       <PromotionsManager />
     </div>
   );

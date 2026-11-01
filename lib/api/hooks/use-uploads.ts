@@ -5,8 +5,17 @@ import type { UploadBucket } from "@/lib/api/types";
 
 export function useUpload() {
   return useMutation({
-    mutationFn: ({ bucket, file }: { bucket: UploadBucket; file: File }) =>
-      uploadsService.upload(bucket, file),
+    mutationFn: ({
+      bucket,
+      file,
+      onProgress,
+      signal,
+    }: {
+      bucket: UploadBucket;
+      file: File;
+      onProgress?: (percent: number) => void;
+      signal?: AbortSignal;
+    }) => uploadsService.upload(bucket, file, { onProgress, signal }),
   });
 }
 

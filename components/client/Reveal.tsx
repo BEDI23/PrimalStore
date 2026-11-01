@@ -42,7 +42,7 @@ export default function Reveal({
       ref={ref}
       style={visible ? { animationDelay: `${delay}ms` } : { opacity: 0 }}
       className={[
-        visible ? "animate-in fade-in-0 slide-in-from-bottom-4 duration-700 fill-mode-both" : "",
+        visible ? "animate-in fade-in-0 slide-in-from-bottom-2 duration-500 fill-mode-both" : "",
         className ?? "",
       ]
         .filter(Boolean)

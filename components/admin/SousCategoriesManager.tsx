@@ -10,9 +10,10 @@ if (typeof globalThis.ResizeObserver === "undefined") {
   };
 }
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import {
   sousCategorieSchema,
   type SousCategorieFormValues,
@@ -45,6 +46,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Valeurs par défaut
@@ -92,6 +99,7 @@ export default function SousCategoriesManager() {
 
   const { isSubmitting, errors } = form.formState;
   const nom = form.watch("nom");
+  const [open, setOpen] = useState(false);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
 
@@ -102,6 +110,7 @@ export default function SousCategoriesManager() {
         description: values.description || undefined,
       });
       form.reset(DEFAULT_VALUES);
+      setOpen(false);
     } catch (err) {
       form.setError("root", { message: getApiErrorMessage(err) });
     }
@@ -129,15 +138,32 @@ export default function SousCategoriesManager() {
 
   return (
     <div className="space-y-8">
-      {/* ── Formulaire ──────────────────────────────────────────────────── */}
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="max-w-2xl space-y-5 rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
-          noValidate
-        >
-          <h3 className="font-display font-semibold text-ink">Nouvelle sous-catégorie</h3>
+      {/* ── Déclencheur du modal ────────────────────────────────────────── */}
+      <div className="flex justify-end">
+        <Button type="button" onClick={() => setOpen(true)} className="gap-2">
+          <Plus className="h-4 w-4" aria-hidden />
+          Nouvelle sous-catégorie
+        </Button>
+      </div>
 
+      {/* ── Formulaire (modal) ──────────────────────────────────────────── */}
+      <Dialog
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next);
+          if (!next) form.reset(DEFAULT_VALUES);
+        }}
+      >
+        <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Nouvelle sous-catégorie</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-5"
+              noValidate
+            >
           {/* Catégorie parente */}
           <FormField
             control={form.control}
@@ -264,8 +290,11 @@ export default function SousCategoriesManager() {
                     min={0}
                     className="w-28"
                     {...field}
+                    value={Number.isNaN(field.value) ? "" : field.value}
                     onChange={(e) =>
-                      field.onChange(e.target.valueAsNumber || 0)
+                      field.onChange(
+                        e.target.value === "" ? NaN : e.target.valueAsNumber
+                      )
                     }
                   />
                 </FormControl>
@@ -291,11 +320,13 @@ export default function SousCategoriesManager() {
               "Créer la sous-catégorie"
             )}
           </Button>
-        </form>
-      </Form>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Table ───────────────────────────────────────────────────────── */}
-      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
         {isLoading ? (
           <div className="flex justify-center p-8">
             <LoadingSpinner />
@@ -305,16 +336,16 @@ export default function SousCategoriesManager() {
             <table className="w-full text-left text-sm">
               <thead className="border-b border-gray-100 bg-surface-subtle">
                 <tr>
-                  <th className="px-4 py-3 font-medium text-graphite">Nom</th>
-                  <th className="px-4 py-3 font-medium text-graphite">Slug</th>
-                  <th className="px-4 py-3 font-medium text-graphite">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Nom</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Slug</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">
                     Catégorie parente
                   </th>
-                  <th className="px-4 py-3 font-medium text-graphite">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">
                     Actif
                   </th>
-                  <th className="px-4 py-3 font-medium text-graphite">Pos.</th>
-                  <th className="px-4 py-3 font-medium text-graphite">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">Pos.</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-graphite">
                     Actions
                   </th>
                 </tr>
@@ -323,7 +354,8 @@ export default function SousCategoriesManager() {
                 {(sousCategories ?? []).map((sousCat, i) => (
                   <tr
                     key={sousCat.id}
-                    className={i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}
+                    className={`animate-in fade-in-0 slide-in-from-left-2 fill-mode-both transition-colors duration-300 hover:bg-primary-50/70 ${i % 2 === 0 ? "bg-white" : "bg-surface-subtle/50"}`}
+ style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }}
                   >
                     {/* Nom */}
                     <td className="px-4 py-3 font-medium">{sousCat.nom}</td>
@@ -338,7 +370,7 @@ export default function SousCategoriesManager() {
                     {/* Badge actif */}
                     <td className="px-4 py-3">
                       <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                           sousCat.actif
                             ? "bg-green-100 text-green-700"
                             : "bg-surface-subtle text-graphite"
@@ -355,7 +387,7 @@ export default function SousCategoriesManager() {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => supprimer(sousCat.id)}
-                        className="rounded-lg bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
+                        className="rounded-lg transition-colors bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
                       >
                         Supprimer
                       </button>

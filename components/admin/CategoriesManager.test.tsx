@@ -70,6 +70,9 @@ describe("CategoriesManager", () => {
     const user = userEvent.setup();
     renderWithClient(<CategoriesManager />);
 
+    // Ouvrir le modal.
+    await user.click(screen.getByRole("button", { name: /Nouvelle catégorie/i }));
+
     // Soumettre sans remplir le nom (valeur par défaut : "").
     await user.click(screen.getByRole("button", { name: /Créer la catégorie/i }));
 
@@ -89,7 +92,10 @@ describe("CategoriesManager", () => {
     });
 
     const user = userEvent.setup();
-    const { container } = renderWithClient(<CategoriesManager />);
+    renderWithClient(<CategoriesManager />);
+
+    // Ouvrir le modal.
+    await user.click(screen.getByRole("button", { name: /Nouvelle catégorie/i }));
 
     // 1. Nom (≥ 2 caractères, ≤ 64 caractères)
     await user.type(screen.getByPlaceholderText("Ex: Bien-être"), "Cosmétiques");
@@ -100,7 +106,9 @@ describe("CategoriesManager", () => {
 
     // 3. Image de couverture : simulation d'un upload de fichier
     //    Le composant lit e.target.files[0] et appelle upload.mutateAsync.
-    const fileInput = container.querySelector(
+    // Le formulaire est monté dans un portail (Dialog) : la requête se fait
+    // sur document.body plutôt que sur le container de rendu local.
+    const fileInput = document.body.querySelector(
       "input[type='file']"
     ) as HTMLInputElement;
     await user.upload(

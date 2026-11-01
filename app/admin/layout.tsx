@@ -4,8 +4,13 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useMe } from "@/lib/api/hooks";
 import { PageLoader } from "@/components/ui/LoadingSpinner";
-import Sidebar from "@/components/admin/Sidebar";
+import Sidebar, {
+  SIDEBAR_WIDTH,
+  SIDEBAR_WIDTH_COLLAPSED,
+} from "@/components/admin/Sidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
+
+const SIDEBAR_STORAGE_KEY = "primal-admin-sidebar-collapsed";
 
 export default function AdminLayout({
   children,
@@ -16,8 +21,30 @@ export default function AdminLayout({
   const router = useRouter();
   const { data, isLoading, isError } = useMe();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   const isLoginPage = pathname === "/admin/login";
+
+  // Restaurer l'état réduit/déplié de la sidebar (desktop)
+  useEffect(() => {
+    try {
+      setCollapsed(localStorage.getItem(SIDEBAR_STORAGE_KEY) === "1");
+    } catch {
+      // localStorage indisponible : on garde la valeur par défaut
+    }
+  }, []);
+
+  function toggleCollapsed() {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(SIDEBAR_STORAGE_KEY, next ? "1" : "0");
+      } catch {
+        // ignoré
+      }
+      return next;
+    });
+  }
 
   // Fermer le menu mobile à chaque changement de page
   useEffect(() => {
@@ -51,13 +78,33 @@ export default function AdminLayout({
   // Authentifié : shell admin complet
   return (
     <div className="min-h-screen bg-surface-muted">
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="md:ml-56">
+      <Sidebar
+        open={sidebarOpen}
+        collapsed={collapsed}
+        onClose={() => setSidebarOpen(false)}
+        onToggleCollapsed={toggleCollapsed}
+      />
+      <div
+        style={
+          {
+            "--sidebar-w": `${collapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH}px`,
+          } as React.CSSProperties
+        }
+        className="transition-[margin] duration-300 ease-[var(--ease-signature)] md:ml-[var(--sidebar-w)]"
+      >
         <AdminHeader
           email={data.email}
+          collapsed={collapsed}
           onMenuClick={() => setSidebarOpen(true)}
+          onToggleCollapsed={toggleCollapsed}
         />
-        <main className="p-4 sm:p-6">{children}</main>
+        {/* key=pathname : rejoue l'animation d'entrée à chaque changement de page */}
+        <main
+          key={pathname}
+          className="animate-in fade-in-0 slide-in-from-bottom-2 p-4 duration-500 sm:p-6"
+        >
+          {children}
+        </main>
       </div>
     </div>
   );

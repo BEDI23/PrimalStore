@@ -106,7 +106,24 @@ export function getApiError(error: unknown): NormalizedApiError {
   return { code: "UNKNOWN", message: "Une erreur inattendue est survenue." };
 }
 
-/** Message FR prêt à afficher (setError("root", ...)). */
+// L'API renvoie parfois le CODE comme message (ex. `new ConflictException('CONFLICT')`) :
+// on ne l'affiche jamais tel quel.
+const CODE_MESSAGES: Record<string, string> = {
+  CONFLICT: "Cette opération est en conflit avec des données existantes.",
+  NOT_FOUND: "Élément introuvable. Il a peut-être été supprimé.",
+  VALIDATION_FAILED: "Certaines informations sont invalides. Vérifiez le formulaire.",
+  UNAUTHENTICATED: "Votre session a expiré. Reconnectez-vous.",
+  FORBIDDEN: "Vous n'avez pas les droits pour effectuer cette action.",
+  RATE_LIMITED: "Trop de tentatives. Patientez un instant puis réessayez.",
+  INTERNAL_ERROR: "Une erreur est survenue de notre côté. Réessayez dans un instant.",
+  NETWORK_ERROR: "Connexion impossible. Vérifiez votre réseau puis réessayez.",
+};
+
+/** Message FR prêt à afficher (setError("root", ...)) — jamais un code ou une erreur technique brute. */
 export function getApiErrorMessage(error: unknown): string {
-  return getApiError(error).message;
+  const e = getApiError(error);
+  if (e.code === "NETWORK_ERROR") return CODE_MESSAGES.NETWORK_ERROR;
+  if (CODE_MESSAGES[e.message]) return CODE_MESSAGES[e.message];
+  if (e.status !== undefined && e.status >= 500) return CODE_MESSAGES.INTERNAL_ERROR;
+  return e.message;
 }

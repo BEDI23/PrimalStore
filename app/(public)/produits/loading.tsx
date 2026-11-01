@@ -7,8 +7,8 @@ export default function ProduitsLoading() {
       <Skeleton className="mb-2 h-8 w-48" />
       <Skeleton className="mb-8 h-4 w-72" />
       <div className="mb-6 flex gap-2">
-        <Skeleton className="h-10 w-16 rounded-full" />
-        <Skeleton className="h-10 w-28 rounded-full" />
+        <Skeleton className="h-10 w-16 rounded-lg" />
+        <Skeleton className="h-10 w-28 rounded-lg" />
       </div>
       <ProductGridSkeleton count={8} />
     </ClientPageShell>

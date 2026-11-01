@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { PackageSearch } from "lucide-react";
 import type { Produit, Categorie } from "@/lib/api/types";
 import ProductCard from "./ProductCard";
+import ProductCardGrid from "./ProductCardGrid";
+import EmptyState from "./EmptyState";
 
 export default function ProductGrid({
   produits,
@@ -19,69 +22,93 @@ export default function ProductGrid({
   const filtered =
     filtre === "promo" ? produits.filter((p) => p.promotion) : produits;
 
+  const activeCategorie = categories.find((c) => c.slug === activeCategorieSlug);
+
   return (
     <div>
-      <div className="mb-4 flex flex-wrap gap-2">
-        <button
-          onClick={() => setFiltre("tous")}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-            filtre === "tous"
-              ? "bg-primary text-white"
-              : "bg-white text-gray-600 hover:bg-gray-100"
-          }`}
-        >
-          Tous
-        </button>
-        <button
-          onClick={() => setFiltre("promo")}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-            filtre === "promo"
-              ? "bg-primary text-white"
-              : "bg-white text-gray-600 hover:bg-gray-100"
-          }`}
-        >
-          En promotion
-        </button>
+      <div className="mb-8 space-y-4">
+        {categories.length > 0 && (
+          <nav
+            aria-label="Filtrer par catégorie"
+            className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0"
+          >
+            <Link
+              href="/produits"
+              aria-current={!activeCategorieSlug ? "true" : undefined}
+              className={`chip shrink-0 ${!activeCategorieSlug ? "bg-ink! text-white! border-transparent!" : ""}`}
+            >
+              Toutes catégories
+            </Link>
+            {categories.map((cat) => {
+              const active = activeCategorieSlug === cat.slug;
+              return (
+                <Link
+                  key={cat.id}
+                  href={`/produits?categorie=${cat.slug}`}
+                  aria-current={active ? "true" : undefined}
+                  className={`chip shrink-0 ${active ? "bg-ink! text-white! border-transparent!" : ""}`}
+                >
+                  {cat.nom}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
+
+        <div className="flex items-center justify-between gap-3">
+          <div
+            role="group"
+            aria-label="Filtrer les produits"
+            className="inline-flex rounded-xl bg-surface-subtle p-1"
+          >
+            {(
+              [
+                ["tous", "Tous"],
+                ["promo", "En promotion"],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setFiltre(id)}
+                aria-pressed={filtre === id}
+                className={`min-h-9 rounded-lg px-4 text-sm font-medium transition-colors duration-200 ${
+                  filtre === id
+                    ? "bg-white text-ink shadow-sm"
+                    : "text-graphite hover:text-ink"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <p className="text-sm text-graphite" aria-live="polite">
+            {filtered.length} produit{filtered.length > 1 ? "s" : ""}
+          </p>
+        </div>
       </div>
 
-      {categories.length > 0 && (
-        <div className="mb-6 flex flex-wrap gap-2">
-          <Link
-            href="/produits"
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-              !activeCategorieSlug
-                ? "bg-gray-800 text-white"
-                : "bg-white text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            Toutes catégories
-          </Link>
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/produits?categorie=${cat.slug}`}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                activeCategorieSlug === cat.slug
-                  ? "bg-gray-800 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              {cat.nom}
-            </Link>
-          ))}
-        </div>
-      )}
-
       {filtered.length === 0 ? (
-        <p className="py-12 text-center text-gray-500">
-          Aucun produit trouvé.
-        </p>
+        <EmptyState
+          icon={PackageSearch}
+          title="Aucun produit trouvé"
+          description="Essayez un autre filtre ou parcourez toutes les catégories."
+          action={
+            <Link href="/categories" className="btn-secondary">
+              Voir les catégories
+            </Link>
+          }
+        />
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <ProductCardGrid>
           {filtered.map((produit) => (
-            <ProductCard key={produit.id} produit={produit} />
+            <ProductCard
+              key={produit.id}
+              produit={produit}
+              categorie={activeCategorie?.nom}
+            />
           ))}
-        </div>
+        </ProductCardGrid>
       )}
     </div>
   );

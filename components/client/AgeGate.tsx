@@ -27,7 +27,7 @@ export default function AgeGate({ isAdult, children }: { isAdult: boolean; child
     <Dialog open onOpenChange={(open) => { if (!open) router.push('/categories'); }}>
       <DialogContent className="max-w-sm rounded-2xl">
         <DialogHeader>
-          <ShieldAlert className="mx-auto mb-2 h-10 w-10 text-destructive" strokeWidth={1.75} aria-hidden />
+          <ShieldAlert className="mx-auto mb-2 h-10 w-10 text-primary-dark" strokeWidth={1.75} aria-hidden />
           <DialogTitle className="text-center font-display text-2xl">
             Avez-vous 18 ans ou plus&nbsp;?
           </DialogTitle>

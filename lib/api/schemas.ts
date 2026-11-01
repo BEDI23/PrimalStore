@@ -63,18 +63,6 @@ const urlRequise = (message: string) =>
     v.regex(HTTP_URL, "URL invalide (doit commencer par http:// ou https://).")
   );
 
-const urlOptionnelle = v.optional(
-  v.pipe(
-    v.string(),
-    v.trim(),
-    v.check(
-      (s) => s === "" || HTTP_URL.test(s),
-      "URL invalide (doit commencer par http:// ou https://)."
-    )
-  ),
-  ""
-);
-
 const couleurHex = (label: string) =>
   v.pipe(
     v.string(),
@@ -163,6 +151,32 @@ export type SousCategorieFormValues = v.InferInput<typeof sousCategorieSchema>;
 // Produit
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Galerie : l'ordre du tableau = ordre d'affichage ; ≥ 1 image (l'image principale
+// est la première). Limites miroir de l'API (produits/constants/media.ts).
+const mediaSchema = v.object({
+  type: v.picklist(["image", "video"]),
+  url: urlRequise("URL de média invalide."),
+  posterUrl: v.optional(v.nullable(v.string())),
+  mimeType: v.optional(v.string()),
+  size: v.optional(v.number()),
+});
+
+const mediasSchema = v.pipe(
+  v.array(mediaSchema),
+  v.check(
+    (list) => list.some((m) => m.type === "image"),
+    "Ajoutez au moins une image du produit."
+  ),
+  v.check(
+    (list) => list.filter((m) => m.type === "image").length <= 10,
+    "Un produit ne peut pas avoir plus de 10 images."
+  ),
+  v.check(
+    (list) => list.filter((m) => m.type === "video").length <= 3,
+    "Un produit ne peut pas avoir plus de 3 vidéos."
+  )
+);
+
 export const produitSchema = v.object({
   nom: nomBorne(2, 120, "Le nom doit faire entre 2 et 120 caractères."),
   slug: slugOptionnel,
@@ -175,8 +189,7 @@ export const produitSchema = v.object({
   ),
   descriptionLongue: champRequis("La description longue est obligatoire."),
   badge: champOptionnelMax(40, "Le badge ne peut dépasser 40 caractères."),
-  imageUrl: urlRequise("L'image du produit est obligatoire."),
-  videoUrl: urlOptionnelle,
+  medias: mediasSchema,
   sousCategorieId: entierMin(1, "La sous-catégorie est obligatoire."),
   actif: v.boolean(),
 });

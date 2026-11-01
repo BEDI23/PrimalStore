@@ -1,9 +1,15 @@
+import { ShoppingCart } from "lucide-react";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import CommandesTable from "@/components/admin/CommandesTable";
 
 export default function AdminCommandesPage() {
   return (
     <div>
-      <h2 className="mb-6 font-display text-xl font-bold text-ink">Commandes</h2>
+      <AdminPageHeader
+        title="Commandes"
+        description="Suivez et traitez les commandes de vos clients."
+        icon={ShoppingCart}
+      />
       <CommandesTable />
     </div>
   );

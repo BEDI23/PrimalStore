@@ -1,65 +1,66 @@
-import type { IconType } from "react-icons";
-import { FcSurvey, FcComments, FcPackage } from "react-icons/fc";
+import type { LucideIcon } from "lucide-react";
+import { MessageCircle, PackageCheck, Search } from "lucide-react";
+import SectionHeading from "./SectionHeading";
 
 interface Etape {
-  Icon: IconType;
-  numero: string;
+  Icon: LucideIcon;
   title: string;
   description: string;
 }
 
 const etapes: Etape[] = [
   {
-    Icon: FcSurvey,
-    numero: "1",
+    Icon: Search,
     title: "Choisissez",
-    description: "Votre produit dans le catalogue.",
+    description: "Le produit qui vous plaît dans le catalogue.",
   },
   {
-    Icon: FcComments,
-    numero: "2",
+    Icon: MessageCircle,
     title: "Commandez",
-    description: "En un clic, ça part directement par WhatsApp ou email.",
+    description: "Remplissez le formulaire : votre commande nous parvient aussitôt.",
   },
   {
-    Icon: FcPackage,
-    numero: "3",
+    Icon: PackageCheck,
     title: "Recevez",
-    description: "Votre commande après confirmation avec notre équipe.",
+    description: "Notre équipe vous écrit sur WhatsApp pour confirmer, puis vous payez à la réception.",
   },
 ];
 
 export default function CommentCaMarche() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-12">
-      <div className="flex flex-col items-center text-center">
-        <h2 className="font-display text-2xl font-bold text-ink sm:text-3xl">
-          Comment ça marche ?
-        </h2>
-        <span className="brand-rule mt-4" />
-        <p className="mt-4 max-w-xl text-graphite">
-          Pas de compte compliqué, pas de carte bancaire à sortir.
-        </p>
-      </div>
+    <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+      <SectionHeading
+        eyebrow="En 3 étapes"
+        title="Comment ça marche ?"
+        description="Pas de compte compliqué, pas de carte bancaire à sortir."
+      />
 
-      <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
-        {etapes.map((etape) => (
-          <div
-            key={etape.numero}
-            className="rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm"
+      <ol className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
+        {etapes.map((etape, index) => (
+          <li
+            key={etape.title}
+            className="rounded-2xl border border-gray-100 bg-white p-6"
           >
-            <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-50">
-              <etape.Icon className="h-8 w-8" />
-            </span>
-            <h3 className="mt-4 text-lg font-semibold text-ink">
-              {etape.numero}. {etape.title}
+            <div className="flex items-center justify-between">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-dark">
+                <etape.Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+              </span>
+              <span
+                className="font-display text-3xl font-bold text-gray-200"
+                aria-hidden="true"
+              >
+                0{index + 1}
+              </span>
+            </div>
+            <h3 className="mt-5 font-display text-lg font-semibold text-ink">
+              {etape.title}
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-graphite">
+            <p className="mt-1.5 text-sm leading-relaxed text-graphite">
               {etape.description}
             </p>
-          </div>
+          </li>
         ))}
-      </div>
+      </ol>
     </section>
   );
 }

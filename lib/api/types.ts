@@ -133,6 +133,36 @@ export interface Produit {
   updatedAt: string;
   /** Promo active embarquée par l'API publique. Optionnel : absent côté admin / si l'API ne l'envoie pas encore. */
   promotion?: PromotionPublique | null;
+  /**
+   * Galerie ordonnée (images + vidéos). Présente sur les DÉTAILS (public/admin),
+   * absente des listes. `imageUrl` = 1ère image, `videoUrl` = 1ère vidéo.
+   */
+  medias?: ProduitMedia[];
+  /** Chemin catégorie > sous-catégorie (détails, et listes via jointure). */
+  sousCategorie?: SousCategorie & { categorie?: Categorie };
+}
+
+export type MediaType = "image" | "video";
+
+export interface ProduitMedia {
+  id: number;
+  type: MediaType;
+  url: string;
+  /** Image de couverture d'une vidéo (null pour une image ou si non définie). */
+  posterUrl: string | null;
+  mimeType: string | null;
+  /** Octets ; null pour les médias historiques. */
+  size: number | null;
+  position: number;
+}
+
+/** Média envoyé à l'API : l'ordre du tableau = ordre d'affichage. */
+export interface ProduitMediaInput {
+  type: MediaType;
+  url: string;
+  posterUrl?: string | null;
+  mimeType?: string;
+  size?: number;
 }
 
 export interface Promotion {
@@ -171,6 +201,10 @@ export interface User {
 export interface UploadResult {
   path: string;
   publicUrl: string;
+  /** Détectés par l'API sur le contenu réel du fichier. */
+  type?: MediaType;
+  mimeType?: string;
+  size?: number;
 }
 
 export interface SitemapEntry {
@@ -239,9 +273,12 @@ export interface CreateProduitInput {
   prix: number;
   descriptionCourte: string;
   descriptionLongue: string;
-  badge?: string;
-  imageUrl: string;
-  videoUrl?: string;
+  badge?: string | null;
+  /** Contrat historique. Préférer `medias` (dérive imageUrl/videoUrl côté API). */
+  imageUrl?: string;
+  videoUrl?: string | null;
+  /** Galerie complète ordonnée (≥ 1 image). Remplace la galerie existante. */
+  medias?: ProduitMediaInput[];
   sousCategorieId: number;
   actif: boolean;
 }

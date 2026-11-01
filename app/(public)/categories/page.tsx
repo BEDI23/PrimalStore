@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
-import CategoryCard from "@/components/client/CategoryCard";
+import { FolderOpen } from "lucide-react";
+import CategoryGrid from "@/components/client/CategoryGrid";
+import EmptyState from "@/components/client/EmptyState";
+import PageHeader from "@/components/client/PageHeader";
 import { getCategoriesPublic } from "@/lib/api/public-data";
 
 export const dynamic = "force-dynamic";
@@ -14,24 +17,21 @@ export default async function CategoriesPage() {
     .sort((a, b) => a.position - b.position);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <h1 className="font-display text-2xl font-bold text-ink">
-        Nos catégories
-      </h1>
-      <p className="mt-1 text-graphite">
-        Découvrez notre sélection de produits par catégorie.
-      </p>
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+      <PageHeader
+        eyebrow="Catalogue"
+        title="Nos catégories"
+        description="Découvrez notre sélection de produits par catégorie."
+      />
 
       {categories.length === 0 ? (
-        <p className="mt-12 text-center text-gray-500">
-          Aucune catégorie disponible pour le moment.
-        </p>
+        <EmptyState
+          icon={FolderOpen}
+          title="Nous préparons actuellement nos catégories."
+          description="Revenez très bientôt."
+        />
       ) : (
-        <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {categories.map((categorie) => (
-            <CategoryCard key={categorie.id} categorie={categorie} />
-          ))}
-        </div>
+        <CategoryGrid categories={categories} />
       )}
     </div>
   );
