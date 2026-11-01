@@ -16,11 +16,12 @@ import { valibotResolver } from "@hookform/resolvers/valibot";
 import { Loader2, Plus } from "lucide-react";
 import Image from "next/image";
 import { categorieSchema, type CategorieFormValues } from "@/lib/api/schemas";
-import { ICON_NAMES } from "@/lib/api/types";
+import { ICON_NAMES, type Categorie } from "@/lib/api/types";
 import {
   useCategoriesAdmin,
   useCreateCategorie,
   useDeleteCategorie,
+  useUpdateCategorie,
 } from "@/lib/api/hooks/use-categories";
 import { useUpload } from "@/lib/api/hooks/use-uploads";
 import { getApiErrorMessage } from "@/lib/api/http";
@@ -90,6 +91,32 @@ function slugify(text: string): string {
     .replace(/-+/g, "-");
 }
 
+/**
+ * Convertit une catégorie renvoyée par l'API en valeurs de formulaire.
+ * Les champs sont recopiés explicitement pour ne jamais renvoyer au PATCH
+ * des propriétés serveur (id, createdAt, sousCategories…).
+ */
+function toFormValues(cat: Categorie): CategorieFormValues {
+  const theme = cat.theme ?? DEFAULT_VALUES.theme;
+  return {
+    nom: cat.nom,
+    slug: cat.slug,
+    description: cat.description ?? "",
+    theme: {
+      primary: theme.primary ?? DEFAULT_VALUES.theme.primary,
+      primaryHover: theme.primaryHover ?? DEFAULT_VALUES.theme.primaryHover,
+      onPrimary: theme.onPrimary ?? DEFAULT_VALUES.theme.onPrimary,
+      secondary: theme.secondary ?? DEFAULT_VALUES.theme.secondary,
+      accent: theme.accent ?? DEFAULT_VALUES.theme.accent,
+    },
+    iconName: cat.iconName,
+    coverImageUrl: cat.coverImageUrl,
+    isAdult: cat.isAdult,
+    position: cat.position,
+    actif: cat.actif,
+  };
+}
+
 const THEME_FIELDS = [
   { key: "primary" as const, label: "Primaire" },
   { key: "primaryHover" as const, label: "Primaire (survol)" },
@@ -104,6 +131,7 @@ const THEME_FIELDS = [
 
 export default function CategoriesManager() {
   const create = useCreateCategorie();
+  const update = useUpdateCategorie();
   const deleteCategorie = useDeleteCategorie();
   const upload = useUpload();
   const { data: categories, isLoading } = useCategoriesAdmin();
@@ -111,6 +139,9 @@ export default function CategoriesManager() {
   const coverRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [open, setOpen] = useState(false);
+  // Catégorie en cours d'édition ; null = mode création.
+  const [editing, setEditing] = useState<Categorie | null>(null);
+  const isEditing = editing !== null;
 
   const form = useForm<CategorieFormValues>({
     resolver: valibotResolver(categorieSchema),
@@ -139,15 +170,42 @@ export default function CategoriesManager() {
     }
   }
 
+  function closeDialog() {
+    setOpen(false);
+    setEditing(null);
+    form.reset(DEFAULT_VALUES);
+    if (coverRef.current) coverRef.current.value = "";
+  }
+
+  function openCreate() {
+    setEditing(null);
+    form.reset(DEFAULT_VALUES);
+    setOpen(true);
+  }
+
+  function openEdit(cat: Categorie) {
+    setEditing(cat);
+    form.reset(toFormValues(cat));
+    if (coverRef.current) coverRef.current.value = "";
+    setOpen(true);
+  }
+
   async function onSubmit(values: CategorieFormValues) {
     try {
-      await create.mutateAsync({
-        ...values,
-        description: values.description || undefined,
-      });
-      form.reset(DEFAULT_VALUES);
-      if (coverRef.current) coverRef.current.value = "";
-      setOpen(false);
+      if (editing) {
+        // En édition, la description vide est envoyée telle quelle pour
+        // permettre de l'effacer côté serveur.
+        await update.mutateAsync({
+          id: editing.id,
+          input: { ...values, description: values.description ?? "" },
+        });
+      } else {
+        await create.mutateAsync({
+          ...values,
+          description: values.description || undefined,
+        });
+      }
+      closeDialog();
     } catch (err) {
       form.setError("root", { message: getApiErrorMessage(err) });
     }
@@ -171,7 +229,7 @@ export default function CategoriesManager() {
       <div className="flex justify-end">
         <Button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={openCreate}
           className="gap-2"
         >
           <Plus className="h-4 w-4" aria-hidden />
@@ -183,16 +241,15 @@ export default function CategoriesManager() {
       <Dialog
         open={open}
         onOpenChange={(next) => {
-          setOpen(next);
-          if (!next) {
-            form.reset(DEFAULT_VALUES);
-            if (coverRef.current) coverRef.current.value = "";
-          }
+          if (next) setOpen(true);
+          else closeDialog();
         }}
       >
         <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Nouvelle catégorie</DialogTitle>
+            <DialogTitle>
+              {isEditing ? "Modifier la catégorie" : "Nouvelle catégorie"}
+            </DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form
@@ -440,8 +497,10 @@ export default function CategoriesManager() {
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                Création...
+                {isEditing ? "Enregistrement..." : "Création..."}
               </>
+            ) : isEditing ? (
+              "Enregistrer les modifications"
             ) : (
               "Créer la catégorie"
             )}
@@ -535,12 +594,24 @@ export default function CategoriesManager() {
                     <td className="px-4 py-3 text-graphite">{cat.position}</td>
                     {/* Actions */}
                     <td className="px-4 py-3">
-                      <button
-                        onClick={() => supprimer(cat.id)}
-                        className="rounded-lg transition-colors bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
-                      >
-                        Supprimer
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => openEdit(cat)}
+                          aria-label={`Modifier ${cat.nom}`}
+                          className="rounded-lg transition-colors bg-primary-50 px-3 py-1 text-xs font-medium text-primary-dark hover:bg-primary-100"
+                        >
+                          Modifier
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => supprimer(cat.id)}
+                          aria-label={`Supprimer ${cat.nom}`}
+                          className="rounded-lg transition-colors bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
+                        >
+                          Supprimer
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
