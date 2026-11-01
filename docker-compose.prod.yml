@@ -1,9 +1,13 @@
 services:
   web:
-    image: ${IMAGE:-ghcr.io/OWNER/plamastore:latest}
+    image: ${IMAGE:-primalstore-web:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: primal-web
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3002:3000"
+      - "${PORT:-3002}:3000"
    
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
