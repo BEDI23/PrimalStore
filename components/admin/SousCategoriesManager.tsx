@@ -18,10 +18,12 @@ import {
   sousCategorieSchema,
   type SousCategorieFormValues,
 } from "@/lib/api/schemas";
+import type { SousCategorie } from "@/lib/api/types";
 import {
   useSousCategoriesAdmin,
   useCreateSousCategorie,
   useDeleteSousCategorie,
+  useUpdateSousCategorie,
 } from "@/lib/api/hooks/use-sous-categories";
 import { useCategoriesAdmin } from "@/lib/api/hooks/use-categories";
 import { getApiErrorMessage } from "@/lib/api/http";
@@ -81,12 +83,29 @@ function slugify(text: string): string {
     .replace(/-+/g, "-");
 }
 
+/**
+ * Convertit une sous-catégorie renvoyée par l'API en valeurs de formulaire.
+ * Les champs sont recopiés explicitement pour ne jamais renvoyer au PATCH
+ * des propriétés serveur (id, createdAt, produits…).
+ */
+function toFormValues(sousCat: SousCategorie): SousCategorieFormValues {
+  return {
+    categorieId: sousCat.categorieId,
+    nom: sousCat.nom,
+    slug: sousCat.slug,
+    description: sousCat.description ?? "",
+    position: sousCat.position,
+    actif: sousCat.actif,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Composant
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function SousCategoriesManager() {
   const create = useCreateSousCategorie();
+  const update = useUpdateSousCategorie();
   const deleteSousCategorie = useDeleteSousCategorie();
   const { data: sousCategories, isLoading } = useSousCategoriesAdmin();
   const { data: categories } = useCategoriesAdmin();
@@ -100,17 +119,46 @@ export default function SousCategoriesManager() {
   const { isSubmitting, errors } = form.formState;
   const nom = form.watch("nom");
   const [open, setOpen] = useState(false);
+  // Sous-catégorie en cours d'édition ; null = mode création.
+  const [editing, setEditing] = useState<SousCategorie | null>(null);
+  const isEditing = editing !== null;
 
   // ── Handlers ───────────────────────────────────────────────────────────────
 
+  function closeDialog() {
+    setOpen(false);
+    setEditing(null);
+    form.reset(DEFAULT_VALUES);
+  }
+
+  function openCreate() {
+    setEditing(null);
+    form.reset(DEFAULT_VALUES);
+    setOpen(true);
+  }
+
+  function openEdit(sousCat: SousCategorie) {
+    setEditing(sousCat);
+    form.reset(toFormValues(sousCat));
+    setOpen(true);
+  }
+
   async function onSubmit(values: SousCategorieFormValues) {
     try {
-      await create.mutateAsync({
-        ...values,
-        description: values.description || undefined,
-      });
-      form.reset(DEFAULT_VALUES);
-      setOpen(false);
+      if (editing) {
+        // En édition, la description vide est envoyée telle quelle pour
+        // permettre de l'effacer côté serveur.
+        await update.mutateAsync({
+          id: editing.id,
+          input: { ...values, description: values.description ?? "" },
+        });
+      } else {
+        await create.mutateAsync({
+          ...values,
+          description: values.description || undefined,
+        });
+      }
+      closeDialog();
     } catch (err) {
       form.setError("root", { message: getApiErrorMessage(err) });
     }
@@ -140,7 +188,7 @@ export default function SousCategoriesManager() {
     <div className="space-y-8">
       {/* ── Déclencheur du modal ────────────────────────────────────────── */}
       <div className="flex justify-end">
-        <Button type="button" onClick={() => setOpen(true)} className="gap-2">
+        <Button type="button" onClick={openCreate} className="gap-2">
           <Plus className="h-4 w-4" aria-hidden />
           Nouvelle sous-catégorie
         </Button>
@@ -150,13 +198,15 @@ export default function SousCategoriesManager() {
       <Dialog
         open={open}
         onOpenChange={(next) => {
-          setOpen(next);
-          if (!next) form.reset(DEFAULT_VALUES);
+          if (next) setOpen(true);
+          else closeDialog();
         }}
       >
         <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Nouvelle sous-catégorie</DialogTitle>
+            <DialogTitle>
+              {isEditing ? "Modifier la sous-catégorie" : "Nouvelle sous-catégorie"}
+            </DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form
@@ -314,8 +364,10 @@ export default function SousCategoriesManager() {
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                Création...
+                {isEditing ? "Enregistrement..." : "Création..."}
               </>
+            ) : isEditing ? (
+              "Enregistrer les modifications"
             ) : (
               "Créer la sous-catégorie"
             )}
@@ -385,12 +437,24 @@ export default function SousCategoriesManager() {
                     </td>
                     {/* Actions */}
                     <td className="px-4 py-3">
-                      <button
-                        onClick={() => supprimer(sousCat.id)}
-                        className="rounded-lg transition-colors bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
-                      >
-                        Supprimer
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => openEdit(sousCat)}
+                          aria-label={`Modifier ${sousCat.nom}`}
+                          className="rounded-lg transition-colors bg-primary-50 px-3 py-1 text-xs font-medium text-primary-dark hover:bg-primary-100"
+                        >
+                          Modifier
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => supprimer(sousCat.id)}
+                          aria-label={`Supprimer ${sousCat.nom}`}
+                          className="rounded-lg transition-colors bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
+                        >
+                          Supprimer
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
