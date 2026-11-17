@@ -19,6 +19,8 @@ import type { Produit } from "@/lib/api/types";
 import { hasRealImage } from "@/lib/images";
 import { formatPrix, toTelephoneE164 } from "@/lib/utils";
 import { LAST_COMMANDE_STORAGE_KEY } from "@/lib/constants";
+import { getMetaServerContext, trackPurchase } from "@/lib/meta-pixel";
+import { InitiateCheckoutTracker } from "./MetaTrackers";
 import {
   Form,
   FormControl,
@@ -83,9 +85,16 @@ export default function CommandeForm({ produit }: { produit: Produit }) {
         clientTelephone: toTelephoneE164(values.clientTelephone),
         message: values.message?.trim() || undefined,
         prixAttendu: prixFinal,
+        ...getMetaServerContext(),
       },
       {
         onSuccess: (data) => {
+          trackPurchase({
+            commandeId: data.id,
+            produitId: data.produitId,
+            total: data.prixTotal,
+            quantite: data.quantite,
+          });
           try {
             sessionStorage.setItem(LAST_COMMANDE_STORAGE_KEY, JSON.stringify(data));
           } catch {
@@ -111,6 +120,7 @@ export default function CommandeForm({ produit }: { produit: Produit }) {
         noValidate
         aria-busy={isPending}
       >
+        <InitiateCheckoutTracker id={produit.id} prix={prixFinal} />
         <input
           type="hidden"
           {...form.register("produitId", { valueAsNumber: true })}

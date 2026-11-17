@@ -8,6 +8,7 @@ import {
 } from "@/lib/constants";
 import { getContactEmail } from "@/lib/contact";
 import { getWhatsAppUrl } from "@/lib/whatsapp";
+import ManageCookiesButton from "./ManageCookiesButton";
 
 const NAV_LINKS = [
   { href: "/categories", label: "Catégories" },
@@ -136,9 +137,17 @@ export default function Footer() {
           </div>
         </div>
 
-        <p className="mt-12 border-t border-white/10 pt-6 text-center text-xs text-white/40 sm:text-left">
-          © {new Date().getFullYear()} {BOUTIQUE_NOM}. Tous droits réservés.
-        </p>
+        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/40 sm:flex-row">
+          <p>
+            © {new Date().getFullYear()} {BOUTIQUE_NOM}. Tous droits réservés.
+          </p>
+          <p className="flex gap-4">
+            <Link href="/confidentialite" className="hover:text-white">
+              Confidentialité
+            </Link>
+            <ManageCookiesButton className="hover:text-white" />
+          </p>
+        </div>
       </div>
     </footer>
   );

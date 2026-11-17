@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/client/Breadcrumbs";
 import CommandeForm from "@/components/client/CommandeForm";
+import { TrackingBlock } from "@/components/client/MetaTrackers";
 import { getProduitPublic } from "@/lib/api/public-data";
 
 export const dynamic = "force-dynamic";
@@ -17,8 +18,11 @@ export default async function CommanderPage({
   const produit = await getProduitPublic(id);
   if (!produit) notFound();
 
+  const adulte = produit.sousCategorie?.categorie?.isAdult === true;
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+      {adulte && <TrackingBlock />}
       <Breadcrumbs
         items={[
           { label: "Accueil", href: "/" },

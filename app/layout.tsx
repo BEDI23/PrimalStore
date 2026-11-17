@@ -4,6 +4,8 @@ import "./globals.css";
 import { BOUTIQUE_NOM, BOUTIQUE_DESCRIPTION } from "@/lib/constants";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
+import MetaPixel from "@/components/client/MetaPixel";
+import CookieConsent from "@/components/client/CookieConsent";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const sora = Sora({
@@ -34,6 +36,8 @@ export default function RootLayout({
           {children}
         </Providers>
         <Toaster richColors position="top-right" />
+        <MetaPixel />
+        <CookieConsent />
       </body>
     </html>
   );

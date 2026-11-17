@@ -302,6 +302,11 @@ export interface CreateCommandeInput {
   quantite: number;
   message?: string;
   prixAttendu?: number;
+  /** Meta Conversions API — joints uniquement avec consentement. */
+  metaConsent?: boolean;
+  fbp?: string;
+  fbc?: string;
+  eventSourceUrl?: string;
 }
 
 export interface UpdateStatutCommandeInput {

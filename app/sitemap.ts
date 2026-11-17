@@ -8,7 +8,7 @@ import type { SitemapEntry } from "@/lib/api/types";
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const statics = ["", "/produits", "/categories", "/a-propos", "/contact"].map(
+  const statics = ["", "/produits", "/categories", "/a-propos", "/contact", "/confidentialite"].map(
     (p) => ({ url: `${SITE_URL}${p}` })
   );
 

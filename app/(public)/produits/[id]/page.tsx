@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Breadcrumbs from "@/components/client/Breadcrumbs";
 import ProductGallery from "@/components/client/ProductGallery";
+import { TrackingBlock, ViewContentTracker } from "@/components/client/MetaTrackers";
 import { getProduitPublic } from "@/lib/api/public-data";
 import { hasRealImage } from "@/lib/images";
 import { galleryOf } from "@/lib/media";
@@ -84,6 +85,11 @@ export default async function ProduitDetailPage({
 
   return (
     <>
+      {categorie?.isAdult ? (
+        <TrackingBlock />
+      ) : (
+        <ViewContentTracker id={p.id} nom={p.nom} prix={prixFinal} />
+      )}
       <div className="mx-auto max-w-7xl px-4 py-6 pb-28 sm:px-6 sm:py-8 md:pb-12">
         <Breadcrumbs
           items={[

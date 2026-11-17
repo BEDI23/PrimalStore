@@ -5,6 +5,7 @@ import ProductCard from "@/components/client/ProductCard";
 import ProductCardGrid from "@/components/client/ProductCardGrid";
 import FilterChips from "@/components/client/FilterChips";
 import AgeGate from "@/components/client/AgeGate";
+import { TrackingBlock } from "@/components/client/MetaTrackers";
 import Breadcrumbs from "@/components/client/Breadcrumbs";
 import EmptyState from "@/components/client/EmptyState";
 import ImageFallback from "@/components/client/ImageFallback";
@@ -63,6 +64,7 @@ export default async function CategorySlugPage({
 
   return (
     <div style={categoryThemeVars(categorie.theme)}>
+      {categorie.isAdult && <TrackingBlock />}
       {/* En-tête : image de couverture (ou repli de marque) */}
       <header className="relative isolate overflow-hidden bg-ink-soft">
         <div className="relative h-56 sm:h-72 lg:h-80">
